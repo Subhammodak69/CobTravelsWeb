@@ -1,0 +1,2 @@
+import { useTravel } from "../../contexts/TravelContext";
+export default function Header() { const { returnToJourneys, isMember, toggleMember } = useTravel(); return <nav className="nav"><button className="brand" onClick={returnToJourneys}><i>c</i><span>coochbehar<br/><b>travel</b></span></button><div className="navlinks"><a href="#journeys">Journeys</a><a href="#story">Our story</a><button className="login" onClick={toggleMember}>{isMember ? "Member account" : "Log in"}</button></div></nav>; }

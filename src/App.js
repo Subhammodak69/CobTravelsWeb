@@ -1,25 +1,17 @@
-import logo from './logo.svg';
-import './App.css';
+import { TravelProvider } from "./contexts/TravelContext";
+import Header from "./components/layout/Header";
+import Footer from "./components/layout/Footer";
+import HomePage from "./pages/HomePage";
+import PackageDetailsPage from "./pages/PackageDetailsPage";
+import { useTravel } from "./contexts/TravelContext";
+import "./App.css";
+import "./animations.css";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+function TravelApp() {
+  const { selectedPackageId } = useTravel();
+  return <main><Header />{selectedPackageId ? <PackageDetailsPage /> : <HomePage />}<Footer /></main>;
 }
 
-export default App;
+export default function App() {
+  return <TravelProvider><TravelApp /></TravelProvider>;
+}
