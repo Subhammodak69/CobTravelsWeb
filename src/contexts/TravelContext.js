@@ -8,16 +8,15 @@ export function TravelProvider({ children }) {
   const [selectedPackageId, setSelectedPackageId] = useState(null);
   const [isMember, setIsMember] = useState(false);
 
-  const goHome = () => { setSelectedPackageId(null); navigate("/home"); };
+  const goHome = () => { setSelectedPackageId(null); navigate("/"); };
   const goProfile = () => navigate("/profile");
-  const goSplash = () => navigate("/");
 
   const selectPackage = (id) => { setSelectedPackageId(id); navigate(`/journey/${id}`); };
-  const returnToJourneys = () => { setSelectedPackageId(null); navigate("/home"); };
+  const returnToJourneys = () => { setSelectedPackageId(null); navigate("/"); };
 
   return (
     <TravelContext.Provider value={{
-      goHome, goProfile, goSplash,
+      goHome, goProfile,
       selectedPackageId, setSelectedPackageId, selectPackage, returnToJourneys,
       isMember, toggleMember: () => setIsMember((v) => !v),
     }}>

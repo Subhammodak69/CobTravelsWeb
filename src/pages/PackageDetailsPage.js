@@ -79,7 +79,7 @@ export default function PackageDetailsPage() {
       <section className="departures reveal" data-reveal>
         <div>
           <p className="eyebrow">Upcoming departures</p>
-          <h2>Pick your<br /><em>perfect moment.</em></h2>
+          <h2>Pick your<br /><em className="text-lime-500">perfect moment.</em></h2>
         </div>
         <div className="dateContent">
           <p><b>{pack.season}</b><br />Select a preferred departure date and our team will confirm availability within one working day.</p>
