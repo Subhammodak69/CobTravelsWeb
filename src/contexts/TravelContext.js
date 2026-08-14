@@ -1,13 +1,29 @@
 import { createContext, useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const TravelContext = createContext(null);
 
 export function TravelProvider({ children }) {
+  const navigate = useNavigate();
   const [selectedPackageId, setSelectedPackageId] = useState(null);
   const [isMember, setIsMember] = useState(false);
-  const selectPackage = (id) => setSelectedPackageId(id);
-  const returnToJourneys = () => setSelectedPackageId(null);
-  return <TravelContext.Provider value={{ selectedPackageId, selectPackage, returnToJourneys, isMember, toggleMember: () => setIsMember((value) => !value) }}>{children}</TravelContext.Provider>;
+
+  const goHome = () => { setSelectedPackageId(null); navigate("/home"); };
+  const goProfile = () => navigate("/profile");
+  const goSplash = () => navigate("/");
+
+  const selectPackage = (id) => { setSelectedPackageId(id); navigate(`/journey/${id}`); };
+  const returnToJourneys = () => { setSelectedPackageId(null); navigate("/home"); };
+
+  return (
+    <TravelContext.Provider value={{
+      goHome, goProfile, goSplash,
+      selectedPackageId, setSelectedPackageId, selectPackage, returnToJourneys,
+      isMember, toggleMember: () => setIsMember((v) => !v),
+    }}>
+      {children}
+    </TravelContext.Provider>
+  );
 }
 
 export function useTravel() {
