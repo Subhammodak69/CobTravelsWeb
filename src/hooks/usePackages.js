@@ -1,6 +1,3 @@
-import { destinations, reviews, posts } from "../data/packages";
-
-export default function usePackages() {
-  const getPackageById = (id) => destinations.find((item) => item.id === id);
-  return { packages: destinations, reviews, posts, getPackageById };
-}
+import {useCallback,useEffect,useState} from "react";
+import {fetchPackages,fetchPackage} from "../api";
+export default function usePackages(id,filters={}){const[packages,setPackages]=useState([]),[pagination,setPagination]=useState({total:0,page:1,pages:1}),[pack,setPack]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState("");const load=useCallback(async()=>{setLoading(true);try{if(id)setPack(await fetchPackage(id));else{const result=await fetchPackages(filters);setPackages(result.items);setPagination(result)}setError("")}catch(e){setError(e.message)}finally{setLoading(false)}},[id,filters]);useEffect(()=>{load()},[load]);return{packages,pack,pagination,loading,error,reload:load};}

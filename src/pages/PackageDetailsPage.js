@@ -1,113 +1,65 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useTravel } from "../contexts/TravelContext";
 import usePackages from "../hooks/usePackages";
-import useScrollReveal from "../hooks/useScrollReveal";
+import { fetchVariant } from "../api";
 import PackageGallery from "../components/PackageGallery";
 import Reviews from "../components/Reviews";
-import { image } from "../data/packages";
 
 export default function PackageDetailsPage() {
   const { id } = useParams();
-  const { returnToJourneys, isMember } = useTravel();
-  const { getPackageById, reviews, posts } = usePackages();
-  // Use URL param directly — works on hard refresh too
-  const pack = getPackageById(id);
-  const revealRef = useScrollReveal();
+  const { goHome } = useTravel();
+  const { pack, loading, error } = usePackages(id);
+  const [selected, setSelected] = useState(0);
+  const [variant, setVariant] = useState(null);
+  const [showBannerVideo, setShowBannerVideo] = useState(false);
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [id]);
+  useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, [id]);
+  useEffect(() => { if (pack) { setVariant(pack.seasons?.[0] || null); setShowBannerVideo(false); } }, [pack]);
 
-  if (!pack) return null;
+  if (loading) return <div className="journeySection"><h2>Loading journey...</h2></div>;
+  if (error || !pack) return <div className="journeySection"><h2>Journey unavailable</h2><p>{error}</p><button className="reserve" onClick={goHome}>Back to journeys</button></div>;
+
+  const active = variant || pack.seasons?.[selected] || {};
+  const route = (active.route || pack.route || []).map((place) => place.city || place.place || place).join(" · ");
+  const choose = async (index) => {
+    setSelected(index);
+    setShowBannerVideo(false);
+    const option = pack.seasons[index];
+    if (index && option.slug) {
+      try { setVariant(await fetchVariant(pack.slug, option.slug)); }
+      catch { setVariant(option); }
+    } else setVariant(option);
+  };
 
   return (
-    <div ref={revealRef}>
-      <section className="detailHero" style={{ backgroundImage: `linear-gradient(90deg, rgba(12,20,19,.78), rgba(12,20,19,.08)), url(${pack.image})` }}>
-        <button className="back" onClick={returnToJourneys}>← &nbsp; All journeys</button>
-        <div className="detailTitle">
-          <p>{pack.code} · {pack.duration}</p>
-          <h1>{pack.title}</h1>
-          <div>
-            <span><span className="star">★</span> 4.8 <small>(128 traveller reviews)</small></span>
-            <span>From <b>₹{pack.price.toLocaleString("en-IN")}</b> / person</span>
-          </div>
-        </div>
-        <div className="scrollTag">SCROLL TO EXPLORE <i>↓</i></div>
+    <div>
+      <section className="detailHero" style={{ backgroundImage: showBannerVideo ? "none" : `linear-gradient(90deg,rgba(23,32,51,.82),rgba(23,32,51,.12)),url(${active.cover_image || pack.image})` }}>
+        {showBannerVideo && active.banner?.video && <video className="detailHeroVideo" src={active.banner.video} autoPlay muted loop playsInline controls />}
+        <button className="back" onClick={goHome}>← &nbsp; All journeys</button>
+        <div className="detailTitle"><p>{pack.tour_code} · {active.duration}</p><h1>{pack.title}</h1><div><span>{pack.destination} · {pack.type}</span><span>From <b>₹{Number(active.price || pack.price).toLocaleString("en-IN")}</b></span></div>{active.banner?.video && <button className="bannerToggle" onClick={() => setShowBannerVideo((value) => !value)}>{showBannerVideo ? "Show cover image" : "Watch journey film"} <span>{showBannerVideo ? "↗" : "▶"}</span></button>}</div>
       </section>
 
       <section className="facts">
-        <div><label>Journey route</label><p>{pack.route.join(" · ")}</p></div>
-        <div><label>Style</label><p>3 Star Deluxe</p></div>
-        <div><label>Best for</label><p>Couples · Families · Friends</p></div>
-        <button className="reserve">{isMember ? "Reserve your place" : "Plan this journey"} <span>→</span></button>
+        <div><label>Journey route</label><p>{route || "—"}</p></div>
+        <div><label>Availability</label><p>{active.availability || "—"}</p></div>
+        <div><label>Season</label><p>{active.season_name || "—"}</p></div>
+        <button className="reserve">Plan this journey <span>→</span></button>
       </section>
 
-      <section className="overview reveal" data-reveal>
-        <div className="overviewIntro">
-          <p className="eyebrow">The experience</p>
-          <h2>Follow the feeling,<br /><em>not the crowd.</em></h2>
-          <p>Every day on this itinerary balances iconic moments with time to breathe. This is travel with the details taken care of.</p>
-          <div className="highlights">
-            {pack.highlights.map((highlight) => <span key={highlight}>✦ &nbsp;{highlight}</span>)}
-          </div>
-        </div>
-        <div className="videoBlock">
-          <video poster={pack.image} controls preload="metadata">
-            <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4" />
-          </video>
-          <div className="videoCaption">A glimpse of the journey <span>01:00</span></div>
-        </div>
-      </section>
+      {pack.seasons?.length > 1 && <section className="journeySection"><p className="eyebrow">Choose your package</p><div className="packageGrid">{pack.seasons.map((option, index) => <button key={option.id || option.slug} className={`packageCard ${index === selected ? "selectedPackage" : ""}`} onClick={() => choose(index)}><div className="cardBody"><p>{option.name}</p><h3>{option.season_name}</h3><div className="cardBottom"><span>{option.price ? `₹${Number(option.price).toLocaleString("en-IN")}` : "View details"}</span><span>{option.availability || "—"}</span></div></div></button>)}</div></section>}
 
-      <div className="reveal" data-reveal><PackageGallery pack={pack} /></div>
+      <section className="overview"><div className="overviewIntro"><p className="eyebrow">The experience</p><h2>{pack.title}<br /><em>beautifully.</em></h2><p>{pack.description}</p><div className="highlights">{(active.highlights || []).map((highlight) => <span key={highlight.id || highlight.text}>✦ &nbsp;{highlight.text || highlight}</span>)}</div></div>{active.banner?.video && <div className="videoBlock"><video poster={active.cover_image} controls src={active.banner.video} /></div>}</section>
 
-      <section className="itinerary reveal" data-reveal>
-        <p className="eyebrow">A day-by-day rhythm</p>
-        <h2>The route unfolds<br /><em>beautifully.</em></h2>
-        <div className="days">
-          {pack.itinerary.map(([title, description], index) => (
-            <article key={title}>
-              <span>Day {String(index + 1).padStart(2, "0")}</span>
-              <div><h3>{title}</h3><p>{description}</p></div>
-              <b>+</b>
-            </article>
-          ))}
-        </div>
-      </section>
+      <PackageGallery pack={{ ...pack, gallery: active.gallery || pack.gallery || [] }} />
 
-      <section className="departures reveal" data-reveal>
-        <div>
-          <p className="eyebrow">Upcoming departures</p>
-          <h2>Pick your<br /><em className="text-lime-500">perfect moment.</em></h2>
-        </div>
-        <div className="dateContent">
-          <p><b>{pack.season}</b><br />Select a preferred departure date and our team will confirm availability within one working day.</p>
-          <div>{pack.dates.map((date, index) => <button key={date} className={index === 0 ? "date activeDate" : "date"}>{date}</button>)}</div>
-          <button className="reserve dark">Check availability <span>→</span></button>
-        </div>
-      </section>
+      <section className="itinerary"><p className="eyebrow">A day-by-day rhythm</p><h2>The route unfolds<br /><em>beautifully.</em></h2><div className="days">{(active.itinerary || []).map((day) => <article key={day.id || day.day}><span>Day {day.day}</span><div><h3>{day.title}</h3><p>{day.description}</p></div><b>+</b></article>)}</div></section>
 
-      <div className="reveal" data-reveal><Reviews reviews={reviews} /></div>
+      <section className="inclusionSection"><div className="inclusionColumn"><p className="eyebrow">Included in your journey</p><h2>Everything<br /><em>thoughtfully covered.</em></h2><ul>{(active.inclusions || []).map((item) => <li key={item}>✓ {item}</li>)}</ul></div><div className="inclusionColumn exclusionColumn"><p className="eyebrow">A few extras</p><h2>Good to<br /><em>know.</em></h2><ul>{(active.exclusions || []).map((item) => <li key={item}>＋ {item}</li>)}</ul></div></section>
 
-      <section className="journal reveal" data-reveal>
-        <div className="sectionHead">
-          <div>
-            <p className="eyebrow">From the journal</p>
-            <h2>Travel notes &amp;<br /><em>good advice.</em></h2>
-          </div>
-        </div>
-        <div className="postGrid">
-          {posts.map((post, index) => (
-            <article key={post}>
-              <img src={image(pack.gallery[(index + 1) % pack.gallery.length], 700, 440)} alt="" />
-              <p>TRAVEL NOTES · 4 MIN READ</p>
-              <h3>{post}</h3>
-              <button>Read story →</button>
-            </article>
-          ))}
-        </div>
-      </section>
+      <section className="departures"><div><p className="eyebrow">Upcoming departures</p><h2>Pick your<br /><em>perfect moment.</em></h2></div><div className="dateContent"><p><b>{active.season_name}</b></p>{(active.dates || []).map((date) => <button className="date" key={date.id || date.date}>{date.date}</button>)}</div></section>
+
+      <Reviews reviews={pack.reviews || []} />
     </div>
   );
 }

@@ -17,7 +17,7 @@ const SETTINGS = [
 ];
 
 export default function ProfilePage() {
-  const { isMember, toggleMember, goHome, selectPackage } = useTravel();
+  const { isMember, toggleMember, goHome, user, selectPackage } = useTravel();
   const { packages } = usePackages();
   const revealRef = useScrollReveal();
   const [toggles, setToggles] = useState({ notif: true, newsletter: true, sms: false });
@@ -33,10 +33,10 @@ export default function ProfilePage() {
             <span>{isMember ? "S" : "?"}</span>
           </div>
           <div className="profileInfo">
-            <h1>{isMember ? "Subham Modak" : "Guest Traveller"}</h1>
-            <p>{isMember ? "subham@coochbehartravel.com · Member" : "Sign in to unlock your journey history"}</p>
+            <h1>{isMember ? (user?.name || "Member Traveller") : "Guest Traveller"}</h1>
+            <p>{isMember ? ((user?.email || user?.mobile || "") + " · Member") : "Sign in to unlock your journey history"}</p>
             {!isMember && (
-              <button className="profileSignIn" id="profile-signin-btn" onClick={toggleMember}>
+              <button className="profileSignIn" id="profile-signin-btn" onClick={() => window.location.assign("/login")}>
                 Sign in / Register →
               </button>
             )}
@@ -81,7 +81,7 @@ export default function ProfilePage() {
           <div className="profileLocked">
             <span className="profileLockedIcon">🔒</span>
             <p>Sign in to see your trip history and saved itineraries.</p>
-            <button className="reserve" id="profile-locked-signin-btn" onClick={toggleMember}>
+            <button className="reserve" id="profile-locked-signin-btn" onClick={() => window.location.assign("/login")}>
               Sign in <span>→</span>
             </button>
           </div>
