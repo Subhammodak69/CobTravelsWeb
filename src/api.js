@@ -5,18 +5,119 @@ export function getAccessToken(){ return storage.getItem(ACCESS); }
 export function clearTokens(){ storage.removeItem(ACCESS); storage.removeItem(REFRESH); }
 export async function visitorId(){ let id=storage.getItem(VISITOR); if(!id){id=`${Date.now()}-${Math.random().toString(36).slice(2)}`;storage.setItem(VISITOR,id)} return id; }
 async function authVisitorId(){ let id=storage.getItem(VISITOR_SERVER_ID); if(!id) id=await identifyVisitor(); return id||undefined; }
-async function request(path, options={}, auth=false){ const token=auth?getAccessToken():null; const res=await fetch(BASE_API+path,{...options,headers:{"Accept":"application/json","Content-Type":"application/json",...(token?{Authorization:`Bearer ${token}`}:{}),...(options.headers||{})}}); const body=await res.json().catch(()=>({})); if(!res.ok) throw new Error(body.message||`Request failed (${res.status})`); return body; }
-function tokens(x){return {access:x?.access_token||x?.accessToken||x?.token||x?.data?.access_token,refresh:x?.refresh_token||x?.refreshToken||x?.data?.refresh_token};}
-function saveTokens(x){const t=tokens(x);if(t.access)storage.setItem(ACCESS,t.access);if(t.refresh)storage.setItem(REFRESH,t.refresh);return t;}
-export async function requestOtp(identifier){return request("/api/v1/auth/otp/request",{method:"POST",body:JSON.stringify({identifier,purpose:"LOGIN",visitor_id:await authVisitorId()})});}
-export async function verifyOtp(identifier,otp,name=""){const r=await request("/api/v1/auth/otp/verify",{method:"POST",body:JSON.stringify({identifier,otp,name,purpose:"LOGIN",visitor_id:await authVisitorId()})});saveTokens(r);return r;}
-export async function loginGoogle(id_token){const r=await request("/api/v1/auth/google",{method:"POST",body:JSON.stringify({id_token,visitor_id:await authVisitorId()})});saveTokens(r);return r;}
-export async function refreshSession(){const refresh=storage.getItem(REFRESH);if(!refresh)return false;try{const r=await request("/api/v1/sessions/refresh",{method:"POST",body:JSON.stringify({refresh_token:refresh})});return Boolean(saveTokens(r).access)}catch{return false;}}
-export async function logout(all=false){try{await request(`/api/v1/sessions/${all?"logout-all":"logout"}`,{method:"POST"},true)}finally{clearTokens();}}
+function tokens(x){
+  return {
+    access: x?.access_token || x?.accessToken || x?.token || x?.data?.access_token || x?.data?.token || x?.data?.accessToken,
+    refresh: x?.refresh_token || x?.refreshToken || x?.data?.refresh_token || x?.data?.refreshToken
+  };
+}
+export function saveTokens(x){
+  const t = tokens(x);
+  if (t.access) storage.setItem(ACCESS, t.access);
+  if (t.refresh) storage.setItem(REFRESH, t.refresh);
+  return t;
+}
+
+let refreshPromise = null;
+
+async function request(path, options = {}, auth = false) {
+  let token = auth ? getAccessToken() : null;
+  let res = await fetch(BASE_API + path, {
+    ...options,
+    headers: {
+      "Accept": "application/json",
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options.headers || {})
+    }
+  });
+
+  // If 401 unauthorized on authenticated request, try refreshing session once
+  if (auth && res.status === 401 && !path.includes("/sessions/refresh") && !path.includes("/auth/otp")) {
+    if (!refreshPromise) {
+      refreshPromise = refreshSession().finally(() => { refreshPromise = null; });
+    }
+    const refreshed = await refreshPromise;
+    if (refreshed) {
+      token = getAccessToken();
+      res = await fetch(BASE_API + path, {
+        ...options,
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...(options.headers || {})
+        }
+      });
+    }
+  }
+
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(body.message || `Request failed (${res.status})`);
+  return body;
+}
+
+export async function requestOtp(identifier){
+  return request("/api/v1/auth/otp/request", {
+    method: "POST",
+    body: JSON.stringify({ identifier, purpose: "LOGIN", visitor_id: await authVisitorId() })
+  });
+}
+
+export async function verifyOtp(identifier, otp, name = ""){
+  const r = await request("/api/v1/auth/otp/verify", {
+    method: "POST",
+    body: JSON.stringify({ identifier, otp, name, purpose: "LOGIN", visitor_id: await authVisitorId() })
+  });
+  saveTokens(r);
+  return r;
+}
+
+export async function loginGoogle(id_token){
+  const r = await request("/api/v1/auth/google", {
+    method: "POST",
+    body: JSON.stringify({ id_token, visitor_id: await authVisitorId() })
+  });
+  saveTokens(r);
+  return r;
+}
+
+export async function refreshSession(){
+  const refresh = storage.getItem(REFRESH);
+  if (!refresh) return false;
+  try {
+    const r = await request("/api/v1/sessions/refresh", {
+      method: "POST",
+      body: JSON.stringify({ refresh_token: refresh })
+    });
+    return Boolean(saveTokens(r).access);
+  } catch {
+    clearTokens();
+    return false;
+  }
+}
+
+export async function logout(all = false){
+  try {
+    await request(`/api/v1/sessions/${all ? "logout-all" : "logout"}`, { method: "POST" }, true);
+  } finally {
+    clearTokens();
+  }
+}
 export function fetchMe(){return request("/api/v1/auth/me",{},true);}
 export function updateMe(data){return request("/api/v1/auth/me",{method:"PATCH",body:JSON.stringify(data)},true);}
 export function fetchSessions(){return request("/api/v1/sessions/",{},true);}
 export function deleteSession(id){return request(`/api/v1/sessions/${encodeURIComponent(id)}`,{method:"DELETE"},true);}
+export async function uploadFile(file){
+  if(!file) throw new Error("Please choose a file to upload");
+  const token=getAccessToken();
+  const form=new FormData();
+  form.append("file",file);
+  const res=await fetch(`${BASE_API}/api/v1/public/files/upload`,{method:"POST",body:form,headers:{Accept:"application/json",...(token?{Authorization:`Bearer ${token}`}:{})}});
+  const body=await res.json().catch(()=>({}));
+  if(!res.ok||body?.success===false) throw new Error(body.message||`File upload failed (${res.status})`);
+  return body;
+}
 const VISITOR_SERVER_ID="@cobtravels/visitor_server_id", VISITOR_SESSION_ID="@cobtravels/visitor_session_id";
 function clientFingerprint(){let value=storage.getItem("@cobtravels/fingerprint");if(!value){value=`web-${Date.now()}-${Math.random().toString(36).slice(2,14)}`;storage.setItem("@cobtravels/fingerprint",value)}return value;}
 function clientDetails(){const ua=navigator.userAgent||"";const browser=/Edg\//.test(ua)?"Edge":/Chrome\//.test(ua)?"Chrome":/Firefox\//.test(ua)?"Firefox":/Safari\//.test(ua)?"Safari":"Other";const os=/Windows/.test(ua)?"Windows":/Mac OS/.test(ua)?"macOS":/Android/.test(ua)?"Android":/iPhone|iPad/.test(ua)?"iOS":"Other";return {browser,os,device:/Mobi|Android|iPhone|iPad/.test(ua)?"mobile":"desktop"};}

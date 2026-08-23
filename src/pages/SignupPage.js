@@ -14,14 +14,14 @@ export default function SignupPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { setIsMember } = useTravel();
+  const { loginSuccess } = useTravel();
 
   const send = async (event) => {
     event.preventDefault();
     if (!name.trim() || !identifier.trim()) return setError("Enter your name and mobile number or email.");
     setBusy(true); setError("");
     try { await requestOtp(identifier.trim()); setSent(true); }
-    catch (e) { setError(e.message); }
+    catch (e) { setError(e.message || "Failed to send OTP."); }
     finally { setBusy(false); }
   };
 
@@ -29,8 +29,12 @@ export default function SignupPage() {
     event.preventDefault();
     if (!otp.trim()) return setError("Enter the OTP sent to you.");
     setBusy(true); setError("");
-    try { await verifyOtp(identifier.trim(), otp.trim(), name.trim()); setIsMember(true); navigate("/profile"); }
-    catch (e) { setError(e.message); }
+    try {
+      const r = await verifyOtp(identifier.trim(), otp.trim(), name.trim());
+      await loginSuccess(r);
+      navigate("/profile", { replace: true });
+    }
+    catch (e) { setError(e.message || "Invalid OTP."); }
     finally { setBusy(false); }
   };
 

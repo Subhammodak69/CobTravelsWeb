@@ -6,7 +6,6 @@ import HomePage from "./pages/HomePage";
 import PackageDetailsPage from "./pages/PackageDetailsPage";
 import ProfilePage from "./pages/ProfilePage";
 import AuthPage from "./pages/AuthPage";
-import SignupPage from "./pages/SignupPage";
 import useVisitorTracking from "./hooks/useVisitorTracking";
 import { useTravel } from "./contexts/TravelContext";
 import "./App.css";
@@ -33,18 +32,81 @@ function VisitorTracking() {
   return null;
 }
 
+function ProtectedRoute({ children }) {
+  const { isMember, authReady } = useTravel();
+  const location = useLocation();
+
+  if (!authReady) {
+    return (
+      <div style={{ minHeight: "60vh", display: "grid", placeItems: "center", color: "#6b7280" }}>
+        <p>Loading your profile…</p>
+      </div>
+    );
+  }
+
+  if (!isMember) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
+}
+
+function PublicOnlyRoute({ children }) {
+  const { isMember, authReady } = useTravel();
+
+  if (!authReady) {
+    return (
+      <div style={{ minHeight: "60vh", display: "grid", placeItems: "center", color: "#6b7280" }}>
+        <p>Checking authorization…</p>
+      </div>
+    );
+  }
+
+  if (isMember) {
+    return <Navigate to="/profile" replace />;
+  }
+
+  return children;
+}
+
 function AppRoutes() {
   return (
     <>
       <VisitorTracking />
       <Routes>
-      <Route path="/" element={<Layout><HomePage /></Layout>} />
-      <Route path="/journey/:id" element={<Layout><PackageDetailsPage /></Layout>} />
-      <Route path="/profile" element={<Layout><ProfilePage /></Layout>} />
-      <Route path="/login" element={<Layout><AuthPage /></Layout>} />
-      <Route path="/signup" element={<Layout><AuthPage /></Layout>} />
-      <Route path="/signup" element={<Layout><SignupPage /></Layout>} />
-      <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="/" element={<Layout><HomePage /></Layout>} />
+        <Route path="/journey/:id" element={<Layout><PackageDetailsPage /></Layout>} />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ProfilePage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <PublicOnlyRoute>
+              <Layout>
+                <AuthPage />
+              </Layout>
+            </PublicOnlyRoute>
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <PublicOnlyRoute>
+              <Layout>
+                <AuthPage />
+              </Layout>
+            </PublicOnlyRoute>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
   );

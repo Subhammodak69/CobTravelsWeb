@@ -11,20 +11,68 @@ export function TravelProvider({ children }) {
   const [user, setUser] = useState(null);
   const [authReady, setAuthReady] = useState(false);
   const authBootstrapRef = useRef(false);
+  const refreshUser = async () => {
+    try {
+      let token = getAccessToken();
+      if (!token) {
+        const ok = await refreshSession();
+        if (ok) token = getAccessToken();
+      }
+      if (token) {
+        try {
+          const r = await fetchMe();
+          const userData = r?.data?.user || r?.data || null;
+          setUser(userData);
+          setIsMember(true);
+          return userData;
+        } catch {
+          setUser(null);
+          setIsMember(false);
+          return null;
+        }
+      } else {
+        setUser(null);
+        setIsMember(false);
+        return null;
+      }
+    } finally {
+      setAuthReady(true);
+    }
+  };
+
   useEffect(() => {
     if (authBootstrapRef.current) return;
     authBootstrapRef.current = true;
-    (async () => {
-      try {
-        let token = getAccessToken();
-        if (!token) { await refreshSession(); token = getAccessToken(); }
-        if (token) {
-          try { const r = await fetchMe(); setUser(r.data); setIsMember(true); }
-          catch { setUser(null); setIsMember(false); }
-        }
-      } finally { setAuthReady(true); }
-    })();
+    refreshUser();
   }, []);
+
+  const loginSuccess = async (authResponse) => {
+    const rawUser = authResponse?.data?.user || authResponse?.user || authResponse?.data || null;
+    setIsMember(true);
+    if (rawUser && (rawUser.name || rawUser.email || rawUser.id)) {
+      setUser(rawUser);
+    }
+    // Fetch full fresh profile
+    try {
+      const meRes = await fetchMe();
+      const userData = meRes?.data?.user || meRes?.data || rawUser;
+      if (userData) setUser(userData);
+    } catch {
+      // Keep existing rawUser if fetchMe fails
+    }
+  };
+
+  const handleLogout = async (all = false) => {
+    try {
+      await logout(all);
+    } catch (err) {
+      console.warn("Logout error:", err);
+    } finally {
+      setUser(null);
+      setIsMember(false);
+      navigate("/login");
+    }
+  };
 
   const goHome = () => { setSelectedPackageId(null); navigate("/"); };
   const goBack = () => {
@@ -38,10 +86,11 @@ export function TravelProvider({ children }) {
 
   return (
     <TravelContext.Provider value={{
-    goHome, goBack, goProfile,
+      goHome, goBack, goProfile,
       selectedPackageId, setSelectedPackageId, selectPackage, returnToJourneys,
-    isMember, user, setUser, setIsMember, authReady,
-    toggleMember: () => isMember ? logout().then(() => { setIsMember(false); setUser(null); }) : navigate("/profile"),
+      isMember, user, setUser, setIsMember, authReady,
+      refreshUser, loginSuccess, handleLogout,
+      toggleMember: () => (isMember ? handleLogout() : navigate("/login")),
     }}>
       {children}
     </TravelContext.Provider>

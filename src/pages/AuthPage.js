@@ -16,24 +16,37 @@ export default function AuthPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const isSignup = location.pathname === "/signup";
-  const { setIsMember } = useTravel();
+  const { loginSuccess } = useTravel();
 
   const send = async (event) => {
     event.preventDefault();
     if (!identifier.trim()) return setError("Enter your mobile number or email address.");
+    if (isSignup && !name.trim()) return setError("Enter your full name.");
     setBusy(true); setError("");
-    try { await requestOtp(identifier.trim()); setSent(true); }
-    catch (e) { setError(e.message); }
-    finally { setBusy(false); }
+    try {
+      await requestOtp(identifier.trim());
+      setSent(true);
+    } catch (e) {
+      setError(e.message || "Failed to send OTP. Please try again.");
+    } finally {
+      setBusy(false);
+    }
   };
 
   const verify = async (event) => {
     event.preventDefault();
     if (!otp.trim()) return setError("Enter the OTP sent to you.");
     setBusy(true); setError("");
-    try { await verifyOtp(identifier.trim(), otp.trim(), isSignup ? name.trim() : ""); setIsMember(true); navigate("/profile"); }
-    catch (e) { setError(e.message); }
-    finally { setBusy(false); }
+    try {
+      const r = await verifyOtp(identifier.trim(), otp.trim(), isSignup ? name.trim() : "");
+      await loginSuccess(r);
+      const returnTo = location.state?.from?.pathname || "/profile";
+      navigate(returnTo, { replace: true });
+    } catch (e) {
+      setError(e.message || "Invalid OTP. Please check and try again.");
+    } finally {
+      setBusy(false);
+    }
   };
 
   const submit = sent ? verify : send;
