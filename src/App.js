@@ -8,10 +8,6 @@ import ProfilePage from "./pages/ProfilePage";
 import AuthPage from "./pages/AuthPage";
 import useVisitorTracking from "./hooks/useVisitorTracking";
 import { useTravel } from "./contexts/TravelContext";
-import "./App.css";
-import "./animations.css";
-import "./mobile-theme.css";
-import "./redesign.css";
 
 
 function Layout({ children }) {
@@ -38,7 +34,7 @@ function ProtectedRoute({ children }) {
 
   if (!authReady) {
     return (
-      <div style={{ minHeight: "60vh", display: "grid", placeItems: "center", color: "#6b7280" }}>
+      <div className="grid min-h-[60vh] place-items-center bg-slate-50 text-slate-500">
         <p>Loading your profile…</p>
       </div>
     );
@@ -56,7 +52,7 @@ function PublicOnlyRoute({ children }) {
 
   if (!authReady) {
     return (
-      <div style={{ minHeight: "60vh", display: "grid", placeItems: "center", color: "#6b7280" }}>
+      <div className="grid min-h-[60vh] place-items-center bg-slate-50 text-slate-500">
         <p>Checking authorization…</p>
       </div>
     );

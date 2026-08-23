@@ -6,6 +6,10 @@ import { fetchVariant } from "../api";
 import PackageGallery from "../components/PackageGallery";
 import Reviews from "../components/Reviews";
 
+const eyebrow = "mb-3 text-xs font-bold uppercase tracking-[0.3em] text-rose-500";
+const sectionTitle = "font-display text-4xl font-semibold leading-none tracking-tight text-slate-950 sm:text-6xl";
+const buttonPrimary = "inline-flex items-center justify-center gap-5 rounded-2xl bg-amber-300 px-5 py-4 text-sm font-bold text-slate-950 shadow-lg shadow-amber-300/25 transition hover:-translate-y-1 hover:bg-amber-200";
+
 export default function PackageDetailsPage() {
   const { id } = useParams();
   const { goHome } = useTravel();
@@ -17,8 +21,8 @@ export default function PackageDetailsPage() {
   useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, [id]);
   useEffect(() => { if (pack) { setVariant(pack.seasons?.[0] || null); setShowBannerVideo(false); } }, [pack]);
 
-  if (loading) return <div className="journeySection"><h2>Loading journey...</h2></div>;
-  if (error || !pack) return <div className="journeySection"><h2>Journey unavailable</h2><p>{error}</p><button className="reserve" onClick={goHome}>Back to journeys</button></div>;
+  if (loading) return <div className="grid min-h-screen place-items-center bg-slate-50 px-6"><h2 className={sectionTitle}>Loading journey...</h2></div>;
+  if (error || !pack) return <div className="grid min-h-screen place-items-center bg-slate-50 px-6 text-center"><div><h2 className={sectionTitle}>Journey unavailable</h2><p className="mt-4 text-slate-500">{error}</p><button className={`${buttonPrimary} mt-6`} onClick={goHome}>Back to journeys</button></div></div>;
 
   const active = variant || pack.seasons?.[selected] || {};
   const route = (active.route || pack.route || []).map((place) => place.city || place.place || place).join(" · ");
@@ -33,31 +37,70 @@ export default function PackageDetailsPage() {
   };
 
   return (
-    <div>
-      <section className="detailHero" style={{ backgroundImage: showBannerVideo ? "none" : `linear-gradient(90deg,rgba(23,32,51,.82),rgba(23,32,51,.12)),url(${active.cover_image || pack.image})` }}>
-        {showBannerVideo && active.banner?.video && <video className="detailHeroVideo" src={active.banner.video} autoPlay muted loop playsInline controls />}
-        <button className="back" onClick={goHome}>← &nbsp; All journeys</button>
-        <div className="detailTitle"><p>{pack.tour_code} · {active.duration}</p><h1>{pack.title}</h1><div><span>{pack.destination} · {pack.type}</span><span>From <b>₹{Number(active.price || pack.price).toLocaleString("en-IN")}</b></span></div>{active.banner?.video && <button className="bannerToggle" onClick={() => setShowBannerVideo((value) => !value)}>{showBannerVideo ? "Show cover image" : "Watch journey film"} <span>{showBannerVideo ? "↗" : "▶"}</span></button>}</div>
+    <div className="bg-slate-50">
+      <section className="relative flex min-h-[700px] items-end overflow-hidden px-6 pb-16 pt-32 text-white sm:px-8 lg:px-16">
+        {!showBannerVideo && <img className="absolute inset-0 h-full w-full object-cover" src={active.cover_image || pack.image} alt={pack.title} />}
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/50 to-slate-950/10" />
+        {showBannerVideo && active.banner?.video && <video className="absolute inset-0 h-full w-full object-cover" src={active.banner.video} autoPlay muted loop playsInline controls />}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-slate-950/20" />
+        <button className="absolute left-6 top-24 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20 lg:left-16" onClick={goHome}>← All journeys</button>
+        <div className="relative z-10 max-w-5xl animate-fade-up">
+          <p className="mb-4 text-xs font-bold uppercase tracking-[0.3em] text-amber-300">{pack.tour_code} · {active.duration}</p>
+          <h1 className="font-display text-5xl font-semibold leading-[0.92] tracking-tight sm:text-7xl lg:text-8xl">{pack.title}</h1>
+          <div className="mt-7 flex flex-wrap gap-5 text-sm text-white/80"><span>{pack.destination} · {pack.type}</span><span>From <b className="text-amber-300">₹{Number(active.price || pack.price).toLocaleString("en-IN")}</b></span></div>
+          {active.banner?.video && <button className="mt-7 rounded-2xl border border-white/25 bg-white/10 px-4 py-3 text-sm font-bold backdrop-blur transition hover:bg-white/20" onClick={() => setShowBannerVideo((value) => !value)}>{showBannerVideo ? "Show cover image" : "Watch journey film"} <span className="ml-3 text-amber-300">{showBannerVideo ? "↗" : "▶"}</span></button>}
+        </div>
       </section>
 
-      <section className="facts">
-        <div><label>Journey route</label><p>{route || "—"}</p></div>
-        <div><label>Availability</label><p>{active.availability || "—"}</p></div>
-        <div><label>Season</label><p>{active.season_name || "—"}</p></div>
-        <button className="reserve">Plan this journey <span>→</span></button>
+      <section className="grid gap-4 border-b border-slate-200 bg-white px-6 py-6 sm:grid-cols-2 sm:px-8 lg:grid-cols-[2fr_1fr_1fr_auto] lg:px-16">
+        <div><label className="text-[11px] font-bold uppercase tracking-[0.25em] text-rose-500">Journey route</label><p className="mt-2 text-sm leading-6 text-slate-700">{route || "—"}</p></div>
+        <div><label className="text-[11px] font-bold uppercase tracking-[0.25em] text-rose-500">Availability</label><p className="mt-2 text-sm leading-6 text-slate-700">{active.availability || "—"}</p></div>
+        <div><label className="text-[11px] font-bold uppercase tracking-[0.25em] text-rose-500">Season</label><p className="mt-2 text-sm leading-6 text-slate-700">{active.season_name || "—"}</p></div>
+        <button className={buttonPrimary}>Plan this journey <span>→</span></button>
       </section>
 
-      {pack.seasons?.length > 1 && <section className="journeySection"><p className="eyebrow">Choose your package</p><div className="packageGrid">{pack.seasons.map((option, index) => <button key={option.id || option.slug} className={`packageCard ${index === selected ? "selectedPackage" : ""}`} onClick={() => choose(index)}><div className="cardBody"><p>{option.name}</p><h3>{option.season_name}</h3><div className="cardBottom"><span>{option.price ? `₹${Number(option.price).toLocaleString("en-IN")}` : "View details"}</span><span>{option.availability || "—"}</span></div></div></button>)}</div></section>}
+      {pack.seasons?.length > 1 && (
+        <section className="px-6 py-20 sm:px-8 lg:px-16">
+          <p className={eyebrow}>Choose your package</p>
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {pack.seasons.map((option, index) => (
+              <button key={option.id || option.slug} className={`rounded-[1.5rem] border bg-white p-6 text-left shadow-lg shadow-slate-950/5 transition hover:-translate-y-1 ${index === selected ? "border-amber-400 ring-4 ring-amber-200/60" : "border-slate-200"}`} onClick={() => choose(index)}>
+                <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">{option.name}</p>
+                <h3 className="font-display text-3xl font-semibold leading-tight text-slate-950">{option.season_name}</h3>
+                <div className="mt-6 flex justify-between gap-4 text-sm text-slate-500"><span>{option.price ? `₹${Number(option.price).toLocaleString("en-IN")}` : "View details"}</span><span>{option.availability || "—"}</span></div>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
-      <section className="overview"><div className="overviewIntro"><p className="eyebrow">The experience</p><h2>{pack.title}<br /><em>beautifully.</em></h2><p>{pack.description}</p><div className="highlights">{(active.highlights || []).map((highlight) => <span key={highlight.id || highlight.text}>✦ &nbsp;{highlight.text || highlight}</span>)}</div></div>{active.banner?.video && <div className="videoBlock"><video poster={active.cover_image} controls src={active.banner.video} /></div>}</section>
+      <section className="grid gap-12 bg-white px-6 py-20 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:px-16 lg:py-28">
+        <div>
+          <p className={eyebrow}>The experience</p>
+          <h2 className={sectionTitle}>{pack.title}<br /><em className="text-amber-500">beautifully.</em></h2>
+          <p className="mt-7 max-w-xl text-sm leading-7 text-slate-500">{pack.description}</p>
+          <div className="mt-8 grid gap-3 text-sm text-slate-700">{(active.highlights || []).map((highlight) => <span key={highlight.id || highlight.text}>✦ {highlight.text || highlight}</span>)}</div>
+        </div>
+        {active.banner?.video && <div className="overflow-hidden rounded-[2rem] bg-slate-950 p-3 shadow-glow"><video className="aspect-video w-full rounded-[1.5rem] object-cover" poster={active.cover_image} controls src={active.banner.video} /></div>}
+      </section>
 
       <PackageGallery pack={{ ...pack, gallery: active.gallery || pack.gallery || [] }} />
 
-      <section className="itinerary"><p className="eyebrow">A day-by-day rhythm</p><h2>The route unfolds<br /><em>beautifully.</em></h2><div className="days">{(active.itinerary || []).map((day) => <article key={day.id || day.day}><span>Day {day.day}</span><div><h3>{day.title}</h3><p>{day.description}</p></div><b>+</b></article>)}</div></section>
+      <section className="bg-white px-6 py-20 sm:px-8 lg:px-16 lg:py-28">
+        <p className={eyebrow}>A day-by-day rhythm</p>
+        <h2 className={sectionTitle}>The route unfolds<br /><em className="text-amber-500">beautifully.</em></h2>
+        <div className="mt-10 divide-y divide-slate-200 border-y border-slate-200">{(active.itinerary || []).map((day) => <article className="grid gap-4 py-6 sm:grid-cols-[110px_1fr_30px]" key={day.id || day.day}><span className="text-xs font-bold uppercase tracking-[0.2em] text-rose-500">Day {day.day}</span><div><h3 className="font-display text-2xl font-semibold text-slate-950">{day.title}</h3><p className="mt-2 text-sm leading-7 text-slate-500">{day.description}</p></div><b className="text-2xl font-light text-slate-400">+</b></article>)}</div>
+      </section>
 
-      <section className="inclusionSection"><div className="inclusionColumn"><p className="eyebrow">Included in your journey</p><h2>Everything<br /><em>thoughtfully covered.</em></h2><ul>{(active.inclusions || []).map((item) => <li key={item}>✓ {item}</li>)}</ul></div><div className="inclusionColumn exclusionColumn"><p className="eyebrow">A few extras</p><h2>Good to<br /><em>know.</em></h2><ul>{(active.exclusions || []).map((item) => <li key={item}>＋ {item}</li>)}</ul></div></section>
+      <section className="grid gap-10 bg-slate-100 px-6 py-20 sm:px-8 lg:grid-cols-2 lg:px-16 lg:py-28">
+        <div><p className={eyebrow}>Included in your journey</p><h2 className={sectionTitle}>Everything<br /><em className="text-amber-500">thoughtfully covered.</em></h2><ul className="mt-8 grid gap-3 text-sm leading-6 text-slate-600">{(active.inclusions || []).map((item) => <li key={item}>✓ {item}</li>)}</ul></div>
+        <div className="border-t border-slate-300 pt-10 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0"><p className={eyebrow}>A few extras</p><h2 className={sectionTitle}>Good to<br /><em className="text-amber-500">know.</em></h2><ul className="mt-8 grid gap-3 text-sm leading-6 text-slate-600">{(active.exclusions || []).map((item) => <li key={item}>＋ {item}</li>)}</ul></div>
+      </section>
 
-      <section className="departures"><div><p className="eyebrow">Upcoming departures</p><h2>Pick your<br /><em>perfect moment.</em></h2></div><div className="dateContent"><p><b>{active.season_name}</b></p>{(active.dates || []).map((date) => <button className="date" key={date.id || date.date}>{date.date}</button>)}</div></section>
+      <section className="grid gap-10 bg-amber-300 px-6 py-20 sm:px-8 lg:grid-cols-2 lg:px-16">
+        <div><p className="mb-3 text-xs font-bold uppercase tracking-[0.3em] text-slate-700">Upcoming departures</p><h2 className={sectionTitle}>Pick your<br /><em className="text-white">perfect moment.</em></h2></div>
+        <div><p className="mb-5 text-sm text-slate-700"><b>{active.season_name}</b></p>{(active.dates || []).map((date) => <button className="mb-3 mr-3 rounded-2xl border border-slate-950/20 px-4 py-3 text-sm font-bold text-slate-950 transition hover:bg-slate-950 hover:text-white" key={date.id || date.date}>{date.date}</button>)}</div>
+      </section>
 
       <Reviews reviews={pack.reviews || []} />
     </div>

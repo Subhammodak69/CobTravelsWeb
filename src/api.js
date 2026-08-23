@@ -14,7 +14,7 @@ function tokens(x){
 export function saveTokens(x){
   const t = tokens(x);
   if (t.access) storage.setItem(ACCESS, t.access);
-  if (t.refresh) storage.setItem(REFRESH, t.refresh);
+  storage.removeItem(REFRESH);
   return t;
 }
 
@@ -24,6 +24,7 @@ async function request(path, options = {}, auth = false) {
   let token = auth ? getAccessToken() : null;
   let res = await fetch(BASE_API + path, {
     ...options,
+    credentials: "include",
     headers: {
       "Accept": "application/json",
       "Content-Type": "application/json",
@@ -42,6 +43,7 @@ async function request(path, options = {}, auth = false) {
       token = getAccessToken();
       res = await fetch(BASE_API + path, {
         ...options,
+        credentials: "include",
         headers: {
           "Accept": "application/json",
           "Content-Type": "application/json",
@@ -83,12 +85,9 @@ export async function loginGoogle(id_token){
 }
 
 export async function refreshSession(){
-  const refresh = storage.getItem(REFRESH);
-  if (!refresh) return false;
   try {
     const r = await request("/api/v1/sessions/refresh", {
-      method: "POST",
-      body: JSON.stringify({ refresh_token: refresh })
+      method: "POST"
     });
     return Boolean(saveTokens(r).access);
   } catch {
@@ -99,7 +98,7 @@ export async function refreshSession(){
 
 export async function logout(all = false){
   try {
-    await request(`/api/v1/sessions/${all ? "logout-all" : "logout"}`, { method: "POST" }, true);
+    await request(`/api/v1/sessions/${all ? "logout-all" : "logout"}`, { method: "POST" }, all);
   } finally {
     clearTokens();
   }
@@ -113,7 +112,7 @@ export async function uploadFile(file){
   const token=getAccessToken();
   const form=new FormData();
   form.append("file",file);
-  const res=await fetch(`${BASE_API}/api/v1/public/files/upload`,{method:"POST",body:form,headers:{Accept:"application/json",...(token?{Authorization:`Bearer ${token}`}:{})}});
+  const res=await fetch(`${BASE_API}/api/v1/public/files/upload`,{method:"POST",body:form,credentials:"include",headers:{Accept:"application/json",...(token?{Authorization:`Bearer ${token}`}:{})}});
   const body=await res.json().catch(()=>({}));
   if(!res.ok||body?.success===false) throw new Error(body.message||`File upload failed (${res.status})`);
   return body;

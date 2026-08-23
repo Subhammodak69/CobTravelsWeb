@@ -10,7 +10,7 @@ function ProfileAvatar({ src }) {
     return <UserRound size={18} strokeWidth={1.8} aria-hidden="true" />;
   }
 
-  return <img src={src} alt="Profile" className="navAvatarImage" onError={() => setImageFailed(true)} />;
+  return <img src={src} alt="Profile" className="h-full w-full object-cover" onError={() => setImageFailed(true)} />;
 }
 
 export default function Header() {
@@ -20,25 +20,29 @@ export default function Header() {
   const profileImage = user?.profile_image || user?.profile_picture || user?.profileImage || user?.profile_pic || user?.avatar || user?.photoURL || user?.picture || user?.image || user?.image_url;
 
   return (
-    <nav className="nav">
-      <div className="navLeading">
-        {location.pathname !== "/" && <button className="navBack" onClick={goBack} aria-label="Go back">←</button>}
-        <button className="brand" onClick={goHome} id="nav-brand">
-          <i>c</i>
-          <span>coochbehar<br /><b>travel</b></span>
+    <nav className="absolute left-0 top-0 z-50 flex h-20 w-full items-center justify-between px-5 text-white sm:px-8 lg:px-16">
+      <div className="flex items-center gap-3">
+        {location.pathname !== "/" && (
+          <button className="grid h-10 w-10 place-items-center rounded-full border border-white/20 bg-white/10 text-lg backdrop-blur transition hover:-translate-x-1 hover:bg-white/20" onClick={goBack} aria-label="Go back">
+            ←
+          </button>
+        )}
+        <button className="group flex items-center gap-3 text-left" onClick={goHome} id="nav-brand">
+          <i className="grid h-11 w-11 place-items-center rounded-2xl bg-amber-300 font-display text-3xl font-semibold italic text-slate-950 shadow-lg shadow-amber-300/20 transition group-hover:rotate-6">c</i>
+          <span className="text-sm font-semibold leading-none tracking-tight text-white">coochbehar<br /><b className="text-[10px] uppercase tracking-[0.35em] text-white/65">travel</b></span>
         </button>
       </div>
-      <div className="navlinks">
-        <a href="#journeys" onClick={goHome}>Journeys</a>
-        <a href="#story" onClick={goHome}>Our story</a>
+      <div className="flex items-center gap-3 sm:gap-6">
+        <a className="hidden text-sm font-medium text-white/75 transition hover:text-white sm:inline" href="#journeys" onClick={goHome}>Journeys</a>
+        <a className="hidden text-sm font-medium text-white/75 transition hover:text-white sm:inline" href="#story" onClick={goHome}>Our story</a>
         {isMember ? (
-          <button className="navProfile" onClick={goProfile} id="nav-profile-btn" aria-label="Profile" title="My Profile">
-            <span className="navAvatarIcon">
+          <button className="grid h-8 w-8 place-items-center overflow-hidden rounded-2xl border border-white/25 bg-white/10 text-white shadow-lg shadow-black/10 backdrop-blur transition hover:scale-105 hover:bg-white/20" onClick={goProfile} id="nav-profile-btn" aria-label="Profile" title="My Profile">
+            <span className="grid h-full w-full place-items-center overflow-hidden">
               <ProfileAvatar src={profileImage} />
             </span>
           </button>
         ) : (
-          <button className="login" onClick={() => navigate("/login")} id="nav-login-btn">
+          <button className="rounded-2xl bg-amber-300 px-4 py-2.5 text-sm font-bold text-slate-950 shadow-lg shadow-amber-300/20 transition hover:-translate-y-0.5 hover:bg-amber-200" onClick={() => navigate("/login")} id="nav-login-btn">
             Sign in
           </button>
         )}
