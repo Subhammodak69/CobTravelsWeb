@@ -1,16 +1,26 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchMe, getAccessToken, refreshSession, logout } from "../api";
+import { fetchMe, getAccessToken, refreshSession, logout, setOnUnauthorized } from "../api";
 
 const TravelContext = createContext(null);
 
 export function TravelProvider({ children }) {
   const navigate = useNavigate();
   const [selectedPackageId, setSelectedPackageId] = useState(null);
-  const [isMember, setIsMember] = useState(Boolean(getAccessToken()));
+  const [status, setStatus] = useState("unknown"); // "unknown" | "authenticated" | "anonymous"
+  const [isMember, setIsMember] = useState(false);
   const [user, setUser] = useState(null);
   const [authReady, setAuthReady] = useState(false);
   const authBootstrapRef = useRef(false);
+
+  useEffect(() => {
+    setOnUnauthorized(() => {
+      setUser(null);
+      setIsMember(false);
+      setStatus("anonymous");
+    });
+  }, []);
+
   const refreshUser = async () => {
     try {
       let token = getAccessToken();
@@ -24,15 +34,18 @@ export function TravelProvider({ children }) {
           const userData = r?.data?.user || r?.data || null;
           setUser(userData);
           setIsMember(true);
+          setStatus("authenticated");
           return userData;
         } catch {
           setUser(null);
           setIsMember(false);
+          setStatus("anonymous");
           return null;
         }
       } else {
         setUser(null);
         setIsMember(false);
+        setStatus("anonymous");
         return null;
       }
     } finally {
@@ -49,6 +62,7 @@ export function TravelProvider({ children }) {
   const loginSuccess = async (authResponse) => {
     const rawUser = authResponse?.data?.user || authResponse?.user || authResponse?.data || null;
     setIsMember(true);
+    setStatus("authenticated");
     if (rawUser && (rawUser.name || rawUser.email || rawUser.id)) {
       setUser(rawUser);
     }
@@ -70,6 +84,7 @@ export function TravelProvider({ children }) {
     } finally {
       setUser(null);
       setIsMember(false);
+      setStatus("anonymous");
       navigate("/login");
     }
   };
@@ -88,7 +103,7 @@ export function TravelProvider({ children }) {
     <TravelContext.Provider value={{
       goHome, goBack, goProfile,
       selectedPackageId, setSelectedPackageId, selectPackage, returnToJourneys,
-      isMember, user, setUser, setIsMember, authReady,
+      status, isMember, user, setUser, setIsMember, authReady,
       refreshUser, loginSuccess, handleLogout,
       toggleMember: () => (isMember ? handleLogout() : navigate("/login")),
     }}>
@@ -102,3 +117,4 @@ export function useTravel() {
   if (!context) throw new Error("useTravel must be used inside TravelProvider");
   return context;
 }
+
