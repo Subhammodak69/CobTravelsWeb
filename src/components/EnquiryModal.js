@@ -1,16 +1,75 @@
 import { useEffect, useRef, useState } from "react";
-import { submitEnquiry } from "../api";
+import { submitEnquiry, fetchPackageSelect, isValidUUID } from "../api";
 import { useTravel } from "../contexts/TravelContext";
+import enums from "../utils/enums.json";
 
-const INITIAL = { name: "", mobile: "", subject: "", message: "" };
+const CHANNELS = Object.keys(enums?.EnquiryChannel || {
+  WEBSITE: "WEBSITE",
+  WHATSAPP: "WHATSAPP",
+  PHONE: "PHONE",
+  EMAIL: "EMAIL",
+  OFFLINE: "OFFLINE",
+  ADMIN: "ADMIN",
+});
 
-export default function EnquiryModal({ open, onClose, packageId = "", variantId = "", packageTitle = "" }) {
+const INITIAL = { name: "", mobile: "", channel: "WEBSITE", subject: "", message: "", variant_id: "" };
+
+export default function EnquiryModal({
+  open,
+  onClose,
+  packageId = "",
+  packageSlug = "",
+  variantId = "",
+  packageTitle = "",
+}) {
   const { user } = useTravel();
   const [form, setForm] = useState(INITIAL);
+  const [variants, setVariants] = useState([]);
+  const [resolvedPackageId, setResolvedPackageId] = useState(packageId);
+  const [displayTitle, setDisplayTitle] = useState(packageTitle);
+  const [loadingVariants, setLoadingVariants] = useState(false);
   const [status, setStatus] = useState("idle"); // idle | loading | success | error
   const [errorMsg, setErrorMsg] = useState("");
   const firstRef = useRef(null);
   const overlayRef = useRef(null);
+
+  // Fetch package variants via /api/v1/tour-packages/select/{slug}
+  useEffect(() => {
+    if (!open) return;
+
+    let isMounted = true;
+    const lookupKey = packageSlug || packageId;
+
+    if (lookupKey) {
+      setLoadingVariants(true);
+      fetchPackageSelect(lookupKey)
+        .then((data) => {
+          if (!isMounted || !data) return;
+          if (data.id && isValidUUID(data.id)) {
+            setResolvedPackageId(data.id);
+          }
+          if (data.title && !packageTitle) {
+            setDisplayTitle(data.title);
+          }
+          if (Array.isArray(data.variants) && data.variants.length > 0) {
+            setVariants(data.variants);
+            // Default selected variant
+            setForm((f) => ({
+              ...f,
+              variant_id: variantId || f.variant_id || data.variants[0].id || "",
+            }));
+          }
+        })
+        .catch(() => {})
+        .finally(() => {
+          if (isMounted) setLoadingVariants(false);
+        });
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [open, packageSlug, packageId, variantId, packageTitle]);
 
   // Pre-fill user details
   useEffect(() => {
@@ -18,14 +77,16 @@ export default function EnquiryModal({ open, onClose, packageId = "", variantId 
       setForm({
         name: user?.name || "",
         mobile: user?.mobile || user?.phone || "",
-        subject: packageTitle ? `Enquiry about ${packageTitle}` : "",
+        channel: "WEBSITE",
+        subject: (packageTitle || displayTitle) ? `Enquiry about ${packageTitle || displayTitle}` : "",
         message: "",
+        variant_id: variantId || "",
       });
       setStatus("idle");
       setErrorMsg("");
       setTimeout(() => firstRef.current?.focus(), 50);
     }
-  }, [open, user, packageTitle]);
+  }, [open, user, packageTitle, displayTitle, variantId]);
 
   // Trap keyboard & lock body scroll
   useEffect(() => {
@@ -40,7 +101,6 @@ export default function EnquiryModal({ open, onClose, packageId = "", variantId 
     };
   }, [open, onClose]);
 
-
   const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
 
   const handleSubmit = async (e) => {
@@ -52,9 +112,11 @@ export default function EnquiryModal({ open, onClose, packageId = "", variantId 
     setStatus("loading");
     setErrorMsg("");
     try {
+      const finalPkgId = isValidUUID(resolvedPackageId) ? resolvedPackageId : (isValidUUID(packageId) ? packageId : "");
       await submitEnquiry({
-        package_id: packageId,
-        variant_id: variantId,
+        package_id: finalPkgId,
+        variant_id: form.variant_id || variantId,
+        channel: form.channel || "WEBSITE",
         subject: form.subject,
         message: form.message,
         name: form.name,
@@ -94,7 +156,7 @@ export default function EnquiryModal({ open, onClose, packageId = "", variantId 
           <div className="relative pr-10">
             <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.3em] text-amber-300">Send Enquiry</p>
             <h2 id="enquiry-modal-title" className="font-display text-2xl font-semibold tracking-tight">
-              {packageTitle ? `Plan "${packageTitle}"` : "Get in Touch"}
+              {displayTitle || packageTitle ? `Plan "${displayTitle || packageTitle}"` : "Get in Touch"}
             </h2>
             <p className="mt-1 text-sm text-white/60">Our team will get back to you shortly.</p>
           </div>
@@ -149,6 +211,27 @@ export default function EnquiryModal({ open, onClose, packageId = "", variantId 
                 </div>
               </div>
 
+              {/* Variant Selector */}
+              {variants.length > 0 && (
+                <div>
+                  <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500" htmlFor="enq-variant">
+                    Package Variant / Season
+                  </label>
+                  <select
+                    id="enq-variant"
+                    value={form.variant_id}
+                    onChange={set("variant_id")}
+                    className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-sm outline-none transition focus:border-amber-400 focus:bg-white focus:ring-4 focus:ring-amber-200/50 cursor-pointer"
+                  >
+                    {variants.map((v) => (
+                      <option key={v.id} value={v.id}>
+                        {v.name || v.season_name} {v.season_name && v.name && v.name !== v.season_name ? `(${v.season_name})` : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               <div>
                 <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500" htmlFor="enq-subject">
                   Subject
@@ -183,6 +266,7 @@ export default function EnquiryModal({ open, onClose, packageId = "", variantId 
             </form>
           )}
         </div>
+
 
         {/* Fixed Footer */}
         <div className="shrink-0 flex items-center justify-end gap-3 border-t border-slate-100 bg-slate-50/90 px-7 py-4 backdrop-blur-sm">

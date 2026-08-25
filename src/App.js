@@ -7,6 +7,8 @@ import PackageDetailsPage from "./pages/PackageDetailsPage";
 import ProfilePage from "./pages/ProfilePage";
 import AuthPage from "./pages/AuthPage";
 import CustomTourEnquiryPage from "./pages/CustomTourEnquiryPage";
+import EnquiriesPage from "./pages/EnquiriesPage";
+import TripsPage from "./pages/TripsPage";
 import useVisitorTracking from "./hooks/useVisitorTracking";
 
 import { useTravel } from "./contexts/TravelContext";
@@ -86,6 +88,8 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        <Route path="/my-enquiries" element={<ProtectedRoute><Layout><EnquiriesPage /></Layout></ProtectedRoute>} />
+        <Route path="/my-trips" element={<ProtectedRoute><Layout><TripsPage /></Layout></ProtectedRoute>} />
         <Route
           path="/login"
           element={

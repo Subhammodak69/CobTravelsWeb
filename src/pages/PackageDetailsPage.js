@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useTravel } from "../contexts/TravelContext";
 import usePackages from "../hooks/usePackages";
-import { fetchVariant } from "../api";
+import { fetchVariant, submitReview, fetchReviews, checkReviewEligibility } from "../api";
 import PackageGallery from "../components/PackageGallery";
 import Reviews from "../components/Reviews";
 import EnquiryModal from "../components/EnquiryModal";
@@ -13,15 +13,38 @@ const buttonPrimary = "inline-flex items-center justify-center gap-5 rounded-2xl
 
 export default function PackageDetailsPage() {
   const { id } = useParams();
-  const { goHome } = useTravel();
+  const { goHome, isMember } = useTravel();
   const { pack, loading, error } = usePackages(id);
   const [selected, setSelected] = useState(0);
   const [variant, setVariant] = useState(null);
   const [showBannerVideo, setShowBannerVideo] = useState(false);
   const [enquiryOpen, setEnquiryOpen] = useState(false);
+  const [reviewForm, setReviewForm] = useState({ rating: 5, review: "" });
+  const [reviewState, setReviewState] = useState({ loading: false, message: "", error: "" });
+  const [reviews, setReviews] = useState([]);
+  const [eligibility, setEligibility] = useState(null); // { can_review, has_reviewed, review }
 
   useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, [id]);
   useEffect(() => { if (pack) { setVariant(pack.seasons?.[0] || null); setShowBannerVideo(false); } }, [pack]);
+
+  // Load reviews from API using package slug
+  useEffect(() => {
+    const slug = pack?.slug || id;
+    if (!slug) return;
+    fetchReviews(slug)
+      .then((r) => setReviews(Array.isArray(r?.data) ? r.data : []))
+      .catch(() => {});
+  }, [pack?.slug, id]);
+
+  // Check review eligibility using package slug when logged in
+  useEffect(() => {
+    if (!isMember) { setEligibility(null); return; }
+    const slug = pack?.slug || id;
+    if (!slug) return;
+    checkReviewEligibility(slug)
+      .then((r) => setEligibility(r?.data || null))
+      .catch(() => setEligibility(null));
+  }, [isMember, pack?.slug, id]);
 
   if (loading) return <div className="grid min-h-screen place-items-center bg-slate-50 px-6"><h2 className={sectionTitle}>Loading journey...</h2></div>;
   if (error || !pack) return <div className="grid min-h-screen place-items-center bg-slate-50 px-6 text-center"><div><h2 className={sectionTitle}>Journey unavailable</h2><p className="mt-4 text-slate-500">{error}</p><button className={`${buttonPrimary} mt-6`} onClick={goHome}>Back to journeys</button></div></div>;
@@ -36,6 +59,23 @@ export default function PackageDetailsPage() {
       try { setVariant(await fetchVariant(pack.slug, option.slug)); }
       catch { setVariant(option); }
     } else setVariant(option);
+  };
+
+  const handleSubmitReview = async (event) => {
+    event.preventDefault();
+    if (!reviewForm.review.trim()) return setReviewState({ loading: false, message: "", error: "Please write a review first." });
+    setReviewState({ loading: true, message: "", error: "" });
+    try {
+      const pkgId = pack.package_id || pack.id;
+      const slug = pack.slug || id;
+      await submitReview({ package_id: pkgId, ...reviewForm, review: reviewForm.review.trim() });
+      setReviewForm({ rating: 5, review: "" });
+      setReviewState({ loading: false, message: "Thanks — your review has been submitted.", error: "" });
+      fetchReviews(slug).then((r) => setReviews(Array.isArray(r?.data) ? r.data : [])).catch(() => {});
+      checkReviewEligibility(slug).then((r) => setEligibility(r?.data || null)).catch(() => {});
+    } catch (err) {
+      setReviewState({ loading: false, message: "", error: err.message || "Could not submit your review." });
+    }
   };
 
   return (
@@ -110,7 +150,26 @@ export default function PackageDetailsPage() {
         <div><p className="mb-5 text-sm text-slate-700"><b>{active.season_name}</b></p>{(active.dates || []).map((date) => <button className="mb-3 mr-3 rounded-2xl border border-slate-950/20 px-4 py-3 text-sm font-bold text-slate-950 transition hover:bg-slate-950 hover:text-white" key={date.id || date.date}>{date.date}</button>)}</div>
       </section>
 
-      <Reviews reviews={pack.reviews || []} />
+      <Reviews reviews={reviews} />
+
+      <section className="bg-slate-50 px-6 py-16 sm:px-8 lg:px-16">
+        <div className="mx-auto max-w-3xl rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-lg shadow-slate-950/5 sm:p-8">
+          <p className={eyebrow}>Share your experience</p>
+          <h2 className="font-display text-3xl font-semibold text-slate-950">Tell future travellers about it.</h2>
+          {isMember ? (
+            eligibility !== null && !eligibility?.can_review && !eligibility?.has_reviewed ? (
+              <p className="mt-4 text-sm text-slate-500">You need to have completed a booking to leave a review.</p>
+            ) : (
+              <form className="mt-6 grid gap-4" onSubmit={handleSubmitReview}>
+                <div><label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500" htmlFor="review-rating">Rating</label><select id="review-rating" className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-amber-300" value={reviewForm.rating} onChange={(event) => setReviewForm({ ...reviewForm, rating: event.target.value })}>{[5, 4, 3, 2, 1].map((rating) => <option key={rating} value={rating}>{rating} / 5</option>)}</select></div>
+                <div><label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500" htmlFor="review-text">Your review</label><textarea id="review-text" className="min-h-32 w-full resize-y rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-amber-300" placeholder="What did you enjoy?" value={reviewForm.review} onChange={(event) => setReviewForm({ ...reviewForm, review: event.target.value })} /></div>
+                {reviewState.error && <p className="rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-600" role="alert">{reviewState.error}</p>}{reviewState.message && <p className="rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700" role="status">{reviewState.message}</p>}
+                <button className={buttonPrimary} type="submit" disabled={reviewState.loading}>{reviewState.loading ? "Submitting..." : eligibility?.has_reviewed ? "Update review" : "Submit review"}</button>
+              </form>
+            )
+          ) : <p className="mt-4 text-sm text-slate-500">Sign in to share your experience.</p>}
+        </div>
+      </section>
 
       {/* Sticky bottom Enquire Now bar */}
       <div className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-between gap-4 border-t border-slate-200 bg-white/90 px-6 py-4 backdrop-blur-xl shadow-2xl shadow-slate-950/10 sm:px-8 lg:px-16">
@@ -133,10 +192,12 @@ export default function PackageDetailsPage() {
       <EnquiryModal
         open={enquiryOpen}
         onClose={() => setEnquiryOpen(false)}
-        packageId={pack.id || id}
-        variantId={active.id || ""}
+        packageId={pack.package_id || pack.id || id}
+        packageSlug={pack.slug || id}
+        variantId={active?.id || ""}
         packageTitle={pack.title}
       />
+
     </div>
   );
 }

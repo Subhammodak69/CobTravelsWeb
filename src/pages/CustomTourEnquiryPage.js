@@ -171,7 +171,7 @@ export default function CustomTourEnquiryPage() {
                   <div>
                     <label className={labelCls} htmlFor="custom-page-meal">Meal Plan</label>
                     <select id="custom-page-meal" value={form.meal_plan} onChange={set("meal_plan")} className={selectCls}>
-                      <option value="">Select meal plan</option>
+                      <option value="ANY">Any / No preference</option>
                       {MEAL_OPTIONS.map((m) => (
                         <option key={m} value={m}>{m}</option>
                       ))}
@@ -180,7 +180,7 @@ export default function CustomTourEnquiryPage() {
                   <div>
                     <label className={labelCls} htmlFor="custom-page-vehicle">Vehicle Preference</label>
                     <select id="custom-page-vehicle" value={form.vehicle_type} onChange={set("vehicle_type")} className={selectCls}>
-                      <option value="">Select vehicle type</option>
+                      <option value="ANY">Any / No preference</option>
                       {VEHICLE_OPTIONS.map((v) => (
                         <option key={v} value={v}>{v}</option>
                       ))}

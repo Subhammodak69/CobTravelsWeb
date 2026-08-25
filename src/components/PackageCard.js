@@ -56,9 +56,12 @@ export default function PackageCard({ pack, index }) {
       <EnquiryModal
         open={enquiryOpen}
         onClose={() => setEnquiryOpen(false)}
-        packageId={pack.id}
+        packageId={pack.package_id || pack.id}
+        packageSlug={pack.slug || pack.id}
+        variantId={pack.default_variant_id || ""}
         packageTitle={pack.title}
       />
+
     </>
   );
 }

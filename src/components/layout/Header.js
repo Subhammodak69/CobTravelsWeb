@@ -1,8 +1,7 @@
 import { useTravel } from "../../contexts/TravelContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { UserRound } from "lucide-react";
-import CustomEnquiryModal from "../CustomEnquiryModal";
+import { UserRound, ChevronDown, User, MessageSquareText, MapPinned } from "lucide-react";
 
 function ProfileAvatar({ src }) {
   const [imageFailed, setImageFailed] = useState(false);
@@ -15,9 +14,10 @@ function ProfileAvatar({ src }) {
 }
 
 export default function Header() {
-  const { goHome, goBack, goProfile, isMember, user } = useTravel();
+  const { goHome, goBack, isMember, user } = useTravel();
   const location = useLocation();
   const navigate = useNavigate();
+  const [profileOpen, setProfileOpen] = useState(false);
   const profileImage = user?.profile_image || user?.profile_picture || user?.profileImage || user?.profile_pic || user?.avatar || user?.photoURL || user?.picture || user?.image || user?.image_url;
 
   return (
@@ -45,11 +45,14 @@ export default function Header() {
         </button>
 
         {isMember ? (
-          <button className="grid h-8 w-8 place-items-center overflow-hidden rounded-2xl border border-white/25 bg-white/10 text-white shadow-lg shadow-black/10 backdrop-blur transition hover:scale-105 hover:bg-white/20" onClick={goProfile} id="nav-profile-btn" aria-label="Profile" title="My Profile">
-            <span className="grid h-full w-full place-items-center overflow-hidden">
-              <ProfileAvatar src={profileImage} />
-            </span>
-          </button>
+          <div className="relative">
+            <button className="flex h-10 items-center gap-1 rounded-2xl border border-white/25 bg-white/10 px-1.5 text-white shadow-lg shadow-black/10 backdrop-blur transition hover:bg-white/20" onClick={() => setProfileOpen((value) => !value)} id="nav-profile-btn" aria-label="Open profile menu" aria-expanded={profileOpen}>
+              <span className="grid h-8 w-8 place-items-center overflow-hidden rounded-xl"><ProfileAvatar src={profileImage} /></span><ChevronDown size={15} className={`transition-transform ${profileOpen ? "rotate-180" : ""}`} />
+            </button>
+            {profileOpen && <div className="absolute right-0 top-12 w-52 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 text-slate-800 shadow-2xl" role="menu">
+              {[{ label: "Profile", path: "/profile", Icon: User }, { label: "My enquiries", path: "/my-enquiries", Icon: MessageSquareText }, { label: "My trips", path: "/my-trips", Icon: MapPinned }].map(({ label, path, Icon }) => <button key={path} className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-semibold transition hover:bg-amber-50" onClick={() => { setProfileOpen(false); navigate(path); }} role="menuitem"><Icon size={17} className="text-rose-500" />{label}</button>)}
+            </div>}
+          </div>
         ) : (
           <button className="rounded-2xl bg-amber-300 px-4 py-2.5 text-sm font-bold text-slate-950 shadow-lg shadow-amber-300/20 transition hover:-translate-y-0.5 hover:bg-amber-200" onClick={() => navigate("/login")} id="nav-login-btn">
             Sign in
@@ -59,4 +62,3 @@ export default function Header() {
     </nav>
   );
 }
-
