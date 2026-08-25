@@ -213,3 +213,18 @@ function summary(x){return {...x,id:x.slug||x.id,code:x.tour_code,title:x.title,
 export async function fetchPackages(filters={}){const query=new URLSearchParams();Object.entries(filters).forEach(([key,value])=>{if(value!==undefined&&value!==null&&value!=="")query.set(key,String(value));});const r=await request("/api/v1/tour-packages"+(query.toString()?"?"+query.toString():""));const raw=r.data;const items=Array.isArray(raw)?raw:(raw?.items||raw?.results||raw?.packages||[]);return {items:items.map(summary),total:Number(raw?.total??raw?.count??items.length),page:Number(raw?.page??filters.page??1),page_size:Number(raw?.page_size??filters.page_size??20),pages:Number(raw?.pages??Math.ceil(Number(raw?.total??raw?.count??items.length)/Number(raw?.page_size??filters.page_size??20)))||1};}
 export async function fetchPackage(slug){const r=await request(`/api/v1/tour-packages/${encodeURIComponent(slug)}`);const d=r.data;if(!d)throw new Error("Tour package was not found");return {...d,id:d.id,code:d.tour_code,image:d.default_variant?.banner?.image||"",price:Number(d.default_variant?.price||0),duration:`${d.default_variant?.duration_nights||0}N | ${d.default_variant?.duration_days||0}D`,seasons:[d.default_variant,...(d.other_variants||[])].filter(Boolean).map(variant),gallery:(d.default_variant?.gallery||[]).filter(x=>x?.url),route:d.default_variant?.route||[]};}
 export async function fetchVariant(slug,variantSlug){const r=await request(`/api/v1/tour-packages/${encodeURIComponent(slug)}/variants/${encodeURIComponent(variantSlug)}`);return variant(r.data.variant);}
+
+export async function submitEnquiry({ package_id = "", variant_id = "", subject = "", message = "", name = "", mobile = "", customer_id = "" } = {}) {
+  return request("/api/v1/enquiries", {
+    method: "POST",
+    body: JSON.stringify({ channel: "WEBSITE", package_id, variant_id, subject, message, name, mobile, visitor_id: visitorId(), customer_id }),
+  });
+}
+
+export async function submitCustomEnquiry({ name = "", mobile = "", destination = "", travel_date = "", travel_duration = "", pax_no = 1, no_room = 1, vehicle_type = "", meal_plan = "", special_requirements = "", enquiry_type = "", customer_id = "" } = {}) {
+  return request("/api/v1/enquiries/custom", {
+    method: "POST",
+    body: JSON.stringify({ name, mobile, destination, travel_date, travel_duration, pax_no, no_room, vehicle_type, meal_plan, special_requirements, enquiry_type, visitor_id: visitorId(), customer_id, channel: "WEBSITE" }),
+  });
+}
+

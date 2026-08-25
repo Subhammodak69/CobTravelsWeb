@@ -6,7 +6,9 @@ import HomePage from "./pages/HomePage";
 import PackageDetailsPage from "./pages/PackageDetailsPage";
 import ProfilePage from "./pages/ProfilePage";
 import AuthPage from "./pages/AuthPage";
+import CustomTourEnquiryPage from "./pages/CustomTourEnquiryPage";
 import useVisitorTracking from "./hooks/useVisitorTracking";
+
 import { useTravel } from "./contexts/TravelContext";
 
 
@@ -72,6 +74,8 @@ function AppRoutes() {
       <Routes>
         <Route path="/" element={<Layout><HomePage /></Layout>} />
         <Route path="/journey/:id" element={<Layout><PackageDetailsPage /></Layout>} />
+        <Route path="/custom-tour-enquiry" element={<Layout><CustomTourEnquiryPage /></Layout>} />
+
         <Route
           path="/profile"
           element={

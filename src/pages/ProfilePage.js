@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import { useTravel } from "../contexts/TravelContext";
 import { deleteSession, fetchPackages, fetchSessions, updateMe, uploadFile } from "../api";
 import useScrollReveal from "../hooks/useScrollReveal";
+import ImageCropModal from "../components/ImageCropModal";
+
 
 let profilePackagesPromise;
 
@@ -143,14 +145,40 @@ export default function ProfilePage() {
     setEditing(true);
   };
 
-  const chooseProfilePhoto = async (event) => {
+  useEffect(() => {
+    if (!editing) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [editing]);
+
+
+  const [rawImageForCrop, setRawImageForCrop] = useState("");
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+
+  const chooseProfilePhoto = (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    setProfileFile(file);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setRawImageForCrop(reader.result);
+      setCropModalOpen(true);
+    };
+    reader.readAsDataURL(file);
+    // Reset file input value so re-selecting same file works
+    event.target.value = "";
+  };
+
+  const handleCroppedPhoto = async (croppedFile, previewDataUrl) => {
+    setCropModalOpen(false);
+    setProfileFile(croppedFile);
+    setProfilePreview(previewDataUrl);
     setUploadingPhoto(true);
     setEditError("");
     try {
-      const uploadResponse = await uploadFile(file);
+      const uploadResponse = await uploadFile(croppedFile);
       const profilePic = uploadResponse?.data?.url || uploadResponse?.url || "";
       if (!profilePic) throw new Error("The uploaded image URL was not returned.");
       setProfileForm((current) => ({ ...current, profile_pic: profilePic }));
@@ -162,6 +190,7 @@ export default function ProfilePage() {
       setUploadingPhoto(false);
     }
   };
+
 
   const saveProfile = async (event) => {
     event.preventDefault();
@@ -201,7 +230,7 @@ export default function ProfilePage() {
         <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-cyan-400/20 blur-3xl animate-pulse-soft" />
         <div className="absolute bottom-0 left-10 h-72 w-72 rounded-full bg-amber-300/20 blur-3xl animate-float" />
         <div className="relative z-10 flex flex-col gap-6 sm:flex-row sm:items-center">
-          <div className="grid h-28 w-28 shrink-0 place-items-center overflow-hidden rounded-[2rem] bg-amber-300 font-display text-5xl font-semibold text-slate-950 shadow-glow">
+          <div className="grid h-28 w-28 shrink-0 place-items-center overflow-hidden rounded-full bg-amber-300 font-display text-5xl font-semibold text-slate-950 shadow-glow">
             {profileImage ? <img className="h-full w-full object-cover" src={profileImage} alt={user?.name || "Profile"} /> : <span>{avatarLetter}</span>}
           </div>
           <div className="flex-1">
@@ -213,15 +242,22 @@ export default function ProfilePage() {
       </section>
 
       {editing && (
-        <div className="fixed inset-0 z-[100] grid place-items-center overflow-y-auto bg-slate-950/70 p-4 backdrop-blur-xl" role="presentation" onClick={() => !saving && setEditing(false)}>
-          <section className="relative max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-[2rem] bg-white p-6 shadow-glow sm:p-10" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title" onClick={(event) => event.stopPropagation()}>
-            <button className="absolute right-5 top-5 grid h-10 w-10 place-items-center rounded-full bg-slate-100 text-2xl text-slate-500 transition hover:rotate-90 hover:bg-slate-200" type="button" onClick={() => setEditing(false)} aria-label="Close">×</button>
-            <p className={eyebrow}>Account</p>
-            <h2 className="font-display text-4xl font-semibold leading-none tracking-tight text-slate-950" id="profile-modal-title">Edit your profile</h2>
-            <form className="mt-8 flex flex-col gap-5" onSubmit={saveProfile}>
-              <div className="flex flex-col items-center gap-3">
-                <div className="relative grid h-28 w-28 place-items-center overflow-visible rounded-[2rem] bg-amber-300 font-display text-4xl font-semibold text-slate-950 shadow-xl shadow-slate-950/10">
-                  {profilePreview ? <img className="h-full w-full rounded-[2rem] object-cover" src={profilePreview} alt="Profile preview" /> : <span>{(user?.name || "M")[0].toUpperCase()}</span>}
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-xl" role="presentation" onClick={() => !saving && setEditing(false)}>
+          <section className="relative flex max-h-[88vh] w-full max-w-3xl flex-col overflow-hidden rounded-[2rem] bg-white shadow-2xl shadow-slate-950/30" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title" onClick={(event) => event.stopPropagation()}>
+            {/* Fixed Modal Header */}
+            <div className="relative flex shrink-0 items-center justify-between border-b border-slate-100 px-6 py-5 sm:px-8">
+              <div>
+                <p className={eyebrow}>Account</p>
+                <h2 className="font-display text-2xl font-semibold leading-tight tracking-tight text-slate-950 sm:text-3xl" id="profile-modal-title">Edit your profile</h2>
+              </div>
+              <button className="grid h-10 w-10 place-items-center rounded-full bg-slate-100 text-2xl text-slate-500 transition hover:rotate-90 hover:bg-slate-200" type="button" onClick={() => setEditing(false)} aria-label="Close">×</button>
+            </div>
+
+            {/* Scrollable Modal Content */}
+            <form id="profile-edit-form" className="flex flex-1 flex-col overflow-y-auto px-6 py-6 sm:px-8" onSubmit={saveProfile}>
+              <div className="flex flex-col items-center gap-3 pb-4">
+                <div className="relative grid h-28 w-28 place-items-center overflow-visible rounded-full bg-amber-300 font-display text-4xl font-semibold text-slate-950 shadow-xl shadow-slate-950/10">
+                  {profilePreview ? <img className="h-full w-full rounded-full object-cover" src={profilePreview} alt="Profile preview" /> : <span>{(user?.name || "M")[0].toUpperCase()}</span>}
                   <label className="absolute -bottom-2 -right-2 grid h-10 w-10 cursor-pointer place-items-center rounded-2xl bg-slate-950 text-xl text-white shadow-lg transition hover:scale-105" htmlFor="profile-picture" aria-label="Choose profile picture">+</label>
                 </div>
                 <input className="hidden" id="profile-picture" type="file" accept="image/*" onChange={chooseProfilePhoto} disabled={saving || uploadingPhoto} />
@@ -246,15 +282,27 @@ export default function ProfilePage() {
                   </div>
                 ))}
               </div>
-              {editError && <p className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-600" role="alert">{editError}</p>}
-              <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:justify-end">
-                <button type="button" className={softButton} onClick={() => setEditing(false)} disabled={saving}>Cancel</button>
-                <button type="submit" className={primaryButton} disabled={saving || uploadingPhoto}>{saving ? "Saving..." : "Save changes"}</button>
-              </div>
+              {editError && <p className="mt-4 rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-600" role="alert">{editError}</p>}
             </form>
+
+            {/* Fixed Modal Footer */}
+            <div className="flex shrink-0 items-center justify-end gap-3 border-t border-slate-100 bg-slate-50/80 px-6 py-4 backdrop-blur-sm sm:px-8">
+              <button type="button" className={softButton} onClick={() => setEditing(false)} disabled={saving}>Cancel</button>
+              <button type="submit" form="profile-edit-form" className={primaryButton} disabled={saving || uploadingPhoto}>{saving ? "Saving..." : "Save changes"}</button>
+            </div>
           </section>
         </div>
       )}
+
+      {/* WhatsApp style Crop Modal */}
+      <ImageCropModal
+        imageSrc={rawImageForCrop}
+        open={cropModalOpen}
+        onCrop={handleCroppedPhoto}
+        onCancel={() => setCropModalOpen(false)}
+      />
+
+
 
       {isMember && (
         <section className="grid grid-cols-2 border-b border-slate-200 bg-white lg:grid-cols-4">

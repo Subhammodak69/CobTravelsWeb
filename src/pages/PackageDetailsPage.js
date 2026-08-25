@@ -5,6 +5,7 @@ import usePackages from "../hooks/usePackages";
 import { fetchVariant } from "../api";
 import PackageGallery from "../components/PackageGallery";
 import Reviews from "../components/Reviews";
+import EnquiryModal from "../components/EnquiryModal";
 
 const eyebrow = "mb-3 text-xs font-bold uppercase tracking-[0.3em] text-rose-500";
 const sectionTitle = "font-display text-4xl font-semibold leading-none tracking-tight text-slate-950 sm:text-6xl";
@@ -17,6 +18,7 @@ export default function PackageDetailsPage() {
   const [selected, setSelected] = useState(0);
   const [variant, setVariant] = useState(null);
   const [showBannerVideo, setShowBannerVideo] = useState(false);
+  const [enquiryOpen, setEnquiryOpen] = useState(false);
 
   useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, [id]);
   useEffect(() => { if (pack) { setVariant(pack.seasons?.[0] || null); setShowBannerVideo(false); } }, [pack]);
@@ -37,7 +39,7 @@ export default function PackageDetailsPage() {
   };
 
   return (
-    <div className="bg-slate-50">
+    <div className="bg-slate-50 pb-24">
       <section className="relative flex min-h-[700px] items-end overflow-hidden px-6 pb-16 pt-32 text-white sm:px-8 lg:px-16">
         {!showBannerVideo && <img className="absolute inset-0 h-full w-full object-cover" src={active.cover_image || pack.image} alt={pack.title} />}
         <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/50 to-slate-950/10" />
@@ -56,7 +58,13 @@ export default function PackageDetailsPage() {
         <div><label className="text-[11px] font-bold uppercase tracking-[0.25em] text-rose-500">Journey route</label><p className="mt-2 text-sm leading-6 text-slate-700">{route || "—"}</p></div>
         <div><label className="text-[11px] font-bold uppercase tracking-[0.25em] text-rose-500">Availability</label><p className="mt-2 text-sm leading-6 text-slate-700">{active.availability || "—"}</p></div>
         <div><label className="text-[11px] font-bold uppercase tracking-[0.25em] text-rose-500">Season</label><p className="mt-2 text-sm leading-6 text-slate-700">{active.season_name || "—"}</p></div>
-        <button className={buttonPrimary}>Plan this journey <span>→</span></button>
+        <button
+          id="details-enquire-btn"
+          className={buttonPrimary}
+          onClick={() => setEnquiryOpen(true)}
+        >
+          Plan this journey <span>→</span>
+        </button>
       </section>
 
       {pack.seasons?.length > 1 && (
@@ -103,6 +111,32 @@ export default function PackageDetailsPage() {
       </section>
 
       <Reviews reviews={pack.reviews || []} />
+
+      {/* Sticky bottom Enquire Now bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-between gap-4 border-t border-slate-200 bg-white/90 px-6 py-4 backdrop-blur-xl shadow-2xl shadow-slate-950/10 sm:px-8 lg:px-16">
+        <div className="hidden sm:block">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">{pack.title}</p>
+          <p className="text-sm font-semibold text-slate-950">
+            From <span className="text-amber-500">₹{Number(active.price || pack.price || 0).toLocaleString("en-IN")}</span>
+          </p>
+        </div>
+        <button
+          id="bottom-enquire-now-btn"
+          onClick={() => setEnquiryOpen(true)}
+          className="ml-auto inline-flex items-center gap-3 rounded-2xl bg-amber-300 px-6 py-3.5 text-sm font-bold text-slate-950 shadow-lg shadow-amber-300/30 transition hover:-translate-y-0.5 hover:bg-amber-200"
+        >
+          Enquire Now <span>→</span>
+        </button>
+      </div>
+
+      {/* Enquiry Modal */}
+      <EnquiryModal
+        open={enquiryOpen}
+        onClose={() => setEnquiryOpen(false)}
+        packageId={pack.id || id}
+        variantId={active.id || ""}
+        packageTitle={pack.title}
+      />
     </div>
   );
 }

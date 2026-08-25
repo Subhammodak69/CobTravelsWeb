@@ -2,6 +2,7 @@ import { useTravel } from "../../contexts/TravelContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { UserRound } from "lucide-react";
+import CustomEnquiryModal from "../CustomEnquiryModal";
 
 function ProfileAvatar({ src }) {
   const [imageFailed, setImageFailed] = useState(false);
@@ -33,8 +34,16 @@ export default function Header() {
         </button>
       </div>
       <div className="flex items-center gap-3 sm:gap-6">
-        <a className="hidden text-sm font-medium text-white/75 transition hover:text-white sm:inline" href="#journeys" onClick={goHome}>Journeys</a>
-        <a className="hidden text-sm font-medium text-white/75 transition hover:text-white sm:inline" href="#story" onClick={goHome}>Our story</a>
+        <a className="hidden text-sm font-medium text-white/75 transition hover:text-white sm:inline" href="/#journeys" onClick={(e) => { if (location.pathname === "/") { e.preventDefault(); document.getElementById("journeys")?.scrollIntoView({ behavior: "smooth" }); } }}>Journeys</a>
+        <a className="hidden text-sm font-medium text-white/75 transition hover:text-white sm:inline" href="/#story" onClick={(e) => { if (location.pathname === "/") { e.preventDefault(); document.getElementById("story")?.scrollIntoView({ behavior: "smooth" }); } }}>Our story</a>
+        <button
+          className="rounded-2xl border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-bold text-amber-300 backdrop-blur transition hover:bg-white/20 sm:text-sm sm:px-4 sm:py-2"
+          onClick={() => navigate("/custom-tour-enquiry")}
+          id="nav-custom-tour-enquiry-btn"
+        >
+          Custom Tour Enquiry
+        </button>
+
         {isMember ? (
           <button className="grid h-8 w-8 place-items-center overflow-hidden rounded-2xl border border-white/25 bg-white/10 text-white shadow-lg shadow-black/10 backdrop-blur transition hover:scale-105 hover:bg-white/20" onClick={goProfile} id="nav-profile-btn" aria-label="Profile" title="My Profile">
             <span className="grid h-full w-full place-items-center overflow-hidden">
@@ -50,3 +59,4 @@ export default function Header() {
     </nav>
   );
 }
+
