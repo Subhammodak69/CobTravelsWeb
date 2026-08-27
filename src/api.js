@@ -215,8 +215,8 @@ export async function logout(all = false) {
     }
   }
 }
-export function fetchMe(){return request("/api/v1/auth/me",{},true);}
-export function updateMe(data){return request("/api/v1/auth/me",{method:"PATCH",body:JSON.stringify(data)},true);}
+export function fetchMe(){return request("/api/v1/account/me",{},true);}
+export function updateMe(data){return request("/api/v1/account/me",{method:"PATCH",body:JSON.stringify(data)},true);}
 export function fetchSessions(){return request("/api/v1/sessions/",{},true);}
 export function deleteSession(id){return request(`/api/v1/sessions/${encodeURIComponent(id)}`,{method:"DELETE"},true);}
 export function fetchDocuments(page = 1, pageSize = 50) { return request(`/api/v1/documents?page=${page}&page_size=${pageSize}`, {}, true); }
