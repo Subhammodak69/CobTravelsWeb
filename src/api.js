@@ -2,6 +2,7 @@ export const BASE_API = "https://coochbehar-travels.onrender.com";
 const VISITOR = "@cobtravels/visitor_id";
 const VISITOR_SERVER_ID = "@cobtravels/visitor_server_id";
 const VISITOR_SESSION_ID = "@cobtravels/visitor_session_id";
+const REFERRAL_CODE = "@cobtravels/referral_code";
 const storage = window.localStorage;
 
 let accessToken = null;
@@ -19,6 +20,26 @@ export function getAccessToken() {
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 export function isValidUUID(str) {
   return typeof str === "string" && UUID_REGEX.test(str.trim());
+}
+
+function referralCode() { return storage.getItem(REFERRAL_CODE) || ""; }
+function toBase64Url(value) { return btoa(unescape(encodeURIComponent(value))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, ""); }
+function fromBase64Url(value) { return decodeURIComponent(escape(atob(value.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - value.length % 4) % 4)))); }
+export function encodeReferralCode(code) { return toBase64Url(code); }
+export function getReferralLink(code) { return `${window.location.origin}/?ref=${encodeURIComponent(toBase64Url(code))}`; }
+export function getStoredReferralCode() { return referralCode(); }
+export async function captureReferralFromUrl(value) {
+  if (!value) return null;
+  try {
+    const code = fromBase64Url(value).trim();
+    if (!code || code.length > 128) return null;
+    const response = await request(`/api/v1/referrals/invite/${encodeURIComponent(code)}`);
+    if (response?.success !== false && response?.data?.referral_code) {
+      storage.setItem(REFERRAL_CODE, response.data.referral_code);
+      return response.data;
+    }
+  } catch {}
+  return null;
 }
 
 export function clearTokens() {
@@ -111,20 +132,22 @@ async function request(path, options = {}, isRetry = false) {
     path.includes("/sessions/logout") ||
     path.includes("/auth/otp") ||
     path.includes("/auth/google");
+  const isPublicReferralReq = path.includes("/referrals/invite/");
 
+  const isFormData = options.body instanceof FormData;
   let res = await fetch(BASE_API + path, {
     ...options,
     credentials: "include",
     headers: {
       Accept: "application/json",
-      "Content-Type": "application/json",
+      ...(!isFormData ? { "Content-Type": "application/json" } : {}),
       ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       ...(options.headers || {}),
     },
   });
 
   // Handle 401 unauthorized once with single serialized refresh promise
-  if (res.status === 401 && !isAuthSessionReq && !isRetry) {
+  if (res.status === 401 && !isAuthSessionReq && !isPublicReferralReq && !isRetry) {
     try {
       await refreshAccessToken();
       return await request(path, options, true);
@@ -149,14 +172,14 @@ async function request(path, options = {}, isRetry = false) {
 export async function requestOtp(identifier) {
   return request("/api/v1/auth/otp/request", {
     method: "POST",
-    body: JSON.stringify({ identifier, purpose: "LOGIN", visitor_id: await authVisitorId() }),
+    body: JSON.stringify({ identifier, purpose: "LOGIN", visitor_id: await authVisitorId(), referral_code: referralCode() }),
   });
 }
 
 export async function verifyOtp(identifier, otp, name = "") {
   const r = await request("/api/v1/auth/otp/verify", {
     method: "POST",
-    body: JSON.stringify({ identifier, otp, name, purpose: "LOGIN", visitor_id: await authVisitorId() }),
+    body: JSON.stringify({ identifier, otp, name, purpose: "LOGIN", visitor_id: await authVisitorId(), referral_code: referralCode() }),
   });
   saveTokens(r);
   return r;
@@ -165,7 +188,7 @@ export async function verifyOtp(identifier, otp, name = "") {
 export async function loginGoogle(id_token) {
   const r = await request("/api/v1/auth/google", {
     method: "POST",
-    body: JSON.stringify({ id_token, visitor_id: await authVisitorId() }),
+    body: JSON.stringify({ id_token, visitor_id: await authVisitorId(), referral_code: referralCode() }),
   });
   saveTokens(r);
   return r;
@@ -196,6 +219,15 @@ export function fetchMe(){return request("/api/v1/auth/me",{},true);}
 export function updateMe(data){return request("/api/v1/auth/me",{method:"PATCH",body:JSON.stringify(data)},true);}
 export function fetchSessions(){return request("/api/v1/sessions/",{},true);}
 export function deleteSession(id){return request(`/api/v1/sessions/${encodeURIComponent(id)}`,{method:"DELETE"},true);}
+export function fetchDocuments(page = 1, pageSize = 50) { return request(`/api/v1/documents?page=${page}&page_size=${pageSize}`, {}, true); }
+export function uploadDocument({ file, documentType, title, description }) { const form = new FormData(); form.append("file", file); form.append("document_type", documentType); form.append("title", title); form.append("description", description); return request("/api/v1/documents", { method: "POST", body: form }, true); }
+export function downloadDocument(id) { return request(`/api/v1/documents/${encodeURIComponent(id)}/download`, {}, true); }
+export function deleteDocument(id) { return request(`/api/v1/documents/${encodeURIComponent(id)}`, { method: "DELETE" }, true); }
+export function fetchReferralCode() { return request("/api/v1/referrals/code", {}, true); }
+export function fetchReferrals(page = 1, pageSize = 20) { return request(`/api/v1/referrals?page=${page}&page_size=${pageSize}`, {}, true); }
+export function fetchWishlist(page = 1, pageSize = 50) { return request(`/api/v1/wishlist?page=${page}&page_size=${pageSize}`, {}, true); }
+export function addToWishlist(packageSlug) { return request(`/api/v1/wishlist/${encodeURIComponent(packageSlug)}`, { method: "POST" }, true); }
+export function removeFromWishlist(packageSlug) { return request(`/api/v1/wishlist/${encodeURIComponent(packageSlug)}`, { method: "DELETE" }, true); }
 export async function uploadFile(file){
   if(!file) throw new Error("Please choose a file to upload");
   const token=getAccessToken();
@@ -239,6 +271,7 @@ function summary(x) {
     slug: x.slug || x.id,
     code: x.tour_code,
     title: x.title,
+    is_wishlist: Boolean(x.is_wishlist),
     image: x.banner?.image || "",
     video: x.banner?.video || "",
     season_name: x.season_name || "",
@@ -278,6 +311,7 @@ export async function fetchPackage(slug) {
     package_id: d.id,
     id: d.id,
     slug: d.slug,
+    is_wishlist: Boolean(d.is_wishlist),
     code: d.tour_code,
     image: d.default_variant?.banner?.image || "",
     price: Number(d.default_variant?.price || 0),
@@ -291,7 +325,7 @@ export async function fetchPackage(slug) {
 
 export async function fetchPackageSelect(slug) {
   const r = await request(`/api/v1/tour-packages/select/${encodeURIComponent(slug)}`);
-  return r?.data || null;
+  return r?.data ? { ...r.data, is_wishlist: Boolean(r.data.is_wishlist) } : null;
 }
 
 export async function fetchVariant(slug, variantSlug) {

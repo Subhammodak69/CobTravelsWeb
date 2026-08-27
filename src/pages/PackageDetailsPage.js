@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useTravel } from "../contexts/TravelContext";
 import usePackages from "../hooks/usePackages";
-import { fetchVariant, submitReview, fetchReviews, checkReviewEligibility } from "../api";
+import { addToWishlist, checkReviewEligibility, fetchReviews, fetchVariant, removeFromWishlist, submitReview } from "../api";
+import { Heart, LoaderCircle } from "lucide-react";
 import PackageGallery from "../components/PackageGallery";
 import Reviews from "../components/Reviews";
 import EnquiryModal from "../components/EnquiryModal";
@@ -23,9 +24,17 @@ export default function PackageDetailsPage() {
   const [reviewState, setReviewState] = useState({ loading: false, message: "", error: "" });
   const [reviews, setReviews] = useState([]);
   const [eligibility, setEligibility] = useState(null); // { can_review, has_reviewed, review }
+  const [wishlistState, setWishlistState] = useState("idle");
 
   useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, [id]);
-  useEffect(() => { if (pack) { setVariant(pack.seasons?.[0] || null); setShowBannerVideo(false); } }, [pack]);
+  useEffect(() => { if (pack) { setVariant(pack.seasons?.[0] || null); setShowBannerVideo(false); setWishlistState(pack.is_wishlist ? "added" : "idle"); } }, [pack]);
+
+  const toggleWishlist = async () => {
+    if (!isMember) { window.location.assign("/login"); return; }
+    setWishlistState("loading");
+    try { if (wishlistState === "added") { await removeFromWishlist(pack.slug || id); setWishlistState("idle"); } else { await addToWishlist(pack.slug || id); setWishlistState("added"); } }
+    catch { setWishlistState(pack.is_wishlist ? "added" : "idle"); }
+  };
 
   // Load reviews from API using package slug
   useEffect(() => {
@@ -98,7 +107,17 @@ export default function PackageDetailsPage() {
         <div><label className="text-[11px] font-bold uppercase tracking-[0.25em] text-rose-500">Journey route</label><p className="mt-2 text-sm leading-6 text-slate-700">{route || "—"}</p></div>
         <div><label className="text-[11px] font-bold uppercase tracking-[0.25em] text-rose-500">Availability</label><p className="mt-2 text-sm leading-6 text-slate-700">{active.availability || "—"}</p></div>
         <div><label className="text-[11px] font-bold uppercase tracking-[0.25em] text-rose-500">Season</label><p className="mt-2 text-sm leading-6 text-slate-700">{active.season_name || "—"}</p></div>
-        <button
+          <button
+            id="details-wishlist-btn"
+            className={`mb-3 ml-3 inline-flex items-center gap-2 rounded-2xl border px-4 py-3 text-sm font-bold backdrop-blur transition ${wishlistState === "added" ? "border-rose-400 bg-rose-500 text-white" : "border-white/25 bg-white/10 text-white hover:bg-white/20"}`}
+            onClick={toggleWishlist}
+            disabled={wishlistState === "loading"}
+            aria-label={wishlistState === "added" ? "Remove from wishlist" : "Add to wishlist"}
+          >
+            {wishlistState === "loading" ? <LoaderCircle size={17} className="animate-spin" /> : <Heart size={17} fill={wishlistState === "added" ? "currentColor" : "none"} />}
+            {wishlistState === "added" ? "Saved" : "Save"}
+          </button>
+          <button
           id="details-enquire-btn"
           className={buttonPrimary}
           onClick={() => setEnquiryOpen(true)}

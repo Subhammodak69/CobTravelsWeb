@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowRight, ShieldCheck } from "lucide-react";
-import { requestOtp, verifyOtp } from "../api";
+import { captureReferralFromUrl, loginGoogle, requestOtp, verifyOtp } from "../api";
 import { useTravel } from "../contexts/TravelContext";
 
 const AUTH_BG = "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=2000&q=90";
@@ -17,6 +17,68 @@ export default function AuthPage() {
   const location = useLocation();
   const isSignup = location.pathname === "/signup";
   const { loginSuccess } = useTravel();
+  const referralToken = new URLSearchParams(location.search).get("ref");
+  const googleButtonRef = useRef(null);
+  const [googleBusy, setGoogleBusy] = useState(false);
+  const [googleReady, setGoogleReady] = useState(false);
+  const [googleError, setGoogleError] = useState("");
+  const captureReferral = async () => {
+    if (referralToken) await captureReferralFromUrl(referralToken);
+  };
+  const loginSuccessRef = useRef(loginSuccess);
+  const captureReferralRef = useRef(captureReferral);
+  loginSuccessRef.current = loginSuccess;
+  captureReferralRef.current = captureReferral;
+
+  useEffect(() => {
+    const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID_WEB;
+    if (!clientId) {
+      setGoogleError("Google sign-in is not configured. Check REACT_APP_GOOGLE_CLIENT_ID_WEB in .env.");
+      return undefined;
+    }
+    const renderGoogleButton = () => {
+      if (!googleButtonRef.current || !window.google?.accounts?.id) return false;
+      window.google.accounts.id.initialize({
+        client_id: clientId,
+        callback: async ({ credential }) => {
+          if (!credential) return setError("Google sign-in did not return a credential.");
+          setGoogleBusy(true); setError("");
+          try {
+            await captureReferralRef.current();
+            const response = await loginGoogle(credential);
+            await loginSuccessRef.current(response);
+            navigate(location.state?.from?.pathname || "/profile", { replace: true });
+          } catch (e) {
+            setError(e.message || "Google sign-in failed. Please try again.");
+          } finally {
+            setGoogleBusy(false);
+          }
+        },
+      });
+      googleButtonRef.current.replaceChildren();
+      window.google.accounts.id.renderButton(googleButtonRef.current, { theme: "outline", size: "large", width: 360, text: isSignup ? "signup_with" : "signin_with" });
+      setGoogleReady(true);
+      return true;
+    };
+    if (renderGoogleButton()) return undefined;
+    let script = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+    if (!script) {
+      script = document.createElement("script");
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
+    const retry = window.setInterval(() => { if (renderGoogleButton()) window.clearInterval(retry); }, 100);
+    const timeout = window.setTimeout(() => {
+      if (!googleReady) setGoogleError("Google sign-in could not load. Check your network or allow accounts.google.com.");
+      window.clearInterval(retry);
+    }, 5000);
+    if (script) script.addEventListener("load", renderGoogleButton, { once: true });
+    const onScriptError = () => { setGoogleError("Google sign-in could not load. Check your network or allow accounts.google.com."); window.clearInterval(retry); };
+    script?.addEventListener("error", onScriptError, { once: true });
+    return () => { window.clearInterval(retry); window.clearTimeout(timeout); script?.removeEventListener("load", renderGoogleButton); script?.removeEventListener("error", onScriptError); };
+  }, [isSignup, location.state, navigate, googleReady]);
 
   const send = async (event) => {
     event.preventDefault();
@@ -24,6 +86,7 @@ export default function AuthPage() {
     if (isSignup && !name.trim()) return setError("Enter your full name.");
     setBusy(true); setError("");
     try {
+      await captureReferral();
       await requestOtp(identifier.trim());
       setSent(true);
     } catch (e) {
@@ -38,6 +101,7 @@ export default function AuthPage() {
     if (!otp.trim()) return setError("Enter the OTP sent to you.");
     setBusy(true); setError("");
     try {
+      await captureReferral();
       const r = await verifyOtp(identifier.trim(), otp.trim(), isSignup ? name.trim() : "");
       await loginSuccess(r);
       const returnTo = location.state?.from?.pathname || "/profile";
@@ -83,6 +147,8 @@ export default function AuthPage() {
           {sent && <button className="self-center px-3 py-2 text-xs font-semibold text-slate-500 underline underline-offset-4" type="button" onClick={() => { setSent(false); setOtp(""); setError(""); }} disabled={busy}>Change identifier</button>}
           {error && <p className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-600" role="alert">{error}</p>}
         </form>
+        <div className="my-6 flex items-center gap-3 text-xs text-slate-400"><span className="h-px flex-1 bg-slate-200" /><span>or continue with</span><span className="h-px flex-1 bg-slate-200" /></div>
+        {googleBusy ? <div className="flex h-11 items-center justify-center text-sm text-slate-500">Signing in with Google...</div> : <><div ref={googleButtonRef} className="flex min-h-10 min-w-0 justify-center" aria-label="Continue with Google" />{!googleReady && <span className={`flex h-11 items-center justify-center text-center text-sm ${googleError ? "text-rose-500" : "text-slate-400"}`}>{googleError || "Loading Google sign-in..."}</span>}</>}
         <p className="mt-6 border-t border-slate-200 pt-5 text-center text-sm text-slate-500">{isSignup ? "Already have an account? " : "New here? "}<button className="font-bold text-rose-500 underline underline-offset-4" type="button" onClick={() => navigate(isSignup ? "/login" : "/signup")}>{isSignup ? "Log in" : "Create an account"}</button></p>
       </section>
       </div>

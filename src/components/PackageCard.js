@@ -1,11 +1,16 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTravel } from "../contexts/TravelContext";
 import EnquiryModal from "./EnquiryModal";
+import { addToWishlist, removeFromWishlist } from "../api";
+import { Heart, LoaderCircle } from "lucide-react";
 
 export default function PackageCard({ pack, index }) {
-  const { selectPackage } = useTravel();
+  const { selectPackage, isMember } = useTravel();
   const videoRef = useRef(null);
   const [enquiryOpen, setEnquiryOpen] = useState(false);
+  const [wishlistState, setWishlistState] = useState(pack.is_wishlist ? "added" : "idle");
+
+  useEffect(() => { setWishlistState(pack.is_wishlist ? "added" : "idle"); }, [pack.is_wishlist]);
 
   const playVideo = () => {
     if (videoRef.current) videoRef.current.play().catch(() => {});
@@ -15,6 +20,14 @@ export default function PackageCard({ pack, index }) {
       videoRef.current.pause();
       videoRef.current.currentTime = 0;
     }
+  };
+
+  const toggleWishlist = async (event) => {
+    event.stopPropagation();
+    if (!isMember) return window.location.assign("/login");
+    setWishlistState("loading");
+    try { if (wishlistState === "added") { await removeFromWishlist(pack.slug || pack.id); setWishlistState("idle"); } else { await addToWishlist(pack.slug || pack.id); setWishlistState("added"); } }
+    catch { setWishlistState("error"); }
   };
 
   return (
@@ -31,6 +44,7 @@ export default function PackageCard({ pack, index }) {
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/10 to-transparent" />
           <span className="absolute left-4 top-4 rounded-full bg-white/15 px-3 py-1 text-[10px] font-bold tracking-[0.25em] text-white backdrop-blur">0{index + 1}</span>
           {pack.badge && <span className="absolute right-4 top-4 rounded-full bg-amber-300 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-950 shadow-lg shadow-amber-300/30">{pack.badge}</span>}
+          <button className={`absolute right-4 top-16 grid h-11 w-11 place-items-center rounded-2xl shadow-lg transition hover:scale-105 ${wishlistState === "added" ? "bg-rose-500 text-white" : "bg-white text-slate-950 hover:bg-amber-300"}`} onClick={toggleWishlist} disabled={wishlistState === "loading"} aria-label={wishlistState === "added" ? `Remove ${pack.title} from wishlist` : `Add ${pack.title} to wishlist`} title={wishlistState === "added" ? "Remove from wishlist" : "Add to wishlist"}>{wishlistState === "loading" ? <LoaderCircle size={18} className="animate-spin" /> : <Heart size={18} fill={wishlistState === "added" ? "currentColor" : "none"} />}</button>
           <button className="absolute bottom-4 right-4 grid h-12 w-12 place-items-center rounded-2xl bg-white text-xl text-slate-950 shadow-lg transition group-hover:rotate-6 group-hover:bg-amber-300" aria-label={`Explore ${pack.title}`}>↗</button>
         </div>
         <div className="p-5 sm:p-6">
