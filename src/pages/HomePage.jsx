@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import PackageCard from "../components/PackageCard";
+import CustomSelect from "../components/CustomSelect";
 import usePackages from "../hooks/usePackages";
 import { useTravel } from "../contexts/TravelContext";
 import useScrollReveal from "../hooks/useScrollReveal";
@@ -62,15 +63,40 @@ export default function HomePage() {
         </div>
         <div className="mb-3 grid gap-2 rounded-lg border border-slate-200 bg-white p-2.5 shadow-md shadow-slate-950/5 sm:grid-cols-2 lg:grid-cols-5">
           <input className="h-8 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-200/50" value={filters.destination} onChange={e => setFilters(f => ({ ...f, destination: e.target.value, page: 1 }))} placeholder="Destination" aria-label="Filter destination" />
-          <select className="h-8 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-200/50" value={filters.type} onChange={e => setFilters(f => ({ ...f, type: e.target.value, page: 1 }))} aria-label="Filter tour type">
-            <option value="">All types</option><option value="DOMESTIC">Domestic</option><option value="INTERNATIONAL">International</option>
-          </select>
-          <select className="h-8 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-200/50" value={filters.season} onChange={e => setFilters(f => ({ ...f, season: e.target.value, page: 1 }))} aria-label="Filter season">
-            <option value="">All seasons</option><option value="Spring">Spring</option><option value="Summer">Summer</option><option value="Autumn">Autumn</option><option value="Winter">Winter</option>
-          </select>
-          <select className="h-8 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-200/50" value={filters.sort_by + "|" + filters.sort_order} onChange={e => { const [sort_by, sort_order] = e.target.value.split("|"); setFilters(f => ({ ...f, sort_by, sort_order, page: 1 })) }} aria-label="Sort tours">
-            <option value="created_at|desc">Newest</option><option value="title|asc">Title A–Z</option><option value="destination|asc">Destination A–Z</option><option value="starting_price|asc">Price low to high</option><option value="starting_price|desc">Price high to low</option><option value="updated_at|desc">Recently updated</option>
-          </select>
+          <CustomSelect
+            value={filters.type}
+            options={[{ label: "All types", value: "" }, { label: "Domestic", value: "DOMESTIC" }, { label: "International", value: "INTERNATIONAL" }]}
+            onChange={(value) => setFilters(f => ({ ...f, type: value, page: 1 }))}
+            placeholder="All types"
+            className="h-8"
+            triggerClassName="h-8 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs text-slate-900"
+          />
+          <CustomSelect
+            value={filters.season}
+            options={[{ label: "All seasons", value: "" }, { label: "Spring", value: "Spring" }, { label: "Summer", value: "Summer" }, { label: "Autumn", value: "Autumn" }, { label: "Winter", value: "Winter" }]}
+            onChange={(value) => setFilters(f => ({ ...f, season: value, page: 1 }))}
+            placeholder="All seasons"
+            className="h-8"
+            triggerClassName="h-8 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs text-slate-900"
+          />
+          <CustomSelect
+            value={`${filters.sort_by}|${filters.sort_order}`}
+            options={[
+              { label: "Newest", value: "created_at|desc" },
+              { label: "Title A–Z", value: "title|asc" },
+              { label: "Destination A–Z", value: "destination|asc" },
+              { label: "Price low to high", value: "starting_price|asc" },
+              { label: "Price high to low", value: "starting_price|desc" },
+              { label: "Recently updated", value: "updated_at|desc" },
+            ]}
+            onChange={(value) => {
+              const [sort_by, sort_order] = value.split("|");
+              setFilters(f => ({ ...f, sort_by, sort_order, page: 1 }));
+            }}
+            placeholder="Newest"
+            className="h-8"
+            triggerClassName="h-8 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs text-slate-900"
+          />
           <label className="flex h-8 items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-semibold text-slate-600"><input className="h-3 w-3 accent-amber-400" type="checkbox" checked={filters.is_featured === "true"} onChange={e => setFilters(f => ({ ...f, is_featured: e.target.checked ? "true" : "", page: 1 }))} /> Featured</label>
         </div>
         <div className="mb-4 flex items-center justify-between gap-4 text-xs text-slate-500"><span>{loading ? "Finding journeys…" : error ? error : "Showing " + packages.length + " of " + pagination.total + " journeys"}</span><button className="rounded-full bg-rose-50 px-3 py-1 text-[10px] font-bold text-rose-600 transition hover:bg-rose-100" onClick={() => { setSearchInput(""); setFilters({ page: 1, page_size: 12, search: "", destination: "", type: "", season: "", is_featured: "", min_price: "", max_price: "", sort_by: "created_at", sort_order: "desc" }) }}>Reset</button></div>

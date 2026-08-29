@@ -220,7 +220,16 @@ export function updateMe(data){return request("/api/v1/account/me",{method:"PATC
 export function fetchSessions(){return request("/api/v1/sessions/",{},true);}
 export function deleteSession(id){return request(`/api/v1/sessions/${encodeURIComponent(id)}`,{method:"DELETE"},true);}
 export function fetchDocuments(page = 1, pageSize = 50) { return request(`/api/v1/documents?page=${page}&page_size=${pageSize}`, {}, true); }
-export function uploadDocument({ file, documentType, title, description }) { const form = new FormData(); form.append("file", file); form.append("document_type", documentType); form.append("title", title); form.append("description", description); return request("/api/v1/documents", { method: "POST", body: form }, true); }
+export function uploadDocument({ file, fileUrl, documentType, title, description }) {
+  const value = fileUrl || file;
+  if (!value) throw new Error("Please choose a file to upload");
+  const form = new FormData();
+  form.append("file", value);
+  form.append("document_type", documentType || "");
+  form.append("title", title || "");
+  form.append("description", description || "");
+  return request("/api/v1/documents", { method: "POST", body: form }, true);
+}
 export function downloadDocument(id) { return request(`/api/v1/documents/${encodeURIComponent(id)}/download`, {}, true); }
 export function deleteDocument(id) { return request(`/api/v1/documents/${encodeURIComponent(id)}`, { method: "DELETE" }, true); }
 export function fetchReferralCode() { return request("/api/v1/referrals/code", {}, true); }

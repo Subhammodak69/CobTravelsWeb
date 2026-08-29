@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { submitCustomEnquiry } from "../api";
 import { useTravel } from "../contexts/TravelContext";
+import CustomSelect from "../components/CustomSelect";
 import enums from "../utils/enums.json";
 
 const VEHICLE_OPTIONS = Object.values(enums.VehicleType);
@@ -136,11 +137,13 @@ export default function CustomTourEnquiryPage() {
                   </div>
                   <div>
                     <label className={labelCls} htmlFor="custom-page-type">Enquiry Type</label>
-                    <select id="custom-page-type" value={form.enquiry_type} onChange={set("enquiry_type")} className={selectCls}>
-                      {ENQUIRY_TYPE_OPTIONS.map((t) => (
-                        <option key={t} value={t}>{t.replace(/_/g, " ")}</option>
-                      ))}
-                    </select>
+                    <CustomSelect
+                      value={form.enquiry_type}
+                      options={ENQUIRY_TYPE_OPTIONS.map((t) => ({ label: t.replace(/_/g, " "), value: t }))}
+                      onChange={(value) => setForm((f) => ({ ...f, enquiry_type: value }))}
+                      placeholder="Select enquiry type"
+                      triggerClassName="h-12 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900"
+                    />
                   </div>
                   <div>
                     <label className={labelCls} htmlFor="custom-page-date">Tentative Travel Date</label>
@@ -170,21 +173,23 @@ export default function CustomTourEnquiryPage() {
                   </div>
                   <div>
                     <label className={labelCls} htmlFor="custom-page-meal">Meal Plan</label>
-                    <select id="custom-page-meal" value={form.meal_plan} onChange={set("meal_plan")} className={selectCls}>
-                      <option value="ANY">Any / No preference</option>
-                      {MEAL_OPTIONS.map((m) => (
-                        <option key={m} value={m}>{m}</option>
-                      ))}
-                    </select>
+                    <CustomSelect
+                      value={form.meal_plan}
+                      options={[{ label: "Any / No preference", value: "ANY" }, ...MEAL_OPTIONS.map((m) => ({ label: m, value: m }))]}
+                      onChange={(value) => setForm((f) => ({ ...f, meal_plan: value }))}
+                      placeholder="Select meal plan"
+                      triggerClassName="h-12 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900"
+                    />
                   </div>
                   <div>
                     <label className={labelCls} htmlFor="custom-page-vehicle">Vehicle Preference</label>
-                    <select id="custom-page-vehicle" value={form.vehicle_type} onChange={set("vehicle_type")} className={selectCls}>
-                      <option value="ANY">Any / No preference</option>
-                      {VEHICLE_OPTIONS.map((v) => (
-                        <option key={v} value={v}>{v}</option>
-                      ))}
-                    </select>
+                    <CustomSelect
+                      value={form.vehicle_type}
+                      options={[{ label: "Any / No preference", value: "ANY" }, ...VEHICLE_OPTIONS.map((v) => ({ label: v, value: v }))]}
+                      onChange={(value) => setForm((f) => ({ ...f, vehicle_type: value }))}
+                      placeholder="Select vehicle"
+                      triggerClassName="h-12 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900"
+                    />
                   </div>
                 </div>
               </div>
