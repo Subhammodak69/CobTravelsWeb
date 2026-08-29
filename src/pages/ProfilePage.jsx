@@ -25,13 +25,13 @@ const SETTINGS = [
   { id: "sms", label: "SMS alerts", desc: "Booking confirmations" },
 ];
 
-const eyebrow = "mb-3 text-xs font-bold uppercase tracking-[0.3em] text-rose-500";
-const section = "px-6 py-16 sm:px-8 lg:px-16 lg:py-24";
-const title = "font-display text-4xl font-semibold leading-none tracking-tight text-slate-950 sm:text-6xl";
-const input = "w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-amber-300 focus:ring-4 focus:ring-amber-200/50 disabled:opacity-60";
-const softButton = "rounded-full bg-slate-100 px-4 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-60";
-const dangerButton = "rounded-full bg-rose-100 px-4 py-2 text-xs font-bold text-rose-600 transition hover:bg-rose-200 disabled:cursor-not-allowed disabled:opacity-60";
-const primaryButton = "inline-flex items-center justify-center gap-3 rounded-2xl bg-amber-300 px-5 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-amber-300/25 transition hover:-translate-y-0.5 hover:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-60";
+const eyebrow = "mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-rose-500";
+const section = "px-4 py-10 sm:px-6 lg:px-12 lg:py-14";
+const title = "font-display text-2xl font-semibold leading-none tracking-tight text-slate-950 sm:text-3xl lg:text-4xl";
+const input = "w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-200/50 disabled:opacity-60";
+const softButton = "rounded-full bg-slate-100 px-3 py-1.5 text-[10px] font-bold text-slate-700 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-60";
+const dangerButton = "rounded-full bg-rose-100 px-3 py-1.5 text-[10px] font-bold text-rose-600 transition hover:bg-rose-200 disabled:cursor-not-allowed disabled:opacity-60";
+const primaryButton = "inline-flex items-center justify-center gap-2 rounded-lg bg-amber-300 px-3.5 py-2.5 text-xs font-bold text-slate-950 shadow-md shadow-amber-300/25 transition hover:-translate-y-0.5 hover:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-60";
 
 function formatDate(value) {
   if (!value) return "";

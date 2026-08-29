@@ -5,7 +5,7 @@ export default function Footer() {
 
   return (
     <>
-      <footer className="flex flex-col gap-3 bg-slate-950 px-6 py-8 text-xs font-medium tracking-wide text-white/60 sm:flex-row sm:items-center sm:justify-between lg:px-16">
+      <footer className="flex flex-col gap-2 bg-slate-950 px-4 py-5 text-[10px] font-medium tracking-wide text-white/60 sm:flex-row sm:items-center sm:justify-between lg:px-12">
         <span>© 2026 Coochbehar Travel</span>
         <span>Explore · Identify · Reinvent</span>
         <span>info@coochbehartravel.com</span>

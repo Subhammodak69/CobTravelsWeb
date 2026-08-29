@@ -30,7 +30,7 @@ function Layout({ children }) {
   return (
     <main>
       <Header />
-      {hero && <section className="relative flex min-h-[380px] items-end overflow-hidden px-6 pb-14 pt-32 text-white sm:px-8 lg:px-16"><img className="absolute inset-0 h-full w-full object-cover" src={hero.image} alt={hero.alt} /><div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/75 to-slate-950/30" /><div className="relative z-10 max-w-4xl animate-fade-up"><p className="mb-3 text-xs font-bold uppercase tracking-[0.3em] text-amber-300">{hero.eyebrow}</p><h1 className="font-display text-4xl font-semibold leading-tight tracking-tight sm:text-6xl lg:text-7xl">{hero.title} <em className="text-amber-300">{hero.accent}</em></h1></div></section>}
+      {hero && <section className="relative flex min-h-[380px] items-end overflow-hidden px-4 pb-14 pt-32 text-white sm:px-6 lg:px-12"><img className="absolute inset-0 h-full w-full object-cover" src={hero.image} alt={hero.alt} /><div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/75 to-slate-950/30" /><div className="relative z-10 max-w-4xl animate-fade-up"><p className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-amber-300">{hero.eyebrow}</p><h1 className="font-display text-2xl font-semibold leading-tight tracking-tight sm:text-3xl lg:text-4xl">{hero.title} <em className="text-amber-300">{hero.accent}</em></h1></div></section>}
       {children}
       {!isAuthPage && <Footer />}
     </main>

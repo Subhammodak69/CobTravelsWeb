@@ -150,19 +150,19 @@ export default function EnquiryModal({
         style={{ animation: "slideUpPanel 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards" }}
       >
         {/* Fixed Header */}
-        <div className="relative shrink-0 overflow-hidden bg-gradient-to-br from-slate-950 to-teal-900 px-7 py-6 text-white border-b border-slate-800">
+        <div className="relative shrink-0 overflow-hidden bg-gradient-to-br from-slate-950 to-teal-900 px-4 py-4 text-white border-b border-slate-800">
           <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-amber-300/15 blur-2xl" />
           <div className="absolute -bottom-6 left-16 h-28 w-28 rounded-full bg-teal-400/10 blur-2xl" />
-          <div className="relative pr-10">
-            <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.3em] text-amber-300">Send Enquiry</p>
-            <h2 id="enquiry-modal-title" className="font-display text-2xl font-semibold tracking-tight">
+          <div className="relative pr-8">
+            <p className="mb-0.5 text-[9px] font-bold uppercase tracking-[0.25em] text-amber-300">Send Enquiry</p>
+            <h2 id="enquiry-modal-title" className="font-display text-lg font-semibold tracking-tight">
               {displayTitle || packageTitle ? `Plan "${displayTitle || packageTitle}"` : "Get in Touch"}
             </h2>
-            <p className="mt-1 text-sm text-white/60">Our team will get back to you shortly.</p>
+            <p className="mt-0.5 text-xs text-white/60">We'll get back to you shortly.</p>
           </div>
           <button
             onClick={onClose}
-            className="absolute right-5 top-5 grid h-9 w-9 place-items-center rounded-xl border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
+            className="absolute right-3 top-3 grid h-7 w-7 place-items-center rounded-lg border border-white/20 bg-white/10 text-white transition hover:bg-white/20 text-sm"
             aria-label="Close enquiry modal"
           >
             ✕
@@ -170,18 +170,18 @@ export default function EnquiryModal({
         </div>
 
         {/* Scrollable Body */}
-        <div className="flex-1 overflow-y-auto px-7 py-6">
+        <div className="flex-1 overflow-y-auto px-4 py-4">
           {status === "success" ? (
-            <div className="flex flex-col items-center py-8 text-center">
-              <span className="mb-4 grid h-16 w-16 place-items-center rounded-full bg-emerald-100 text-3xl">✓</span>
-              <h3 className="font-display text-2xl font-semibold text-slate-950">Enquiry Sent!</h3>
-              <p className="mt-2 text-sm text-slate-500">Thank you, {form.name}. We'll be in touch soon.</p>
+            <div className="flex flex-col items-center py-6 text-center">
+              <span className="mb-3 grid h-12 w-12 place-items-center rounded-full bg-emerald-100 text-2xl">✓</span>
+              <h3 className="font-display text-lg font-semibold text-slate-950">Enquiry Sent!</h3>
+              <p className="mt-1.5 text-xs text-slate-500">Thank you, {form.name}. We'll be in touch soon.</p>
             </div>
           ) : (
-            <form id="enquiry-form" onSubmit={handleSubmit} noValidate className="grid gap-4">
-              <div className="grid gap-4 sm:grid-cols-2">
+            <form id="enquiry-form" onSubmit={handleSubmit} noValidate className="grid gap-3">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500" htmlFor="enq-name">
+                  <label className="mb-1 block text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500" htmlFor="enq-name">
                     Full Name <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -191,12 +191,12 @@ export default function EnquiryModal({
                     value={form.name}
                     onChange={set("name")}
                     placeholder="Your name"
-                    className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-sm outline-none transition focus:border-amber-400 focus:bg-white focus:ring-4 focus:ring-amber-200/50"
+                    className="h-8 w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-xs outline-none transition focus:border-amber-400 focus:bg-white focus:ring-2 focus:ring-amber-200/50"
                     required
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500" htmlFor="enq-mobile">
+                  <label className="mb-1 block text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500" htmlFor="enq-mobile">
                     Mobile <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -205,7 +205,7 @@ export default function EnquiryModal({
                     value={form.mobile}
                     onChange={set("mobile")}
                     placeholder="+91 98765 43210"
-                    className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-sm outline-none transition focus:border-amber-400 focus:bg-white focus:ring-4 focus:ring-amber-200/50"
+                    className="h-8 w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-xs outline-none transition focus:border-amber-400 focus:bg-white focus:ring-2 focus:ring-amber-200/50"
                     required
                   />
                 </div>
@@ -214,14 +214,14 @@ export default function EnquiryModal({
               {/* Variant Selector */}
               {variants.length > 0 && (
                 <div>
-                  <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500" htmlFor="enq-variant">
+                  <label className="mb-1 block text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500" htmlFor="enq-variant">
                     Package Variant / Season
                   </label>
                   <select
                     id="enq-variant"
                     value={form.variant_id}
                     onChange={set("variant_id")}
-                    className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-sm outline-none transition focus:border-amber-400 focus:bg-white focus:ring-4 focus:ring-amber-200/50 cursor-pointer"
+                    className="h-8 w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-xs outline-none transition focus:border-amber-400 focus:bg-white focus:ring-2 focus:ring-amber-200/50 cursor-pointer"
                   >
                     {variants.map((v) => (
                       <option key={v.id} value={v.id}>
@@ -233,7 +233,7 @@ export default function EnquiryModal({
               )}
 
               <div>
-                <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500" htmlFor="enq-subject">
+                <label className="mb-1 block text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500" htmlFor="enq-subject">
                   Subject
                 </label>
                 <input
@@ -242,7 +242,7 @@ export default function EnquiryModal({
                   value={form.subject}
                   onChange={set("subject")}
                   placeholder="e.g. Group booking query"
-                  className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-sm outline-none transition focus:border-amber-400 focus:bg-white focus:ring-4 focus:ring-amber-200/50"
+                  className="h-8 w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-xs outline-none transition focus:border-amber-400 focus:bg-white focus:ring-2 focus:ring-amber-200/50"
                 />
               </div>
 
