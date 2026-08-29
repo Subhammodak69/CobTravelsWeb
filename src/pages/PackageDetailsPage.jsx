@@ -7,6 +7,7 @@ import { Heart, LoaderCircle } from "lucide-react";
 import PackageGallery from "../components/PackageGallery";
 import Reviews from "../components/Reviews";
 import EnquiryModal from "../components/EnquiryModal";
+import CustomSelect from "../components/CustomSelect";
 
 const eyebrow = "mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-rose-500";
 const sectionTitle = "font-display text-2xl font-semibold leading-none tracking-tight text-slate-950 sm:text-3xl lg:text-4xl";
@@ -180,7 +181,17 @@ export default function PackageDetailsPage() {
               <p className="mt-3 text-xs text-slate-500">You need to complete a booking to leave a review.</p>
             ) : (
               <form className="mt-4 grid gap-3" onSubmit={handleSubmitReview}>
-                <div><label className="mb-1.5 block text-[9px] font-bold uppercase tracking-wide text-slate-500" htmlFor="review-rating">Rating</label><select id="review-rating" className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none focus:border-amber-300" value={reviewForm.rating} onChange={(event) => setReviewForm({ ...reviewForm, rating: event.target.value })}>{[5, 4, 3, 2, 1].map((rating) => <option key={rating} value={rating}>{rating} / 5</option>)}</select></div>
+                <div>
+                  <label className="mb-1.5 block text-[9px] font-bold uppercase tracking-wide text-slate-500" htmlFor="review-rating">Rating</label>
+                  <CustomSelect
+                    value={String(reviewForm.rating)}
+                    options={[5, 4, 3, 2, 1].map((rating) => ({ label: `${rating} / 5`, value: String(rating) }))}
+                    onChange={(value) => setReviewForm({ ...reviewForm, rating: Number(value) })}
+                    placeholder="Select rating"
+                    triggerClassName="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900"
+                    className="w-full"
+                  />
+                </div>
                 <div><label className="mb-1.5 block text-[9px] font-bold uppercase tracking-wide text-slate-500" htmlFor="review-text">Your review</label><textarea id="review-text" className="min-h-24 w-full resize-y rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none focus:border-amber-300" placeholder="What did you enjoy?" value={reviewForm.review} onChange={(event) => setReviewForm({ ...reviewForm, review: event.target.value })} /></div>
                 {reviewState.error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-600" role="alert">{reviewState.error}</p>}{reviewState.message && <p className="rounded-lg bg-emerald-50 px-3 py-2 text-xs text-emerald-700" role="status">{reviewState.message}</p>}
                 <button className={buttonPrimary} type="submit" disabled={reviewState.loading}>{reviewState.loading ? "Submitting..." : eligibility?.has_reviewed ? "Update" : "Submit"}</button>

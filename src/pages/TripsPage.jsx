@@ -11,15 +11,15 @@ export default function TripsPage() {
   const [loading, setLoading] = useState(true);
   useEffect(() => { fetchEnquiries().then((r) => { const d = r?.data; setTrips((Array.isArray(d) ? d : d?.items || []).filter((item) => item.travel_date || item.destination)); }).catch(() => setTrips([])).finally(() => setLoading(false)); }, []);
   return <main className="bg-slate-50">
-      <section className="relative flex min-h-[380px] overflow-hidden px-4 pb-12 pt-32 text-white sm:px-6 lg:px-12">
+      <section className="relative flex min-h-[320px] overflow-hidden px-4 pb-12 pt-32 text-white sm:px-6 lg:px-12">
         <img className="absolute inset-0 h-full w-full object-cover object-center opacity-80 transition duration-1000" src={HERO_IMG} alt="Your travel journeys" />
         <div className="absolute inset-0 bg-gradient-to-r from-teal-950 via-teal-900/50 to-indigo-900/20" />
         <div className="absolute -right-40 -top-48 h-[36rem] w-[36rem] rounded-full bg-cyan-400/25 blur-3xl animate-pulse-soft" />
         <div className="absolute bottom-10 left-1/3 h-72 w-72 rounded-full bg-amber-300/20 blur-3xl animate-float" />
-        <div className="relative z-10 flex max-w-2xl flex-col justify-center animate-fade-up">
+        <div className="relative z-10 flex max-w-2xl flex-col justify-end animate-fade-up">
           <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.3em] text-amber-300">Your travel plans</p>
-          <h1 className="font-display text-2xl font-semibold leading-[1.1] tracking-tight sm:text-3xl lg:text-4xl">My <em className="text-amber-300">trips.</em></h1>
-          <p className="mt-2 max-w-lg text-[10px] leading-4 text-white/75">Your planned journeys will appear below as your travel plans take shape.</p>
+          <h1 className="font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl lg:text-5xl">My <em className="text-amber-300">trips.</em></h1>
+          <p className="mt-2.5 max-w-2xl text-xs leading-5 text-white/80 sm:text-sm">Your planned journeys will appear below as your travel plans take shape.</p>
         </div>
       </section>
       <section className="px-4 pb-24 sm:px-6 lg:px-12">

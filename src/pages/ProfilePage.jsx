@@ -25,13 +25,14 @@ const SETTINGS = [
   { id: "sms", label: "SMS alerts", desc: "Booking confirmations" },
 ];
 
-const eyebrow = "mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-rose-500";
-const section = "px-4 py-10 sm:px-6 lg:px-12 lg:py-14";
-const title = "font-display text-2xl font-semibold leading-none tracking-tight text-slate-950 sm:text-3xl lg:text-4xl";
+const eyebrow = "mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-rose-500";
+const section = "px-4 py-6 sm:px-6 lg:px-12 lg:py-8";
+const title = "font-display text-lg font-semibold leading-tight tracking-tight text-slate-950 sm:text-xl lg:text-2xl";
 const input = "w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-200/50 disabled:opacity-60";
 const softButton = "rounded-full bg-slate-100 px-3 py-1.5 text-[10px] font-bold text-slate-700 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-60";
 const dangerButton = "rounded-full bg-rose-100 px-3 py-1.5 text-[10px] font-bold text-rose-600 transition hover:bg-rose-200 disabled:cursor-not-allowed disabled:opacity-60";
 const primaryButton = "inline-flex items-center justify-center gap-2 rounded-lg bg-amber-300 px-3.5 py-2.5 text-xs font-bold text-slate-950 shadow-md shadow-amber-300/25 transition hover:-translate-y-0.5 hover:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-60";
+const card = "rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-950/5";
 
 function formatDate(value) {
   if (!value) return "";
@@ -55,7 +56,10 @@ export default function ProfilePage() {
   const [sessionsError, setSessionsError] = useState("");
   const [sessionActionId, setSessionActionId] = useState("");
   const [loggingOutAll, setLoggingOutAll] = useState(false);
+  const [expandedSessions, setExpandedSessions] = useState({});
+  const [sessionsExpanded, setSessionsExpanded] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const [profileForm, setProfileForm] = useState({
     name: "",
     mobile: "",
@@ -95,6 +99,10 @@ export default function ProfilePage() {
   }, [isMember]);
 
   useEffect(() => { loadSessions(); }, [loadSessions]);
+
+  const toggleSessionExpanded = (id) => {
+    setExpandedSessions((current) => ({ ...current, [id]: !current[id] }));
+  };
 
   const revokeSession = async (session) => {
     if (!session?.id || sessionActionId) return;
@@ -146,13 +154,13 @@ export default function ProfilePage() {
   };
 
   useEffect(() => {
-    if (!editing) return;
+    if (!editing && !detailsOpen) return;
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = originalOverflow;
     };
-  }, [editing]);
+  }, [editing, detailsOpen]);
 
 
   const [rawImageForCrop, setRawImageForCrop] = useState("");
@@ -226,18 +234,18 @@ export default function ProfilePage() {
 
   return (
     <div ref={revealRef} className="bg-slate-50" id="profile-page">
-      <section className="relative overflow-hidden bg-slate-950 px-6 pb-14 pt-32 text-white sm:px-8 lg:px-16">
+      <section className="relative overflow-hidden bg-slate-950 px-6 pb-10 pt-24 text-white sm:px-8 lg:px-16 lg:pt-28">
         <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-cyan-400/20 blur-3xl animate-pulse-soft" />
         <div className="absolute bottom-0 left-10 h-72 w-72 rounded-full bg-amber-300/20 blur-3xl animate-float" />
-        <div className="relative z-10 flex flex-col gap-6 sm:flex-row sm:items-center">
-          <div className="grid h-28 w-28 shrink-0 place-items-center overflow-hidden rounded-full bg-amber-300 font-display text-5xl font-semibold text-slate-950 shadow-glow">
+        <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-center">
+          <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full bg-amber-300 font-display text-3xl font-semibold text-slate-950 shadow-glow sm:h-24 sm:w-24 sm:text-4xl">
             {profileImage ? <img className="h-full w-full object-cover" src={profileImage} alt={user?.name || "Profile"} /> : <span>{avatarLetter}</span>}
           </div>
           <div className="flex-1">
-            <h1 className="font-display text-4xl font-semibold leading-none tracking-tight sm:text-6xl">{user?.name || "Member Traveller"}</h1>
-            <p className="mt-3 text-sm text-white/60">{(user?.email || user?.mobile || "Authenticated Member") + " · Member"}</p>
+            <h1 className="font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl lg:text-5xl">{user?.name || "Member Traveller"}</h1>
+            <p className="mt-2 text-xs text-white/60 sm:text-sm">{(user?.email || user?.mobile || "Authenticated Member") + " · Member"}</p>
           </div>
-          <button className="w-fit rounded-2xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-bold backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/20" id="profile-edit-btn" onClick={openEditor}>Edit profile</button>
+          <button className="w-fit rounded-2xl border border-white/20 bg-white/10 px-4 py-2.5 text-xs font-bold backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/20 sm:text-sm" id="profile-edit-btn" onClick={openEditor}>Edit profile</button>
         </div>
       </section>
 
@@ -245,20 +253,20 @@ export default function ProfilePage() {
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-xl" role="presentation" onClick={() => !saving && setEditing(false)}>
           <section className="relative flex max-h-[88vh] w-full max-w-3xl flex-col overflow-hidden rounded-[2rem] bg-white shadow-2xl shadow-slate-950/30" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title" onClick={(event) => event.stopPropagation()}>
             {/* Fixed Modal Header */}
-            <div className="relative flex shrink-0 items-center justify-between border-b border-slate-100 px-6 py-5 sm:px-8">
+            <div className="relative flex shrink-0 items-center justify-between border-b border-slate-100 px-6 py-4 sm:px-8">
               <div>
                 <p className={eyebrow}>Account</p>
-                <h2 className="font-display text-2xl font-semibold leading-tight tracking-tight text-slate-950 sm:text-3xl" id="profile-modal-title">Edit your profile</h2>
+                <h2 className="font-display text-xl font-semibold leading-tight tracking-tight text-slate-950 sm:text-2xl" id="profile-modal-title">Edit your profile</h2>
               </div>
-              <button className="grid h-10 w-10 place-items-center rounded-full bg-slate-100 text-2xl text-slate-500 transition hover:rotate-90 hover:bg-slate-200" type="button" onClick={() => setEditing(false)} aria-label="Close">×</button>
+              <button className="grid h-9 w-9 place-items-center rounded-full bg-slate-100 text-xl text-slate-500 transition hover:rotate-90 hover:bg-slate-200" type="button" onClick={() => setEditing(false)} aria-label="Close">×</button>
             </div>
 
             {/* Scrollable Modal Content */}
-            <form id="profile-edit-form" className="flex flex-1 flex-col overflow-y-auto px-6 py-6 sm:px-8" onSubmit={saveProfile}>
+            <form id="profile-edit-form" className="flex flex-1 flex-col overflow-y-auto px-6 py-5 sm:px-8" onSubmit={saveProfile}>
               <div className="flex flex-col items-center gap-3 pb-4">
-                <div className="relative grid h-28 w-28 place-items-center overflow-visible rounded-full bg-amber-300 font-display text-4xl font-semibold text-slate-950 shadow-xl shadow-slate-950/10">
+                <div className="relative grid h-24 w-24 place-items-center overflow-visible rounded-full bg-amber-300 font-display text-3xl font-semibold text-slate-950 shadow-xl shadow-slate-950/10">
                   {profilePreview ? <img className="h-full w-full rounded-full object-cover" src={profilePreview} alt="Profile preview" /> : <span>{(user?.name || "M")[0].toUpperCase()}</span>}
-                  <label className="absolute -bottom-2 -right-2 grid h-10 w-10 cursor-pointer place-items-center rounded-2xl bg-slate-950 text-xl text-white shadow-lg transition hover:scale-105" htmlFor="profile-picture" aria-label="Choose profile picture">+</label>
+                  <label className="absolute -bottom-2 -right-2 grid h-9 w-9 cursor-pointer place-items-center rounded-2xl bg-slate-950 text-lg text-white shadow-lg transition hover:scale-105" htmlFor="profile-picture" aria-label="Choose profile picture">+</label>
                 </div>
                 <input className="hidden" id="profile-picture" type="file" accept="image/*" onChange={chooseProfilePhoto} disabled={saving || uploadingPhoto} />
                 <small className="text-xs text-slate-500">{uploadingPhoto ? "Uploading image..." : profileFile ? `${profileFile.name} · Uploaded` : "Add a profile picture"}</small>
@@ -305,52 +313,86 @@ export default function ProfilePage() {
 
 
       {isMember && (
-        <section className="grid grid-cols-2 border-b border-slate-200 bg-white lg:grid-cols-4">
-          {STATS.map(({ label, value }) => (
-            <div className="border-r border-b border-slate-200 p-6 lg:p-8" key={label}>
-              <b className="block font-display text-4xl font-semibold leading-none text-slate-950">{value}</b>
-              <span className="mt-2 block text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">{label}</span>
-            </div>
-          ))}
+        <section className="bg-white px-4 py-4 sm:px-6 lg:px-12">
+          <div className="flex flex-wrap gap-2">
+            {STATS.map(({ label, value }) => (
+              <span key={label} className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-semibold text-slate-600">
+                ✦ {value} {label}
+              </span>
+            ))}
+            {profileDetails.length > 0 && (
+              <button
+                type="button"
+                className="rounded-full border border-amber-300 bg-amber-50 px-2.5 py-1 text-[10px] font-bold text-amber-700 transition hover:bg-amber-100"
+                onClick={() => setDetailsOpen(true)}
+                id="profile-view-details-btn"
+              >
+                ✦ View profile details
+              </button>
+            )}
+          </div>
         </section>
       )}
 
-      {isMember && profileDetails.length > 0 && (
-        <section className={`${section} bg-slate-100`}>
-          <p className={eyebrow}>Profile</p>
-          <h2 className={title}>Your <em className="text-amber-500">details.</em></h2>
-          <div className="mt-10 grid gap-4 lg:grid-cols-2">
-            {profileDetails.map(([label, value]) => (
-              <div className={`rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-lg shadow-slate-950/5 ${label === "Address" ? "lg:col-span-2" : ""}`} key={label}>
-                <span className="mb-2 block text-[11px] font-bold uppercase tracking-[0.2em] text-rose-500">{label}</span>
-                <b className="block break-words text-sm font-semibold leading-6 text-slate-800">{String(value)}</b>
+      {detailsOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-xl" role="presentation" onClick={() => setDetailsOpen(false)}>
+          <section className="relative flex max-h-[88vh] w-full max-w-3xl flex-col overflow-hidden rounded-[2rem] bg-white shadow-2xl shadow-slate-950/30" role="dialog" aria-modal="true" aria-labelledby="profile-details-modal-title" onClick={(event) => event.stopPropagation()}>
+            {/* Fixed Modal Header */}
+            <div className="relative flex shrink-0 items-center justify-between border-b border-slate-100 px-6 py-4 sm:px-8">
+              <div>
+                <p className={eyebrow}>Account</p>
+                <h2 className="font-display text-xl font-semibold leading-tight tracking-tight text-slate-950 sm:text-2xl" id="profile-details-modal-title">Profile details</h2>
               </div>
-            ))}
-          </div>
-        </section>
+              <button className="grid h-9 w-9 place-items-center rounded-full bg-slate-100 text-xl text-slate-500 transition hover:rotate-90 hover:bg-slate-200" type="button" onClick={() => setDetailsOpen(false)} aria-label="Close">×</button>
+            </div>
+
+            {/* Scrollable Modal Content — mirrors the edit form's layout, read-only */}
+            <div className="flex flex-1 flex-col overflow-y-auto px-6 py-5 sm:px-8">
+              <div className="flex flex-col items-center gap-3 pb-4">
+                <div className="grid h-24 w-24 place-items-center overflow-hidden rounded-full bg-amber-300 font-display text-3xl font-semibold text-slate-950 shadow-xl shadow-slate-950/10">
+                  {profileImage ? <img className="h-full w-full object-cover" src={profileImage} alt={user?.name || "Profile"} /> : <span>{avatarLetter}</span>}
+                </div>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {profileDetails.map(([label, value]) => (
+                  <div className={label === "Address" ? "sm:col-span-2" : ""} key={label}>
+                    <span className="mb-2 block text-[11px] font-bold uppercase tracking-wider text-slate-500">{label}</span>
+                    <div className="w-full break-words rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-800">{String(value)}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Fixed Modal Footer */}
+            <div className="flex shrink-0 items-center justify-end gap-3 border-t border-slate-100 bg-slate-50/80 px-6 py-4 backdrop-blur-sm sm:px-8">
+              <button type="button" className={softButton} onClick={() => setDetailsOpen(false)}>Close</button>
+              <button type="button" className={primaryButton} onClick={() => { setDetailsOpen(false); openEditor(); }}>Edit profile</button>
+            </div>
+          </section>
+        </div>
       )}
 
       <section className={`${section} bg-slate-50`}>
         <p className={eyebrow}>Your journeys</p>
         <h2 className={title}>Trips you&apos;ve <em className="text-amber-500">loved.</em></h2>
         {isMember ? (
-          <div className="mt-10 grid gap-4">
+          <div className="mt-4 grid gap-2.5">
             {pastTrips.map((pack) => (
-              <article key={pack.id} className="group flex cursor-pointer flex-col overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-lg shadow-slate-950/5 transition hover:-translate-y-1 hover:shadow-glow sm:flex-row sm:items-center" onClick={() => selectPackage(pack.id)} id={`profile-trip-${pack.id}`}>
-                <img className="h-44 w-full object-cover transition group-hover:scale-105 sm:h-28 sm:w-40" src={pack.image} alt={pack.title} />
-                <div className="flex-1 p-5">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">{pack.code} · {pack.duration}</p>
-                  <h3 className="mt-2 font-display text-2xl font-semibold text-slate-950">{pack.title}</h3>
-                  <span className="mt-2 block text-sm text-slate-500">{pack.route.slice(0, 2).join(" → ")}</span>
+              <article key={pack.id} className={`${card} group flex cursor-pointer items-center overflow-hidden transition hover:-translate-y-0.5 hover:shadow-md`} onClick={() => selectPackage(pack.id)} id={`profile-trip-${pack.id}`}>
+                <img className="h-20 w-24 shrink-0 object-cover transition group-hover:scale-105 sm:h-16 sm:w-28" src={pack.image} alt={pack.title} />
+                <div className="min-w-0 flex-1 px-3 py-2.5">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">{pack.code} · {pack.duration}</p>
+                  <h3 className="mt-0.5 truncate font-display text-sm font-semibold text-slate-950 sm:text-base">{pack.title}</h3>
+                  <span className="mt-0.5 block truncate text-[11px] text-slate-500">{pack.route.slice(0, 2).join(" → ")}</span>
                 </div>
-                <span className="px-5 pb-5 text-2xl text-amber-500 sm:pb-0">↗</span>
+                <span className="shrink-0 px-3 text-lg text-amber-500">↗</span>
               </article>
             ))}
           </div>
         ) : (
-          <div className="mt-10 rounded-[1.5rem] border border-slate-200 bg-white p-10 text-center shadow-lg shadow-slate-950/5">
-            <p className="text-slate-500">Sign in to see your trip history and saved itineraries.</p>
-            <button className={`${primaryButton} mt-5`} id="profile-locked-signin-btn" onClick={() => window.location.assign("/login")}>Sign in <span>→</span></button>
+          <div className={`${card} mt-4 p-6 text-center`}>
+            <p className="text-xs text-slate-500">Sign in to see your trip history and saved itineraries.</p>
+            <button className={`${primaryButton} mt-3`} id="profile-locked-signin-btn" onClick={() => window.location.assign("/login")}>Sign in <span>→</span></button>
           </div>
         )}
       </section>
@@ -358,12 +400,12 @@ export default function ProfilePage() {
       <section className={`${section} bg-white`}>
         <p className={eyebrow}>Preferences</p>
         <h2 className={title}>Stay in the <em className="text-amber-500">loop.</em></h2>
-        <div className="mt-10 divide-y divide-slate-200 rounded-[1.5rem] border border-slate-200 bg-slate-50">
+        <div className={`${card} mt-4 divide-y divide-slate-100`}>
           {SETTINGS.map(({ id, label, desc }) => (
-            <label key={id} className="flex cursor-pointer items-center justify-between gap-5 p-5" id={`pref-${id}`}>
-              <div><span className="block text-sm font-bold text-slate-900">{label}</span><small className="text-xs text-slate-500">{desc}</small></div>
-              <button role="switch" aria-checked={toggles[id]} className={`relative h-7 w-12 shrink-0 rounded-full transition ${toggles[id] ? "bg-amber-400" : "bg-slate-300"}`} onClick={() => setToggles((t) => ({ ...t, [id]: !t[id] }))} type="button">
-                <span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition ${toggles[id] ? "left-6" : "left-1"}`} />
+            <label key={id} className="flex cursor-pointer items-center justify-between gap-4 px-4 py-3" id={`pref-${id}`}>
+              <div><span className="block text-xs font-bold text-slate-900">{label}</span><small className="text-[11px] text-slate-500">{desc}</small></div>
+              <button role="switch" aria-checked={toggles[id]} className={`relative h-6 w-11 shrink-0 rounded-full transition ${toggles[id] ? "bg-amber-400" : "bg-slate-300"}`} onClick={() => setToggles((t) => ({ ...t, [id]: !t[id] }))} type="button">
+                <span className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow transition ${toggles[id] ? "left-6" : "left-1"}`} />
               </button>
             </label>
           ))}
@@ -372,41 +414,80 @@ export default function ProfilePage() {
 
       {isMember && (
         <section className={`${section} bg-slate-50`}>
-          <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
+          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
             <div><p className={eyebrow}>Security</p><h2 className={title}>Active <em className="text-amber-500">sessions.</em></h2></div>
-            <div className="flex flex-wrap gap-3">
-              <button className={softButton} type="button" onClick={loadSessions} disabled={sessionsLoading || Boolean(sessionActionId) || loggingOutAll}>{sessionsLoading ? "Refreshing..." : "Refresh"}</button>
-              <button className={dangerButton} type="button" onClick={logoutEverywhere} disabled={loggingOutAll || Boolean(sessionActionId)}>{loggingOutAll ? "Logging out..." : "Logout all"}</button>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                className={softButton}
+                onClick={() => setSessionsExpanded((v) => !v)}
+                aria-expanded={sessionsExpanded}
+                aria-controls="active-sessions-panel"
+              >
+                <span className="inline-flex items-center gap-1.5">
+                  <span className={`inline-block transition-transform ${sessionsExpanded ? "rotate-90" : ""}`} aria-hidden="true">›</span>
+                  {sessionsExpanded ? "Hide sessions" : `Show sessions${sessions.length ? ` (${sessions.length})` : ""}`}
+                </span>
+              </button>
+              {sessionsExpanded && (
+                <>
+                  <button className={softButton} type="button" onClick={loadSessions} disabled={sessionsLoading || Boolean(sessionActionId) || loggingOutAll}>{sessionsLoading ? "Refreshing..." : "Refresh"}</button>
+                  <button className={dangerButton} type="button" onClick={logoutEverywhere} disabled={loggingOutAll || Boolean(sessionActionId)}>{loggingOutAll ? "Logging out..." : "Logout all"}</button>
+                </>
+              )}
             </div>
           </div>
-          {sessionsError && <p className="mt-5 rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-600" role="alert">{sessionsError}</p>}
-          {sessionsLoading && sessions.length === 0 ? (
-            <div className="mt-8 rounded-[1.5rem] border border-dashed border-slate-300 bg-white p-6 text-slate-500">Loading active sessions...</div>
-          ) : sessions.length > 0 ? (
-            <div className="mt-8 grid gap-4">
-              {sessions.map((session) => (
-                <article className="flex flex-col gap-5 rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-lg shadow-slate-950/5 lg:flex-row lg:items-center lg:justify-between" key={session.id}>
-                  <div className="min-w-0">
-                    <div className="mb-3 flex flex-wrap items-center gap-3">
-                      <h3 className="text-lg font-bold text-slate-950">{session.actor_type || "Session"}</h3>
-                      {session.is_current && <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-bold text-emerald-600">Current device</span>}
-                    </div>
-                    <p className="break-words text-sm leading-6 text-slate-600">{session.user_agent || "Unknown browser"}</p>
-                    <div className="mt-4 grid gap-2 text-xs text-slate-500 sm:grid-cols-2">
-                      <small>IP: {session.ip_address || "Not available"}</small>
-                      <small>Started: {formatDateTime(session.created_at)}</small>
-                      <small>Last used: {formatDateTime(session.last_used_at)}</small>
-                      <small>Expires: {formatDateTime(session.expires_at)}</small>
-                    </div>
-                  </div>
-                  <button className="rounded-full bg-slate-950 px-5 py-3 text-xs font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60" type="button" onClick={() => revokeSession(session)} disabled={Boolean(sessionActionId) || loggingOutAll}>
-                    {sessionActionId === session.id ? "Revoking..." : session.is_current ? "Sign out here" : "Revoke"}
-                  </button>
-                </article>
-              ))}
+
+          {sessionsExpanded && (
+            <div id="active-sessions-panel">
+              {sessionsError && <p className="mt-3 rounded-xl bg-rose-50 px-3.5 py-2.5 text-xs text-rose-600" role="alert">{sessionsError}</p>}
+              {sessionsLoading && sessions.length === 0 ? (
+                <div className={`${card} mt-4 border-dashed p-4 text-xs text-slate-500`}>Loading active sessions...</div>
+              ) : sessions.length > 0 ? (
+                <div className="mt-4 grid gap-2">
+                  {sessions.map((session) => {
+                    const isExpanded = Boolean(expandedSessions[session.id]);
+                    return (
+                      <article className={`${card} overflow-hidden`} key={session.id}>
+                        <div className="flex items-center gap-3 px-4 py-3">
+                          <button
+                            type="button"
+                            className="flex min-w-0 flex-1 items-center gap-2.5 text-left"
+                            onClick={() => toggleSessionExpanded(session.id)}
+                            aria-expanded={isExpanded}
+                            aria-controls={`session-details-${session.id}`}
+                          >
+                            <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full bg-slate-100 text-slate-500 transition-transform ${isExpanded ? "rotate-90" : ""}`} aria-hidden="true">
+                              ›
+                            </span>
+                            <span className="min-w-0">
+                              <span className="flex flex-wrap items-center gap-2">
+                                <h3 className="text-xs font-bold text-slate-950 sm:text-sm">{session.actor_type || "Session"}</h3>
+                                {session.is_current && <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-600">Current device</span>}
+                              </span>
+                              <p className="truncate text-[11px] text-slate-500">{session.user_agent || "Unknown browser"}</p>
+                            </span>
+                          </button>
+                          <button className="shrink-0 rounded-full bg-slate-950 px-3.5 py-2 text-[11px] font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60" type="button" onClick={() => revokeSession(session)} disabled={Boolean(sessionActionId) || loggingOutAll}>
+                            {sessionActionId === session.id ? "Revoking..." : session.is_current ? "Sign out" : "Revoke"}
+                          </button>
+                        </div>
+                        {isExpanded && (
+                          <div id={`session-details-${session.id}`} className="grid gap-1.5 border-t border-slate-100 bg-slate-50/70 px-4 py-3 text-[11px] text-slate-500 sm:grid-cols-2">
+                            <small>IP: {session.ip_address || "Not available"}</small>
+                            <small>Started: {formatDateTime(session.created_at)}</small>
+                            <small>Last used: {formatDateTime(session.last_used_at)}</small>
+                            <small>Expires: {formatDateTime(session.expires_at)}</small>
+                          </div>
+                        )}
+                      </article>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className={`${card} mt-4 border-dashed p-4 text-xs text-slate-500`}>No active sessions found.</div>
+              )}
             </div>
-          ) : (
-            <div className="mt-8 rounded-[1.5rem] border border-dashed border-slate-300 bg-white p-6 text-slate-500">No active sessions found.</div>
           )}
         </section>
       )}
@@ -414,15 +495,15 @@ export default function ProfilePage() {
       <section className={`${section} bg-white`}>
         <p className={eyebrow}>Account</p>
         <h2 className={title}>Manage your <em className="text-amber-500">account.</em></h2>
-        <div className="mt-10 divide-y divide-slate-200 rounded-[1.5rem] border border-slate-200 bg-slate-50">
+        <div className={`${card} mt-4 divide-y divide-slate-100`}>
           {["Contact support", "Privacy policy", "Terms & conditions"].map((label) => (
-            <button className="flex w-full items-center justify-between px-5 py-5 text-left text-sm font-semibold text-slate-700 transition hover:bg-white hover:px-7" key={label}>{label}<em className="not-italic text-slate-400">→</em></button>
+            <button className="flex w-full items-center justify-between px-4 py-3 text-left text-xs font-semibold text-slate-700 transition hover:bg-slate-50" key={label}>{label}<em className="not-italic text-slate-400">→</em></button>
           ))}
-          {isMember && <button className="flex w-full items-center justify-between px-5 py-5 text-left text-sm font-bold text-rose-600 transition hover:bg-rose-50 hover:px-7" id="profile-signout-btn" onClick={toggleMember}>Sign out<em className="not-italic">→</em></button>}
+          {isMember && <button className="flex w-full items-center justify-between px-4 py-3 text-left text-xs font-bold text-rose-600 transition hover:bg-rose-50" id="profile-signout-btn" onClick={toggleMember}>Sign out<em className="not-italic">→</em></button>}
         </div>
       </section>
 
-      <div className="bg-slate-50 px-6 py-12 text-center">
+      <div className="bg-slate-50 px-6 py-6 text-center">
         <button className={primaryButton} id="profile-back-home-btn" onClick={goHome}>Back to journeys <span>↓</span></button>
       </div>
     </div>

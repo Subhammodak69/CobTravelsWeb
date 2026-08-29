@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { submitEnquiry, fetchPackageSelect, isValidUUID } from "../api";
 import { useTravel } from "../contexts/TravelContext";
+import CustomSelect from "./CustomSelect";
 import enums from "../utils/enums.json";
 
 const CHANNELS = Object.keys(enums?.EnquiryChannel || {
@@ -217,18 +218,17 @@ export default function EnquiryModal({
                   <label className="mb-1 block text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500" htmlFor="enq-variant">
                     Package Variant / Season
                   </label>
-                  <select
-                    id="enq-variant"
+                  <CustomSelect
                     value={form.variant_id}
-                    onChange={set("variant_id")}
-                    className="h-8 w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-xs outline-none transition focus:border-amber-400 focus:bg-white focus:ring-2 focus:ring-amber-200/50 cursor-pointer"
-                  >
-                    {variants.map((v) => (
-                      <option key={v.id} value={v.id}>
-                        {v.name || v.season_name} {v.season_name && v.name && v.name !== v.season_name ? `(${v.season_name})` : ""}
-                      </option>
-                    ))}
-                  </select>
+                    options={variants.map((v) => ({
+                      label: `${v.name || v.season_name}${v.season_name && v.name && v.name !== v.season_name ? ` (${v.season_name})` : ""}`,
+                      value: v.id,
+                    }))}
+                    onChange={(value) => setForm((f) => ({ ...f, variant_id: value }))}
+                    placeholder="Select package variant"
+                    triggerClassName="h-8 w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-xs text-slate-900"
+                    className="w-full"
+                  />
                 </div>
               )}
 

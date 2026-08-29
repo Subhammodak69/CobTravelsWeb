@@ -13,6 +13,7 @@ import TripsPage from "./pages/TripsPage";
 import DocumentsPage from "./pages/DocumentsPage";
 import WishlistPage from "./pages/WishlistPage";
 import ReferralsPage from "./pages/ReferralsPage";
+import ToursExplorePage from "./pages/ToursExplorePage";
 import { captureReferralFromUrl } from "./api";
 import useVisitorTracking from "./hooks/useVisitorTracking";
 
@@ -30,7 +31,7 @@ function Layout({ children }) {
   return (
     <main>
       <Header />
-      {hero && <section className="relative flex min-h-[380px] items-end overflow-hidden px-4 pb-14 pt-32 text-white sm:px-6 lg:px-12"><img className="absolute inset-0 h-full w-full object-cover" src={hero.image} alt={hero.alt} /><div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/75 to-slate-950/30" /><div className="relative z-10 max-w-4xl animate-fade-up"><p className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-amber-300">{hero.eyebrow}</p><h1 className="font-display text-2xl font-semibold leading-tight tracking-tight sm:text-3xl lg:text-4xl">{hero.title} <em className="text-amber-300">{hero.accent}</em></h1></div></section>}
+      {hero && <section className="relative flex min-h-[320px] items-end overflow-hidden px-4 pb-14 pt-32 text-white sm:px-6 lg:px-12"><img className="absolute inset-0 h-full w-full object-cover" src={hero.image} alt={hero.alt} /><div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/75 to-slate-950/30" /><div className="relative z-10 max-w-4xl animate-fade-up"><p className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-amber-300">{hero.eyebrow}</p><h1 className="font-display text-2xl font-semibold leading-tight tracking-tight sm:text-3xl lg:text-4xl">{hero.title} <em className="text-amber-300">{hero.accent}</em></h1></div></section>}
       {children}
       {!isAuthPage && <Footer />}
     </main>
@@ -98,6 +99,7 @@ function AppRoutes() {
       <ReferralCapture />
       <Routes>
         <Route path="/" element={<Layout><HomePage /></Layout>} />
+        <Route path="/tours" element={<Layout><ToursExplorePage /></Layout>} />
         <Route path="/journey/:id" element={<Layout><PackageDetailsPage /></Layout>} />
         <Route path="/custom-tour-enquiry" element={<Layout><CustomTourEnquiryPage /></Layout>} />
 

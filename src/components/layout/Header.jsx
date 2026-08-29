@@ -34,8 +34,30 @@ export default function Header() {
         </button>
       </div>
       <div className="flex items-center gap-2 sm:gap-4">
-        <a className="hidden text-xs font-medium text-white/75 transition hover:text-white sm:inline" href="/#journeys" onClick={(e) => { if (location.pathname === "/") { e.preventDefault(); document.getElementById("journeys")?.scrollIntoView({ behavior: "smooth" }); } }}>Journeys</a>
-        <a className="hidden text-xs font-medium text-white/75 transition hover:text-white sm:inline" href="/#story" onClick={(e) => { if (location.pathname === "/") { e.preventDefault(); document.getElementById("story")?.scrollIntoView({ behavior: "smooth" }); } }}>Our story</a>
+        <a
+          className="hidden text-xs font-medium text-white/75 transition hover:text-white sm:inline"
+          href="/tours"
+          onClick={(e) => {
+            if (location.pathname === "/") {
+              e.preventDefault();
+              document.getElementById("categories")?.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
+        >
+          Journeys
+        </a>
+        <a
+          className="hidden text-xs font-medium text-white/75 transition hover:text-white sm:inline"
+          href="/#story"
+          onClick={(e) => {
+            if (location.pathname === "/") {
+              e.preventDefault();
+              document.getElementById("story")?.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
+        >
+          Our story
+        </a>
         <button
           className="hidden text-xs font-medium text-white/75 transition hover:text-white lg:inline"
           onClick={() => navigate("/custom-tour-enquiry")}
