@@ -36,17 +36,17 @@ export default function PrivacyPolicy() {
   return (
     <div className="bg-slate-50">
       {/* Header */}
-      <section className="border-b border-slate-200 bg-slate-950 px-4 pb-10 pt-24 text-white sm:px-6 lg:px-12 lg:pt-28">
+      <section className="border-b border-navy-light bg-navy px-4 pb-10 pt-16 text-white sm:px-6 lg:px-12">
         <div className="mx-auto max-w-5xl">
-          <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.25em] text-amber-300">Legal</p>
-          <h1 className="font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
-            Privacy Policy
+          <p className="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-accent-300">Legal Information</p>
+          <h1 className="font-display text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl text-white">
+            Privacy <span className="text-primary-300">Policy</span>
           </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/70">
+          <p className="mt-2 max-w-2xl text-xs sm:text-sm leading-relaxed text-white/80">
             Planning a trip means sharing some personal details with us. Here's exactly what we
-            collect, why we need it, and the choices you have over it.
+            collect, why we need it, and how we protect your personal information.
           </p>
-          <p className="mt-4 text-xs text-white/50">Last updated: {LAST_UPDATED}</p>
+          <p className="mt-3 text-xs text-white/50">Last updated: {LAST_UPDATED}</p>
         </div>
       </section>
 

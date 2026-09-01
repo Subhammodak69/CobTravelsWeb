@@ -59,61 +59,63 @@ export default function PackageGallery({ pack }) {
 
   return (
     <>
-      <section className="bg-slate-100 px-4 py-8 sm:px-6 lg:px-8">
-        {/* HEADER */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-rose-500 mb-1">Through our lens</p>
-            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-950 font-display">
-              Scenes worth <br className="hidden sm:block" /><span className="text-amber-500">remembering.</span>
-            </h2>
-          </div>
-          <p className="text-xs text-slate-500 max-w-sm leading-relaxed">
-            Scenes from this journey supplied by Coochbehar Travel.
-          </p>
-        </div>
-
-        {/* GALLERY GRID */}
-        <div className="grid gap-3 lg:grid-cols-[1fr_140px]">
-          {/* Main Image */}
-          <div 
-            className="relative h-64 w-full rounded-2xl overflow-hidden bg-slate-200 cursor-pointer group lg:h-[480px]"
-            onClick={() => openModal(active)}
-          >
-            {isVideo(selected) ? (
-              <video className="h-full w-full object-cover" src={selected.url} controls />
-            ) : (
-              <>
-                <img 
-                  className="h-full w-full object-cover transition duration-500 group-hover:scale-105" 
-                  src={selected.url} 
-                  alt={selected.alt || pack.title + " gallery"} 
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition flex items-center justify-center">
-                  <Maximize2 className="text-white opacity-0 group-hover:opacity-100 transition" size={24} />
-                </div>
-              </>
-            )}
+      <section className="bg-slate-50 px-4 py-8 sm:px-6 lg:px-8 border-t border-slate-200">
+        <div className="mx-auto max-w-7xl">
+          {/* HEADER */}
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+            <div>
+              <p className="eyebrow">Captured Moments</p>
+              <h2 className="section-title text-xl sm:text-2xl">
+                Photo Gallery
+              </h2>
+            </div>
+            <p className="text-xs text-slate-500 max-w-sm leading-relaxed">
+              Authentic glimpses and highlights from this holiday destination.
+            </p>
           </div>
 
-          {/* Thumbnails */}
-          <div className="grid grid-cols-4 gap-2 lg:grid-cols-1">
-            {gallery.map((item, index) => (
-              <button
-                key={item.id || item.url + index}
-                className={`h-14 overflow-hidden rounded-xl border-2 transition hover:scale-105 lg:h-[108px] ${
-                  index === active ? "border-amber-400 opacity-100 shadow-md shadow-amber-400/20" : "border-transparent opacity-60 hover:opacity-80"
-                }`}
-                onClick={() => setActive(index)}
-                aria-label={`View ${item.alt || "gallery item"}`}
-              >
-                {isVideo(item) ? (
-                  <video className="h-full w-full object-cover" src={item.url} muted />
-                ) : (
-                  <img className="h-full w-full object-cover" src={item.url} alt={item.alt || ""} />
-                )}
-              </button>
-            ))}
+          {/* GALLERY GRID */}
+          <div className="grid gap-3 lg:grid-cols-[1fr_140px]">
+            {/* Main Image */}
+            <div 
+              className="relative h-64 w-full rounded-2xl overflow-hidden bg-slate-200 cursor-pointer group lg:h-[460px] shadow-card"
+              onClick={() => openModal(active)}
+            >
+              {isVideo(selected) ? (
+                <video className="h-full w-full object-cover" src={selected.url} controls />
+              ) : (
+                <>
+                  <img 
+                    className="h-full w-full object-cover transition duration-700 group-hover:scale-105" 
+                    src={selected.url} 
+                    alt={selected.alt || pack.title + " gallery"} 
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition flex items-center justify-center">
+                    <Maximize2 className="text-white opacity-0 group-hover:opacity-100 transition" size={24} />
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Thumbnails */}
+            <div className="grid grid-cols-4 gap-2 lg:grid-cols-1">
+              {gallery.map((item, index) => (
+                <button
+                  key={item.id || item.url + index}
+                  className={`h-14 overflow-hidden rounded-xl border-2 transition hover:scale-105 lg:h-[105px] ${
+                    index === active ? "border-primary opacity-100 shadow-md shadow-primary/20" : "border-transparent opacity-60 hover:opacity-80"
+                  }`}
+                  onClick={() => setActive(index)}
+                  aria-label={`View ${item.alt || "gallery item"}`}
+                >
+                  {isVideo(item) ? (
+                    <video className="h-full w-full object-cover" src={item.url} muted />
+                  ) : (
+                    <img className="h-full w-full object-cover" src={item.url} alt={item.alt || ""} />
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 

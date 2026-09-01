@@ -45,36 +45,23 @@ export default function CustomSelect({
 
   return (
     <div ref={ref} className={`relative ${className}`}>
-      <style>{`
-        @keyframes custom-select-fade {
-          0% {
-            opacity: 0;
-            transform: translateY(-8px) scale(0.98);
-          }
-          100% {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-      `}</style>
-
       <button
         type="button"
         disabled={disabled}
         onClick={() => !disabled && setOpen((current) => !current)}
-        className={`flex w-full items-center justify-between rounded-xl border border-white/15 bg-white/10 px-3 py-3 text-left text-sm text-white shadow-inner shadow-white/5 transition hover:border-amber-300/60 focus:outline-none focus:ring-2 focus:ring-amber-300/50 disabled:cursor-not-allowed disabled:opacity-60 ${triggerClassName}`}
+        className={`flex w-full items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-left text-xs sm:text-sm font-medium text-slate-800 transition hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-60 ${triggerClassName}`}
       >
-        <span className="truncate font-medium">
+        <span className="truncate">
           {selectedOption ? selectedOption.label : placeholder}
         </span>
         <ChevronDown
-          className={`h-4 w-4 shrink-0 text-white/60 transition-transform ${open ? "rotate-180" : ""}`}
+          className={`h-4 w-4 shrink-0 text-slate-400 transition-transform duration-200 ${open ? "rotate-180 text-primary" : ""}`}
         />
       </button>
 
       {open && (
         <div
-          className={`absolute left-0 right-0 z-20 mt-2 overflow-hidden rounded-xl border border-white/10 bg-slate-900/95 p-2 shadow-2xl shadow-black/30 backdrop-blur-md ${menuClassName}`}
+          className={`absolute left-0 right-0 z-50 mt-1 max-h-60 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5 shadow-elevated animate-slide-down ${menuClassName}`}
         >
           {normalizedOptions.map((option, index) => {
             const isSelected = String(option.value) === String(value);
@@ -87,19 +74,14 @@ export default function CustomSelect({
                   onChange?.(option.value);
                   setOpen(false);
                 }}
-                className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm transition ${
+                className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs sm:text-sm font-medium transition ${
                   isSelected
-                    ? "bg-amber-300 text-slate-950"
-                    : "text-white/80 hover:bg-white/10 hover:text-white"
+                    ? "bg-primary-50 text-primary font-bold"
+                    : "text-slate-700 hover:bg-slate-50 hover:text-primary"
                 }`}
-                style={{
-                  animation: "custom-select-fade 0.2s ease forwards",
-                  animationDelay: `${index * 45}ms`,
-                  opacity: 0,
-                }}
               >
                 <span>{option.label}</span>
-                {isSelected && <span className="h-2.5 w-2.5 rounded-full bg-slate-950" />}
+                {isSelected && <span className="h-1.5 w-1.5 rounded-full bg-primary" />}
               </button>
             );
           })}

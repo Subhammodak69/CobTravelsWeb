@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { submitCustomEnquiry } from "../api";
 import { useTravel } from "../contexts/TravelContext";
 import CustomSelect from "../components/CustomSelect";
 import enums from "../utils/enums.json";
+import { Sparkle, CheckCircle, ArrowRight, MessageCircle } from "lucide-react";
 
 const VEHICLE_OPTIONS = Object.values(enums.VehicleType);
 const MEAL_OPTIONS = Object.values(enums.MealPlan);
@@ -40,7 +41,7 @@ export default function CustomTourEnquiryPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.name.trim() || !form.mobile.trim() || !form.destination.trim()) {
-      setErrorMsg("Name, mobile and destination are required.");
+      setErrorMsg("Name, mobile number and destination are required fields.");
       return;
     }
     setStatus("loading");
@@ -54,71 +55,75 @@ export default function CustomTourEnquiryPage() {
     }
   };
 
-  const inputCls = "h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs text-slate-900 outline-none transition focus:border-amber-400 focus:bg-white focus:ring-4 focus:ring-amber-200/50";
-  const selectTriggerCls = "h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs text-slate-900";
-  const labelCls = "mb-1.5 block text-[10px] font-bold uppercase tracking-[0.15em] text-slate-600";
+  const inputCls = "h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-xs sm:text-sm font-medium text-slate-800 outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20";
+  const selectTriggerCls = "h-11 rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-xs sm:text-sm font-medium text-slate-800";
+  const labelCls = "mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-700";
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-16">
-      {/* Hero Header Banner */}
-      <section className="relative flex min-h-[260px] items-end overflow-hidden px-6 pb-8 pt-20 text-white sm:min-h-[300px] sm:px-8 sm:pt-24 lg:px-16">
+    <div className="min-h-screen bg-slate-50 pb-20">
+      {/* Hero Banner */}
+      <section className="relative flex min-h-[260px] items-center overflow-hidden bg-navy px-4 pb-8 pt-10 text-white sm:px-6 lg:px-12">
         <img
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover opacity-25 brightness-75"
           src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=2000&q=90"
           alt="Custom travel"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/80 to-slate-950/40" />
-        <div className="relative z-10 max-w-4xl animate-fade-up">
-          <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.25em] text-amber-300">Customised Itineraries</p>
-          <h1 className="font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
-            Build Your <em className="text-amber-300">Dream Journey.</em>
+        <div className="absolute inset-0 bg-gradient-to-r from-navy-dark via-navy/90 to-primary-950/70" />
+        <div className="relative z-10 mx-auto w-full max-w-7xl">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-accent-300">
+            <Sparkle size={13} /> Tailor-Made Itineraries
+          </span>
+          <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl text-white">
+            Plan Your <span className="text-primary-300">Custom Journey</span>
           </h1>
-          <p className="mt-2.5 max-w-2xl text-xs leading-5 text-white/80 sm:text-sm">
-            Tell us where you want to go, who you're travelling with, and what matters most. We'll handcraft the complete experience.
+          <p className="mt-2 max-w-2xl text-xs sm:text-sm text-white/80 leading-relaxed">
+            Tell us your dream destinations, dates, group size, and preferences. Our expert travel designers will create a personalized itinerary crafted just for you within 24 hours.
           </p>
         </div>
       </section>
 
       {/* Main Form Container */}
-      <div className="mx-auto max-w-[90rem] px-4 pt-6 sm:px-6 lg:px-12">
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-950/5 sm:p-6 lg:p-8">
+      <div className="mx-auto max-w-5xl px-4 -mt-6 sm:px-6 relative z-20">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-card sm:p-8">
           {status === "success" ? (
             <div className="flex flex-col items-center py-10 text-center">
-              <span className="mb-4 grid h-14 w-14 place-items-center rounded-full bg-emerald-100 text-2xl text-emerald-600">✓</span>
-              <h2 className="font-display text-xl font-semibold text-slate-950 sm:text-2xl">Enquiry Received!</h2>
-              <p className="mt-2 max-w-lg text-xs leading-5 text-slate-600 sm:text-sm">
-                Thank you, <b className="text-slate-900">{form.name}</b>! Our travel designers are crafting your custom itinerary for <b className="text-slate-900">{form.destination}</b> and will reach out to you shortly.
+              <span className="mb-4 grid h-16 w-16 place-items-center rounded-full bg-green-100 text-3xl text-success">
+                ✓
+              </span>
+              <h2 className="font-display text-2xl font-bold text-navy">Enquiry Submitted Successfully!</h2>
+              <p className="mt-2 max-w-md text-sm text-slate-600 leading-relaxed">
+                Thank you, <b className="text-navy">{form.name}</b>! Our travel designers are crafting your custom itinerary for <b className="text-navy">{form.destination}</b> and will contact you via WhatsApp or phone shortly.
               </p>
-              <div className="mt-5 flex flex-wrap justify-center gap-3">
+              <div className="mt-6 flex flex-wrap justify-center gap-3">
                 <button
                   onClick={() => { setForm(INITIAL); setStatus("idle"); }}
-                  className="rounded-xl border border-slate-300 px-4 py-2.5 text-xs font-bold text-slate-700 transition hover:bg-slate-50"
+                  className="btn-outline rounded-xl text-xs font-bold"
                 >
-                  Submit another enquiry
+                  Submit Another Enquiry
                 </button>
                 <button
                   onClick={goHome}
-                  className="rounded-xl bg-amber-300 px-5 py-2.5 text-xs font-bold text-slate-950 shadow-md shadow-amber-300/25 transition hover:-translate-y-0.5 hover:bg-amber-200"
+                  className="btn-primary rounded-xl text-xs font-bold"
                 >
-                  Back to journeys
+                  Back to Home
                 </button>
               </div>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} noValidate className="grid gap-6">
+            <form onSubmit={handleSubmit} noValidate className="grid gap-7">
               {/* Section 1: Contact Information */}
               <div>
-                <div className="mb-3 flex items-center gap-2">
-                  <span className="grid h-6 w-6 place-items-center rounded-full bg-amber-300 text-[10px] font-bold text-slate-950">1</span>
-                  <h3 className="font-display text-base font-semibold text-slate-950 sm:text-lg">Contact Information</h3>
+                <div className="mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
+                  <span className="grid h-6 w-6 place-items-center rounded-full bg-primary text-xs font-bold text-white">1</span>
+                  <h3 className="font-display text-base font-bold text-navy">Contact Details</h3>
                 </div>
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                  <div className="lg:col-span-2">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
                     <label className={labelCls} htmlFor="custom-page-name">Full Name <span className="text-rose-500">*</span></label>
                     <input ref={firstRef} id="custom-page-name" type="text" value={form.name} onChange={set("name")} placeholder="Your full name" className={inputCls} required />
                   </div>
-                  <div className="lg:col-span-2">
-                    <label className={labelCls} htmlFor="custom-page-mobile">Mobile Number <span className="text-rose-500">*</span></label>
+                  <div>
+                    <label className={labelCls} htmlFor="custom-page-mobile">Mobile / WhatsApp Number <span className="text-rose-500">*</span></label>
                     <input id="custom-page-mobile" type="tel" value={form.mobile} onChange={set("mobile")} placeholder="+91 98765 43210" className={inputCls} required />
                   </div>
                 </div>
@@ -126,22 +131,22 @@ export default function CustomTourEnquiryPage() {
 
               {/* Section 2: Trip Preferences */}
               <div>
-                <div className="mb-3 flex items-center gap-2">
-                  <span className="grid h-6 w-6 place-items-center rounded-full bg-amber-300 text-[10px] font-bold text-slate-950">2</span>
-                  <h3 className="font-display text-base font-semibold text-slate-950 sm:text-lg">Trip Preferences</h3>
+                <div className="mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
+                  <span className="grid h-6 w-6 place-items-center rounded-full bg-primary text-xs font-bold text-white">2</span>
+                  <h3 className="font-display text-base font-bold text-navy">Trip Destination & Dates</h3>
                 </div>
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   <div>
                     <label className={labelCls} htmlFor="custom-page-dest">Destination <span className="text-rose-500">*</span></label>
-                    <input id="custom-page-dest" type="text" value={form.destination} onChange={set("destination")} placeholder="e.g. North Sikkim, Bhutan" className={inputCls} required />
+                    <input id="custom-page-dest" type="text" value={form.destination} onChange={set("destination")} placeholder="e.g. Kashmir, Bhutan, Goa" className={inputCls} required />
                   </div>
                   <div>
-                    <label className={labelCls} htmlFor="custom-page-type">Enquiry Type</label>
+                    <label className={labelCls} htmlFor="custom-page-type">Tour Category</label>
                     <CustomSelect
                       value={form.enquiry_type}
                       options={ENQUIRY_TYPE_OPTIONS.map((t) => ({ label: t.replace(/_/g, " "), value: t }))}
                       onChange={(value) => setForm((f) => ({ ...f, enquiry_type: value }))}
-                      placeholder="Select enquiry type"
+                      placeholder="Select category"
                       triggerClassName={selectTriggerCls}
                     />
                   </div>
@@ -150,7 +155,7 @@ export default function CustomTourEnquiryPage() {
                     <input id="custom-page-date" type="date" value={form.travel_date} onChange={set("travel_date")} className={inputCls} />
                   </div>
                   <div>
-                    <label className={labelCls} htmlFor="custom-page-duration">Expected Duration</label>
+                    <label className={labelCls} htmlFor="custom-page-duration">Trip Duration</label>
                     <input id="custom-page-duration" type="text" value={form.travel_duration} onChange={set("travel_duration")} placeholder="e.g. 5 Nights / 6 Days" className={inputCls} />
                   </div>
                 </div>
@@ -158,13 +163,13 @@ export default function CustomTourEnquiryPage() {
 
               {/* Section 3: Travellers & Accommodation */}
               <div>
-                <div className="mb-3 flex items-center gap-2">
-                  <span className="grid h-6 w-6 place-items-center rounded-full bg-amber-300 text-[10px] font-bold text-slate-950">3</span>
-                  <h3 className="font-display text-base font-semibold text-slate-950 sm:text-lg">Travellers & Stay</h3>
+                <div className="mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
+                  <span className="grid h-6 w-6 place-items-center rounded-full bg-primary text-xs font-bold text-white">3</span>
+                  <h3 className="font-display text-base font-bold text-navy">Travellers & Stay Preferences</h3>
                 </div>
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   <div>
-                    <label className={labelCls} htmlFor="custom-page-pax">No. of Travellers</label>
+                    <label className={labelCls} htmlFor="custom-page-pax">Total Travellers</label>
                     <input id="custom-page-pax" type="number" min={1} max={100} value={form.pax_no} onChange={setNum("pax_no")} className={inputCls} />
                   </div>
                   <div>
@@ -196,33 +201,31 @@ export default function CustomTourEnquiryPage() {
 
               {/* Section 4: Special Requirements */}
               <div>
-                <div className="mb-3 flex items-center gap-2">
-                  <span className="grid h-6 w-6 place-items-center rounded-full bg-amber-300 text-[10px] font-bold text-slate-950">4</span>
-                  <h3 className="font-display text-base font-semibold text-slate-950 sm:text-lg">Special Requirements & Notes</h3>
+                <div className="mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
+                  <span className="grid h-6 w-6 place-items-center rounded-full bg-primary text-xs font-bold text-white">4</span>
+                  <h3 className="font-display text-base font-bold text-navy">Special Requests & Notes</h3>
                 </div>
-                <div>
-                  <textarea
-                    id="custom-page-special"
-                    value={form.special_requirements}
-                    onChange={set("special_requirements")}
-                    placeholder="Tell us about special preferences (e.g. senior citizens, child meals, pickup points, hotel category, sightseeing requests…)"
-                    rows={3}
-                    className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-900 outline-none transition focus:border-amber-400 focus:bg-white focus:ring-4 focus:ring-amber-200/50"
-                  />
-                </div>
+                <textarea
+                  id="custom-page-special"
+                  value={form.special_requirements}
+                  onChange={set("special_requirements")}
+                  placeholder="Mention any specific requests (e.g. senior citizen assistance, child meals, pickup location, 4-star hotel preference, specific sightseeing spots…)"
+                  rows={3}
+                  className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 p-3.5 text-xs sm:text-sm text-slate-800 outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20"
+                />
               </div>
 
               {errorMsg && (
-                <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-semibold text-rose-600">
+                <div className="rounded-xl border border-rose-200 bg-rose-50 p-3.5 text-xs font-semibold text-rose-600">
                   {errorMsg}
                 </div>
               )}
 
-              <div className="flex flex-wrap items-center justify-end gap-3 border-t border-slate-100 pt-4">
+              <div className="flex flex-wrap items-center justify-end gap-3 border-t border-slate-100 pt-5">
                 <button
                   type="button"
                   onClick={() => navigate(-1)}
-                  className="rounded-xl border border-slate-200 px-4 py-2.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-100"
+                  className="btn-ghost text-xs font-semibold"
                 >
                   Cancel
                 </button>
@@ -230,13 +233,9 @@ export default function CustomTourEnquiryPage() {
                   type="submit"
                   id="submit-custom-enquiry-page-btn"
                   disabled={status === "loading"}
-                  className="inline-flex items-center gap-2 rounded-xl bg-amber-300 px-5 py-3 text-xs font-bold text-slate-950 shadow-md shadow-amber-300/25 transition hover:-translate-y-0.5 hover:bg-amber-200 disabled:translate-y-0 disabled:opacity-60"
+                  className="btn-accent rounded-xl text-xs font-bold shadow-md disabled:opacity-60"
                 >
-                  {status === "loading" ? (
-                    <><span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-slate-950/30 border-t-slate-950" /> Submitting Request…</>
-                  ) : (
-                    <>Submit Custom Tour Enquiry <span>→</span></>
-                  )}
+                  {status === "loading" ? "Submitting Request…" : "Submit Custom Enquiry →"}
                 </button>
               </div>
             </form>

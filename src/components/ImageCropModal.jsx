@@ -243,7 +243,7 @@ export default function ImageCropModal({ imageSrc, open, onCrop, onCancel }) {
               step="0.05"
               value={zoom}
               onChange={(e) => handleZoomChange(parseFloat(e.target.value))}
-              className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-200 accent-amber-400"
+              className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-200 accent-primary"
               aria-label="Zoom photo"
             />
             <span className="text-xs font-bold text-slate-500">+</span>
@@ -255,16 +255,16 @@ export default function ImageCropModal({ imageSrc, open, onCrop, onCancel }) {
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-xl px-5 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100"
+            className="btn-ghost text-xs font-semibold"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={generateCroppedImage}
-            className="inline-flex items-center gap-2 rounded-xl bg-amber-300 px-6 py-2.5 text-sm font-bold text-slate-950 shadow-lg shadow-amber-300/25 transition hover:-translate-y-0.5 hover:bg-amber-200"
+            className="btn-primary rounded-xl text-xs font-bold px-5 py-2.5 shadow-md"
           >
-            Choose Picture <span>✓</span>
+            Save Photo ✓
           </button>
         </div>
       </div>

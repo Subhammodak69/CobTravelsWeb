@@ -27,15 +27,28 @@ function Layout({ children }) {
   const location = useLocation();
   const isAuthPage = location.pathname === "/login" || location.pathname === "/signup" || location.pathname === "/invite";
   const hero = {
-    "/documents": { image: "https://images.unsplash.com/photo-1452421822248-d4c2b47f0c81?auto=format&fit=crop&w=2000&q=90", eyebrow: "Your travel files", title: "Travel,", accent: "organized.", alt: "Travel documents and planning" },
-    "/wishlist": { image: "https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=2000&q=90", eyebrow: "Saved for later", title: "Journeys worth", accent: "keeping.", alt: "Scenic travel destination" },
-    "/referrals": { image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=2000&q=90", eyebrow: "Bring someone along", title: "Travel is better", accent: "together.", alt: "Friends travelling together" },
+    "/documents": { image: "https://images.unsplash.com/photo-1452421822248-d4c2b47f0c81?auto=format&fit=crop&w=2000&q=90", eyebrow: "Your travel files", title: "Travel,", accent: "Organized.", alt: "Travel documents and planning" },
+    "/wishlist": { image: "https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=2000&q=90", eyebrow: "Saved for later", title: "Journeys Worth", accent: "Keeping.", alt: "Scenic travel destination" },
+    "/referrals": { image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=2000&q=90", eyebrow: "Bring someone along", title: "Travel is Better", accent: "Together.", alt: "Friends travelling together" },
   }[location.pathname];
   return (
-    <main>
+    <main className="min-h-screen flex flex-col bg-slate-50">
       <Header />
-      {hero && <section className="relative flex min-h-[320px] items-end overflow-hidden px-4 pb-14 pt-32 text-white sm:px-6 lg:px-12"><img className="absolute inset-0 h-full w-full object-cover" src={hero.image} alt={hero.alt} /><div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/75 to-slate-950/30" /><div className="relative z-10 max-w-4xl animate-fade-up"><p className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-amber-300">{hero.eyebrow}</p><h1 className="font-display text-2xl font-semibold leading-tight tracking-tight sm:text-3xl lg:text-4xl">{hero.title} <em className="text-amber-300">{hero.accent}</em></h1></div></section>}
-      {children}
+      {hero && (
+        <section className="relative flex min-h-[260px] items-end overflow-hidden px-4 pb-10 pt-16 text-white sm:px-6 lg:px-12">
+          <img className="absolute inset-0 h-full w-full object-cover" src={hero.image} alt={hero.alt} />
+          <div className="absolute inset-0 bg-gradient-to-r from-navy-dark via-navy/85 to-primary-900/60" />
+          <div className="relative z-10 max-w-4xl animate-fade-up">
+            <p className="mb-1.5 text-xs font-bold uppercase tracking-[0.2em] text-accent-300">{hero.eyebrow}</p>
+            <h1 className="font-display text-2xl font-bold leading-tight tracking-tight sm:text-3xl lg:text-4xl text-white">
+              {hero.title} <span className="text-primary-300">{hero.accent}</span>
+            </h1>
+          </div>
+        </section>
+      )}
+      <div className="flex-1">
+        {children}
+      </div>
       {!isAuthPage && <Footer />}
     </main>
   );

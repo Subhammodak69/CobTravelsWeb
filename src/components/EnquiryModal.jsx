@@ -3,6 +3,7 @@ import { submitEnquiry, fetchPackageSelect, isValidUUID } from "../api";
 import { useTravel } from "../contexts/TravelContext";
 import CustomSelect from "./CustomSelect";
 import enums from "../utils/enums.json";
+import { X } from "lucide-react";
 
 const CHANNELS = Object.keys(enums?.EnquiryChannel || {
   WEBSITE: "WEBSITE",
@@ -29,12 +30,11 @@ export default function EnquiryModal({
   const [resolvedPackageId, setResolvedPackageId] = useState(packageId);
   const [displayTitle, setDisplayTitle] = useState(packageTitle);
   const [loadingVariants, setLoadingVariants] = useState(false);
-  const [status, setStatus] = useState("idle"); // idle | loading | success | error
+  const [status, setStatus] = useState("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const firstRef = useRef(null);
   const overlayRef = useRef(null);
 
-  // Fetch package variants via /api/v1/tour-packages/select/{slug}
   useEffect(() => {
     if (!open) return;
 
@@ -54,7 +54,6 @@ export default function EnquiryModal({
           }
           if (Array.isArray(data.variants) && data.variants.length > 0) {
             setVariants(data.variants);
-            // Default selected variant
             setForm((f) => ({
               ...f,
               variant_id: variantId || f.variant_id || data.variants[0].id || "",
@@ -72,7 +71,6 @@ export default function EnquiryModal({
     };
   }, [open, packageSlug, packageId, variantId, packageTitle]);
 
-  // Pre-fill user details
   useEffect(() => {
     if (open) {
       setForm({
@@ -89,7 +87,6 @@ export default function EnquiryModal({
     }
   }, [open, user, packageTitle, displayTitle, variantId]);
 
-  // Trap keyboard & lock body scroll
   useEffect(() => {
     if (!open) return;
     const originalOverflow = document.body.style.overflow;
@@ -142,47 +139,42 @@ export default function EnquiryModal({
       aria-labelledby="enquiry-modal-title"
       onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
     >
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm" style={{ animation: "fadeInBg 0.2s ease forwards" }} />
+      <div className="absolute inset-0 bg-navy-dark/75 backdrop-blur-sm" style={{ animation: "fadeInBg 0.2s ease forwards" }} />
 
-      {/* Modal Container with Fixed Header, Scrollable Body, and Fixed Footer */}
       <div
-        className="relative z-10 flex flex-col w-full max-w-lg max-h-[90vh] rounded-t-[2rem] sm:rounded-[2rem] bg-white shadow-2xl shadow-slate-950/30 overflow-hidden"
+        className="relative z-10 flex flex-col w-full max-w-lg max-h-[90vh] rounded-t-2xl sm:rounded-2xl bg-white shadow-2xl overflow-hidden"
         style={{ animation: "slideUpPanel 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards" }}
       >
-        {/* Fixed Header */}
-        <div className="relative shrink-0 overflow-hidden bg-gradient-to-br from-slate-950 to-teal-900 px-4 py-4 text-white border-b border-slate-800">
-          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-amber-300/15 blur-2xl" />
-          <div className="absolute -bottom-6 left-16 h-28 w-28 rounded-full bg-teal-400/10 blur-2xl" />
-          <div className="relative pr-8">
-            <p className="mb-0.5 text-[9px] font-bold uppercase tracking-[0.25em] text-amber-300">Send Enquiry</p>
-            <h2 id="enquiry-modal-title" className="font-display text-lg font-semibold tracking-tight">
-              {displayTitle || packageTitle ? `Plan "${displayTitle || packageTitle}"` : "Get in Touch"}
+        {/* Header */}
+        <div className="relative shrink-0 bg-navy px-6 py-4 text-white border-b border-navy-light flex items-center justify-between">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent-300">Quick Holiday Enquiry</p>
+            <h2 id="enquiry-modal-title" className="font-display text-base font-bold text-white truncate max-w-sm">
+              {displayTitle || packageTitle ? `${displayTitle || packageTitle}` : "Send Travel Enquiry"}
             </h2>
-            <p className="mt-0.5 text-xs text-white/60">We'll get back to you shortly.</p>
           </div>
           <button
             onClick={onClose}
-            className="absolute right-3 top-3 grid h-7 w-7 place-items-center rounded-lg border border-white/20 bg-white/10 text-white transition hover:bg-white/20 text-sm"
-            aria-label="Close enquiry modal"
+            className="grid h-8 w-8 place-items-center rounded-lg bg-white/10 text-white transition hover:bg-white/20"
+            aria-label="Close modal"
           >
-            ✕
+            <X size={16} />
           </button>
         </div>
 
-        {/* Scrollable Body */}
-        <div className="flex-1 overflow-y-auto px-4 py-4">
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto p-6">
           {status === "success" ? (
             <div className="flex flex-col items-center py-6 text-center">
-              <span className="mb-3 grid h-12 w-12 place-items-center rounded-full bg-emerald-100 text-2xl">✓</span>
-              <h3 className="font-display text-lg font-semibold text-slate-950">Enquiry Sent!</h3>
-              <p className="mt-1.5 text-xs text-slate-500">Thank you, {form.name}. We'll be in touch soon.</p>
+              <span className="mb-3 grid h-14 w-14 place-items-center rounded-full bg-green-100 text-2xl text-success font-bold">✓</span>
+              <h3 className="font-display text-xl font-bold text-navy">Enquiry Sent Successfully!</h3>
+              <p className="mt-2 text-xs text-slate-500 max-w-xs">Thank you, {form.name}. Our holiday manager will contact you on WhatsApp or phone shortly.</p>
             </div>
           ) : (
-            <form id="enquiry-form" onSubmit={handleSubmit} noValidate className="grid gap-3">
+            <form id="enquiry-form" onSubmit={handleSubmit} noValidate className="grid gap-3.5">
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1 block text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500" htmlFor="enq-name">
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-700" htmlFor="enq-name">
                     Full Name <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -192,13 +184,13 @@ export default function EnquiryModal({
                     value={form.name}
                     onChange={set("name")}
                     placeholder="Your name"
-                    className="h-8 w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-xs outline-none transition focus:border-amber-400 focus:bg-white focus:ring-2 focus:ring-amber-200/50"
+                    className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20"
                     required
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500" htmlFor="enq-mobile">
-                    Mobile <span className="text-rose-500">*</span>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-700" htmlFor="enq-mobile">
+                    Mobile / WhatsApp <span className="text-rose-500">*</span>
                   </label>
                   <input
                     id="enq-mobile"
@@ -206,17 +198,16 @@ export default function EnquiryModal({
                     value={form.mobile}
                     onChange={set("mobile")}
                     placeholder="+91 98765 43210"
-                    className="h-8 w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-xs outline-none transition focus:border-amber-400 focus:bg-white focus:ring-2 focus:ring-amber-200/50"
+                    className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20"
                     required
                   />
                 </div>
               </div>
 
-              {/* Variant Selector */}
               {variants.length > 0 && (
                 <div>
-                  <label className="mb-1 block text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500" htmlFor="enq-variant">
-                    Package Variant / Season
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-700" htmlFor="enq-variant">
+                    Tour Variant / Season
                   </label>
                   <CustomSelect
                     value={form.variant_id}
@@ -225,65 +216,64 @@ export default function EnquiryModal({
                       value: v.id,
                     }))}
                     onChange={(value) => setForm((f) => ({ ...f, variant_id: value }))}
-                    placeholder="Select package variant"
-                    triggerClassName="h-8 w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-xs text-slate-900"
+                    placeholder="Select package option"
+                    triggerClassName="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs text-slate-800"
                     className="w-full"
                   />
                 </div>
               )}
 
               <div>
-                <label className="mb-1 block text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500" htmlFor="enq-subject">
-                  Subject
+                <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-700" htmlFor="enq-subject">
+                  Enquiry Subject
                 </label>
                 <input
                   id="enq-subject"
                   type="text"
                   value={form.subject}
                   onChange={set("subject")}
-                  placeholder="e.g. Group booking query"
-                  className="h-8 w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-xs outline-none transition focus:border-amber-400 focus:bg-white focus:ring-2 focus:ring-amber-200/50"
+                  placeholder="e.g. Group booking enquiry"
+                  className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
               <div>
-                <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500" htmlFor="enq-message">
-                  Message
+                <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-700" htmlFor="enq-message">
+                  Travel Plans & Preferences
                 </label>
                 <textarea
                   id="enq-message"
                   value={form.message}
                   onChange={set("message")}
-                  placeholder="Tell us about your travel plans, group size, special needs…"
+                  placeholder="Tell us about dates, group size, hotel preferences or specific needs…"
                   rows={3}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm outline-none transition focus:border-amber-400 focus:bg-white focus:ring-4 focus:ring-amber-200/50 resize-none"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20 resize-none"
                 />
               </div>
 
               {errorMsg && (
-                <p className="rounded-xl bg-rose-50 px-4 py-2.5 text-xs font-semibold text-rose-600">{errorMsg}</p>
+                <p className="rounded-xl bg-rose-50 p-3 text-xs font-semibold text-rose-600">{errorMsg}</p>
               )}
             </form>
           )}
         </div>
 
-
-        {/* Fixed Footer */}
-        <div className="shrink-0 flex items-center justify-end gap-3 border-t border-slate-100 bg-slate-50/90 px-7 py-4 backdrop-blur-sm">
+        {/* Footer */}
+        <div className="shrink-0 flex items-center justify-end gap-3 border-t border-slate-100 bg-slate-50 px-6 py-3.5">
           {status === "success" ? (
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl bg-amber-300 px-6 py-2.5 text-sm font-bold text-slate-950 shadow-lg shadow-amber-300/25 transition hover:-translate-y-0.5 hover:bg-amber-200"
+              className="btn-primary rounded-xl text-xs font-bold px-5 py-2"
             >
-              Close
+              Done
             </button>
           ) : (
             <>
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-xl px-5 py-2.5 text-sm font-semibold text-slate-500 transition hover:bg-slate-200/60"
+                className="btn-ghost text-xs font-semibold"
               >
                 Cancel
               </button>
@@ -292,13 +282,9 @@ export default function EnquiryModal({
                 form="enquiry-form"
                 id="enq-submit-btn"
                 disabled={status === "loading"}
-                className="inline-flex items-center gap-2 rounded-xl bg-amber-300 px-6 py-2.5 text-sm font-bold text-slate-950 shadow-lg shadow-amber-300/25 transition hover:-translate-y-0.5 hover:bg-amber-200 disabled:opacity-60 disabled:translate-y-0"
+                className="btn-accent rounded-xl text-xs font-bold px-5 py-2 disabled:opacity-60"
               >
-                {status === "loading" ? (
-                  <><span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-slate-950/30 border-t-slate-950" /> Sending…</>
-                ) : (
-                  <>Send Enquiry <span>→</span></>
-                )}
+                {status === "loading" ? "Sending Enquiry…" : "Submit Enquiry →"}
               </button>
             </>
           )}

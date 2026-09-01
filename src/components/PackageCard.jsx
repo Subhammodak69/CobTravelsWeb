@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTravel } from "../contexts/TravelContext";
 import EnquiryModal from "./EnquiryModal";
 import { addToWishlist, removeFromWishlist } from "../api";
-import { Heart, LoaderCircle } from "lucide-react";
+import { Heart, LoaderCircle, MapPin, Clock, ArrowRight, Sparkles } from "lucide-react";
 
 export default function PackageCard({ pack, index }) {
   const { selectPackage, isMember } = useTravel();
@@ -10,7 +10,9 @@ export default function PackageCard({ pack, index }) {
   const [enquiryOpen, setEnquiryOpen] = useState(false);
   const [wishlistState, setWishlistState] = useState(pack.is_wishlist ? "added" : "idle");
 
-  useEffect(() => { setWishlistState(pack.is_wishlist ? "added" : "idle"); }, [pack.is_wishlist]);
+  useEffect(() => {
+    setWishlistState(pack.is_wishlist ? "added" : "idle");
+  }, [pack.is_wishlist]);
 
   const playVideo = () => {
     if (videoRef.current) videoRef.current.play().catch(() => {});
@@ -26,43 +28,142 @@ export default function PackageCard({ pack, index }) {
     event.stopPropagation();
     if (!isMember) return window.location.assign("/login");
     setWishlistState("loading");
-    try { if (wishlistState === "added") { await removeFromWishlist(pack.slug || pack.id); setWishlistState("idle"); } else { await addToWishlist(pack.slug || pack.id); setWishlistState("added"); } }
-    catch { setWishlistState("error"); }
+    try {
+      if (wishlistState === "added") {
+        await removeFromWishlist(pack.slug || pack.id);
+        setWishlistState("idle");
+      } else {
+        await addToWishlist(pack.slug || pack.id);
+        setWishlistState("added");
+      }
+    } catch {
+      setWishlistState("error");
+    }
   };
+
+  const formattedPrice = pack.price != null && !isNaN(pack.price) && pack.price > 0
+    ? `₹${Number(pack.price).toLocaleString("en-IN")}`
+    : pack.starting_price != null && !isNaN(pack.starting_price) && pack.starting_price > 0
+    ? `₹${Number(pack.starting_price).toLocaleString("en-IN")}`
+    : null;
 
   return (
     <>
       <article
-        className={`group animate-fade-up cursor-pointer overflow-hidden rounded-lg border border-white/70 bg-white shadow-md shadow-slate-950/5 transition duration-500 hover:-translate-y-1 hover:shadow-lg motion-reduce:animate-none ${index % 3 === 1 ? "[animation-delay:120ms]" : index % 3 === 2 ? "[animation-delay:240ms]" : ""}`}
-        onClick={() => selectPackage(pack.id)}
+        className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-card transition-all duration-300 hover:-translate-y-1.5 hover:border-primary-300 hover:shadow-card-hover cursor-pointer"
+        onClick={() => selectPackage(pack.slug || pack.id)}
         onMouseEnter={playVideo}
         onMouseLeave={stopVideo}
       >
-        <div className="relative h-40 overflow-hidden bg-slate-200 sm:h-48">
-          <img className="h-full w-full object-cover transition duration-700 group-hover:scale-110" src={pack.image} alt={pack.title} />
-          {pack.video && <video ref={videoRef} className="absolute inset-0 h-full w-full object-cover opacity-0 transition duration-500 group-hover:opacity-100" src={pack.video} muted loop playsInline preload="metadata" aria-hidden="true" />}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/10 to-transparent" />
-          <span className="absolute left-2 top-2 rounded-full bg-white/15 px-2 py-0.5 text-[8px] font-bold tracking-[0.2em] text-white backdrop-blur">0{index + 1}</span>
-          {pack.badge && <span className="absolute right-2 top-2 rounded-full bg-amber-300 px-2 py-0.5 text-[8px] font-bold uppercase tracking-wider text-slate-950 shadow-md shadow-amber-300/30">{pack.badge}</span>}
-          <button className={`absolute right-2 top-10 grid h-8 w-8 place-items-center rounded-lg shadow-md transition hover:scale-105 ${wishlistState === "added" ? "bg-rose-500 text-white" : "bg-white text-slate-950 hover:bg-amber-300"}`} onClick={toggleWishlist} disabled={wishlistState === "loading"} aria-label={wishlistState === "added" ? `Remove ${pack.title} from wishlist` : `Add ${pack.title} to wishlist`} title={wishlistState === "added" ? "Remove from wishlist" : "Add to wishlist"}>{wishlistState === "loading" ? <LoaderCircle size={14} className="animate-spin" /> : <Heart size={14} fill={wishlistState === "added" ? "currentColor" : "none"} />}</button>
-          <button className="absolute bottom-2 right-2 grid h-9 w-9 place-items-center rounded-lg bg-white text-sm text-slate-950 shadow-md transition group-hover:rotate-6 group-hover:bg-amber-300" aria-label={`Explore ${pack.title}`}>↗</button>
+        {/* Image Container */}
+        <div className="relative h-48 w-full overflow-hidden bg-slate-100 sm:h-52">
+          <img
+            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-108"
+            src={pack.image || "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=600&q=80"}
+            alt={pack.title}
+            loading="lazy"
+          />
+          {pack.video && (
+            <video
+              ref={videoRef}
+              className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+              src={pack.video}
+              muted
+              loop
+              playsInline
+              preload="none"
+              aria-hidden="true"
+            />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+
+          {/* Top badges */}
+          <div className="absolute left-3 top-3 flex items-center gap-1.5 flex-wrap">
+            {pack.badge && (
+              <span className="rounded-md bg-accent px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
+                {pack.badge}
+              </span>
+            )}
+            {pack.type && (
+              <span className="rounded-md bg-white/90 backdrop-blur px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-navy shadow-sm">
+                {pack.type === "DOMESTIC" ? "India" : "Global"}
+              </span>
+            )}
+          </div>
+
+          {/* Wishlist Button */}
+          <button
+            className={`absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full backdrop-blur-md shadow-sm transition-all duration-200 hover:scale-110 ${
+              wishlistState === "added"
+                ? "bg-rose-500 text-white"
+                : "bg-white/85 text-slate-700 hover:bg-white hover:text-rose-500"
+            }`}
+            onClick={toggleWishlist}
+            disabled={wishlistState === "loading"}
+            aria-label={wishlistState === "added" ? `Remove ${pack.title} from wishlist` : `Add ${pack.title} to wishlist`}
+            title={wishlistState === "added" ? "Remove from wishlist" : "Add to wishlist"}
+          >
+            {wishlistState === "loading" ? (
+              <LoaderCircle size={14} className="animate-spin" />
+            ) : (
+              <Heart size={15} fill={wishlistState === "added" ? "currentColor" : "none"} />
+            )}
+          </button>
+
+          {/* Bottom Overlay on Image: Duration & Destination */}
+          <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-white text-xs">
+            <span className="flex items-center gap-1 font-medium drop-shadow-sm text-[11px] truncate">
+              <MapPin size={12} className="text-primary-300 flex-shrink-0" />
+              <span className="truncate">{pack.destination || pack.season_name || "Featured Route"}</span>
+            </span>
+            {pack.duration && (
+              <span className="flex items-center gap-1 rounded bg-black/40 backdrop-blur px-1.5 py-0.5 text-[10px] font-semibold text-white/90 flex-shrink-0">
+                <Clock size={10} />
+                {pack.duration}
+              </span>
+            )}
+          </div>
         </div>
-        <div className="p-3 sm:p-3.5">
-          <p className="mb-1.5 text-[9px] font-bold uppercase tracking-[0.15em] text-slate-400 truncate">{pack.code} · {pack.season_name || pack.destination}</p>
-          <h3 className="mb-2 font-display text-sm font-semibold leading-tight tracking-tight text-slate-950 sm:text-base line-clamp-2">{pack.title}</h3>
-          <div className="flex flex-col gap-2">
-            <div className="flex gap-2 text-[9px] font-semibold text-slate-500">
-              <span className="truncate">{pack.destination}</span>
-              <span className="flex-shrink-0">{pack.type}</span>
+
+        {/* Card Body */}
+        <div className="flex flex-1 flex-col justify-between p-4">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-primary-600 mb-1">
+              {pack.code || "TOUR"} {pack.season_name ? `· ${pack.season_name}` : ""}
+            </p>
+            <h3 className="font-display text-sm font-bold text-navy group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+              {pack.title}
+            </h3>
+          </div>
+
+          {/* Pricing & CTA */}
+          <div className="mt-3.5 pt-3 border-t border-slate-100 flex items-center justify-between">
+            <div>
+              <span className="block text-[9px] font-medium uppercase tracking-wider text-slate-400">
+                Starting from
+              </span>
+              <p className="font-display text-base font-bold text-navy">
+                {formattedPrice || <span className="text-xs text-primary font-semibold">On Request</span>}
+                {formattedPrice && <span className="text-[10px] font-normal text-slate-400"> /person</span>}
+              </p>
             </div>
-            <button
-              id={`enquire-btn-${pack.id}`}
-              onClick={(e) => { e.stopPropagation(); setEnquiryOpen(true); }}
-              className="rounded-lg bg-amber-300 px-2.5 py-1.5 text-[11px] font-bold text-slate-950 shadow-sm shadow-amber-300/20 transition hover:-translate-y-0.5 hover:bg-amber-200 w-full"
-              aria-label={`Enquire about ${pack.title}`}
-            >
-              Enquire
-            </button>
+
+            <div className="flex items-center gap-1.5">
+              <button
+                id={`enquire-btn-${pack.id}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEnquiryOpen(true);
+                }}
+                className="rounded-lg bg-accent px-3 py-1.5 text-xs font-bold text-white shadow-sm transition hover:bg-accent-600 active:scale-95"
+                aria-label={`Enquire about ${pack.title}`}
+              >
+                Enquire
+              </button>
+              <span className="grid h-7 w-7 place-items-center rounded-lg bg-primary-50 text-primary transition group-hover:bg-primary group-hover:text-white">
+                <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
+              </span>
+            </div>
           </div>
         </div>
       </article>
@@ -75,7 +176,6 @@ export default function PackageCard({ pack, index }) {
         variantId={pack.default_variant_id || ""}
         packageTitle={pack.title}
       />
-
     </>
   );
 }

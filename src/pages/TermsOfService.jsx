@@ -39,18 +39,17 @@ export default function TermsOfService() {
   return (
     <div className="bg-slate-50">
       {/* Header */}
-      <section className="border-b border-slate-200 bg-slate-950 px-4 pb-10 pt-24 text-white sm:px-6 lg:px-12 lg:pt-28">
+      <section className="border-b border-navy-light bg-navy px-4 pb-10 pt-16 text-white sm:px-6 lg:px-12">
         <div className="mx-auto max-w-5xl">
-          <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.25em] text-amber-300">Legal</p>
-          <h1 className="font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
-            Terms of Service
+          <p className="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-accent-300">Legal Information</p>
+          <h1 className="font-display text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl text-white">
+            Terms of <span className="text-primary-300">Service</span>
           </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/70">
+          <p className="mt-2 max-w-2xl text-xs sm:text-sm leading-relaxed text-white/80">
             These terms govern how you book and travel with us. Please read them carefully before
-            confirming a reservation — they cover payments, cancellations, and what to expect from
-            each other along the way.
+            confirming a reservation — they cover payments, cancellations, and what to expect along the journey.
           </p>
-          <p className="mt-4 text-xs text-white/50">Last updated: {LAST_UPDATED}</p>
+          <p className="mt-3 text-xs text-white/50">Last updated: {LAST_UPDATED}</p>
         </div>
       </section>
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchEnquiries } from "../api";
 import { useTravel } from "../contexts/TravelContext";
+import { ArrowRight, Plane, Calendar, Phone, MessageSquareText } from "lucide-react";
 
 function formatDate(value) {
   if (!value) return "Date not set";
@@ -16,15 +17,13 @@ function formatDate(value) {
 }
 
 const STATUS_THEMES = {
-  NEW: "bg-amber-100 text-amber-800 border-amber-200",
-  IN_PROGRESS: "bg-blue-100 text-blue-800 border-blue-200",
-  QUOTED: "bg-purple-100 text-purple-800 border-purple-200",
-  CONVERTED: "bg-emerald-100 text-emerald-800 border-emerald-200",
-  CANCELLED: "bg-rose-100 text-rose-800 border-rose-200",
+  NEW: "bg-primary-50 text-primary border-primary-200",
+  IN_PROGRESS: "bg-amber-50 text-amber-800 border-amber-200",
+  QUOTED: "bg-purple-50 text-purple-800 border-purple-200",
+  CONVERTED: "bg-green-50 text-success border-green-200",
+  CANCELLED: "bg-rose-50 text-rose-800 border-rose-200",
   CLOSED: "bg-slate-100 text-slate-700 border-slate-200",
 };
-
-const card = "rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-950/5";
 
 export default function EnquiriesPage() {
   const { isMember } = useTravel();
@@ -51,54 +50,47 @@ export default function EnquiriesPage() {
   const statuses = ["ALL", ...Array.from(new Set(items.map((i) => i.status || "NEW")))];
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-16">
+    <div className="min-h-screen bg-slate-50 pb-20">
       {/* Hero Header Banner */}
-      <section className="relative flex min-h-[260px] items-end overflow-hidden px-6 pb-8 pt-20 text-white sm:min-h-[300px] sm:px-8 sm:pt-24 lg:px-16">
-        <img
-          className="absolute inset-0 h-full w-full object-cover"
-          src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=2000&q=90"
-          alt="Enquiries and journeys"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/80 to-slate-950/40" />
-
-        <div className="relative z-10 max-w-4xl animate-fade-up">
-          <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.25em] text-amber-300">
-            Your Travel Dashboard
+      <section className="relative flex min-h-[220px] items-center overflow-hidden bg-navy px-4 pb-8 pt-8 text-white sm:px-6 lg:px-12">
+        <div className="relative z-10 mx-auto w-full max-w-7xl">
+          <p className="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-accent-300">
+            Travel Dashboard
           </p>
-          <h1 className="font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
-            My <em className="text-amber-300">Enquiries.</em>
+          <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl text-white">
+            My <span className="text-primary-300">Enquiries</span>
           </h1>
-          <p className="mt-2.5 max-w-2xl text-xs leading-5 text-white/80 sm:text-sm">
-            Track your journey proposals, custom itineraries, and stay updated with your travel concierge.
+          <p className="mt-1 text-xs sm:text-sm text-white/80 max-w-xl">
+            Track your holiday requests, customized itinerary quotes, and communicate directly with your tour planner.
           </p>
         </div>
       </section>
 
       {/* Main Content Area */}
-      <main className="mx-auto max-w-[90rem] px-4 pt-6 sm:px-6 lg:px-12">
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
         {/* Actions Bar & Filter Chips */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
           <div className="flex flex-wrap items-center gap-1.5">
             {statuses.map((status) => (
               <button
                 key={status}
                 onClick={() => setActiveFilter(status)}
-                className={`rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition ${
+                className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition ${
                   activeFilter === status
-                    ? "bg-slate-950 text-white shadow-md shadow-slate-950/20"
-                    : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-100"
+                    ? "bg-primary text-white shadow-md shadow-primary/20"
+                    : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-100"
                 }`}
               >
-                {status} {status !== "ALL" && `(${items.filter((i) => (i.status || "NEW") === status).length})`}
+                {status.replace(/_/g, " ")} {status !== "ALL" && `(${items.filter((i) => (i.status || "NEW") === status).length})`}
               </button>
             ))}
           </div>
 
           <Link
-            to="/custom-tour"
-            className="inline-flex items-center gap-1.5 rounded-xl bg-amber-300 px-4 py-2.5 text-xs font-bold text-slate-950 shadow-md shadow-amber-300/25 transition hover:-translate-y-0.5 hover:bg-amber-200"
+            to="/custom-tour-enquiry"
+            className="btn-accent rounded-xl text-xs font-bold"
           >
-            Plan Custom Tour <span>→</span>
+            New Custom Enquiry →
           </Link>
         </div>
 
@@ -109,42 +101,36 @@ export default function EnquiriesPage() {
         )}
 
         {loading ? (
-          <div className={`${card} mt-6 flex flex-col items-center justify-center p-10 text-center`}>
-            <div className="h-8 w-8 animate-spin rounded-full border-[3px] border-amber-300 border-t-slate-900" />
+          <div className="card mt-6 flex flex-col items-center justify-center p-12 text-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-[3px] border-primary border-t-transparent" />
             <p className="mt-3 text-xs font-semibold text-slate-600">Loading your enquiries…</p>
           </div>
         ) : filteredItems.length === 0 ? (
-          <div className={`${card} mt-6 flex flex-col items-center justify-center p-10 text-center`}>
-            <div className="grid h-12 w-12 place-items-center rounded-xl bg-amber-100 text-xl text-amber-700">
-              ✈
+          <div className="card mt-6 flex flex-col items-center justify-center p-12 text-center">
+            <div className="grid h-14 w-14 place-items-center rounded-2xl bg-primary-50 text-2xl text-primary">
+              <MessageSquareText size={28} />
             </div>
-            <h3 className="mt-4 font-display text-lg font-semibold text-slate-950 sm:text-xl">
-              {activeFilter === "ALL" ? "No enquiries found" : `No enquiries with status "${activeFilter}"`}
+            <h3 className="mt-4 font-display text-lg font-bold text-navy">
+              {activeFilter === "ALL" ? "No enquiries found" : `No enquiries with status "${activeFilter.replace(/_/g, " ")}"`}
             </h3>
             <p className="mt-1.5 max-w-md text-xs text-slate-500">
               {activeFilter === "ALL"
-                ? "You haven't requested any custom tours or package quotes yet. Ready to start planning?"
+                ? "You haven't requested any custom tours or package quotes yet. Start exploring your next trip!"
                 : "Try switching filters to view other enquiries."}
             </p>
             {activeFilter === "ALL" && (
-              <div className="mt-4 flex flex-wrap justify-center gap-3">
-                <Link
-                  to="/"
-                  className="rounded-lg border border-slate-300 px-4 py-2 text-[11px] font-bold text-slate-700 transition hover:bg-slate-50"
-                >
-                  Explore Packages
+              <div className="mt-6 flex flex-wrap justify-center gap-3">
+                <Link to="/tours" className="btn-outline rounded-xl text-xs font-bold">
+                  Browse Packages
                 </Link>
-                <Link
-                  to="/custom-tour"
-                  className="rounded-lg bg-amber-300 px-4 py-2 text-[11px] font-bold text-slate-950 shadow-md shadow-amber-300/25 transition hover:bg-amber-200"
-                >
+                <Link to="/custom-tour-enquiry" className="btn-primary rounded-xl text-xs font-bold">
                   Request Custom Itinerary
                 </Link>
               </div>
             )}
           </div>
         ) : (
-          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {filteredItems.map((item) => {
               const status = item.status || "NEW";
               const themeCls = STATUS_THEMES[status] || "bg-slate-100 text-slate-700 border-slate-200";
@@ -152,16 +138,16 @@ export default function EnquiriesPage() {
               return (
                 <article
                   key={item.id || item.enquiry_code}
-                  className={`${card} flex flex-col justify-between p-4 transition duration-300 hover:-translate-y-0.5 hover:shadow-md`}
+                  className="card p-5 flex flex-col justify-between"
                 >
                   <div>
                     {/* Header: Code & Status */}
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
                           {item.enquiry_code || "ENQUIRY"}
                         </span>
-                        <h2 className="mt-0.5 truncate font-display text-base font-semibold leading-tight text-slate-950 sm:text-lg">
+                        <h2 className="mt-0.5 truncate font-display text-base font-bold leading-tight text-navy">
                           {item.subject || item.destination || "Custom Itinerary"}
                         </h2>
                       </div>
@@ -171,37 +157,37 @@ export default function EnquiriesPage() {
                     </div>
 
                     {/* Metadata Grid */}
-                    <div className="mt-3 grid grid-cols-2 gap-2 rounded-xl bg-slate-50 p-3 text-[11px] text-slate-600">
+                    <div className="mt-3.5 grid grid-cols-2 gap-2 rounded-xl bg-slate-50 p-3 text-xs text-slate-600">
                       <div>
-                        <span className="mb-0.5 block font-medium text-slate-400">Channel</span>
-                        <b className="text-slate-900">{item.channel || "WEBSITE"}</b>
+                        <span className="block text-[10px] font-medium text-slate-400">Type</span>
+                        <b className="text-navy">{item.enquiry_type?.replace(/_/g, " ") || "TOUR"}</b>
                       </div>
                       <div>
-                        <span className="mb-0.5 block font-medium text-slate-400">Type</span>
-                        <b className="text-slate-900">{item.enquiry_type?.replace(/_/g, " ") || "TOUR"}</b>
+                        <span className="block text-[10px] font-medium text-slate-400">Travel Date</span>
+                        <b className="text-navy">{formatDate(item.travel_date)}</b>
                       </div>
                       <div>
-                        <span className="mb-0.5 block font-medium text-slate-400">Travel Date</span>
-                        <b className="text-slate-900">{formatDate(item.travel_date)}</b>
+                        <span className="block text-[10px] font-medium text-slate-400">Travellers / Rooms</span>
+                        <b className="text-navy">{item.pax_no || 1} Pax · {item.no_room || 1} Rm</b>
                       </div>
                       <div>
-                        <span className="mb-0.5 block font-medium text-slate-400">Travellers / Rooms</span>
-                        <b className="text-slate-900">{item.pax_no || 1} Pax · {item.no_room || 1} Rm</b>
+                        <span className="block text-[10px] font-medium text-slate-400">Channel</span>
+                        <b className="text-navy">{item.channel || "WEBSITE"}</b>
                       </div>
                     </div>
 
                     {/* Message / Special Request */}
                     {item.message && (
-                      <p className="mt-3 rounded-lg border border-slate-100 bg-white p-2.5 text-[11px] italic leading-relaxed text-slate-500">
+                      <p className="mt-3 rounded-lg border border-slate-100 bg-white p-2.5 text-xs italic leading-relaxed text-slate-600">
                         "{item.message}"
                       </p>
                     )}
                   </div>
 
                   {/* Footer */}
-                  <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3 text-[10px] text-slate-400">
+                  <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-[11px] text-slate-400">
                     <span>Submitted {formatDate(item.created_at)}</span>
-                    {item.mobile && <span className="font-medium text-slate-600">📞 {item.mobile}</span>}
+                    {item.mobile && <span className="font-semibold text-slate-700">📞 {item.mobile}</span>}
                   </div>
                 </article>
               );

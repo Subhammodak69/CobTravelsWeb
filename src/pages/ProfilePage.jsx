@@ -25,14 +25,14 @@ const SETTINGS = [
   { id: "sms", label: "SMS alerts", desc: "Booking confirmations" },
 ];
 
-const eyebrow = "mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-rose-500";
+const eyebrow = "mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-primary";
 const section = "px-4 py-6 sm:px-6 lg:px-12 lg:py-8";
-const title = "font-display text-lg font-semibold leading-tight tracking-tight text-slate-950 sm:text-xl lg:text-2xl";
-const input = "w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-200/50 disabled:opacity-60";
-const softButton = "rounded-full bg-slate-100 px-3 py-1.5 text-[10px] font-bold text-slate-700 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-60";
-const dangerButton = "rounded-full bg-rose-100 px-3 py-1.5 text-[10px] font-bold text-rose-600 transition hover:bg-rose-200 disabled:cursor-not-allowed disabled:opacity-60";
-const primaryButton = "inline-flex items-center justify-center gap-2 rounded-lg bg-amber-300 px-3.5 py-2.5 text-xs font-bold text-slate-950 shadow-md shadow-amber-300/25 transition hover:-translate-y-0.5 hover:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-60";
-const card = "rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-950/5";
+const title = "font-display text-lg font-bold leading-tight tracking-tight text-navy sm:text-xl lg:text-2xl";
+const input = "w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20 disabled:opacity-60";
+const softButton = "rounded-xl bg-slate-100 px-3.5 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-60";
+const dangerButton = "rounded-xl bg-rose-50 px-3.5 py-2 text-xs font-bold text-rose-600 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60";
+const primaryButton = "inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-white shadow-md shadow-primary/20 transition hover:-translate-y-0.5 hover:bg-primary-600 disabled:cursor-not-allowed disabled:opacity-60";
+const card = "rounded-2xl border border-slate-200 bg-white shadow-card";
 
 function formatDate(value) {
   if (!value) return "";

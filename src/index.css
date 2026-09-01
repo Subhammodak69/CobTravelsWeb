@@ -1,16 +1,29 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600&family=Inter:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --color-primary: #0094DA;
+    --color-primary-dark: #006DA8;
+    --color-primary-light: #E6F4FC;
+    --color-accent: #F26522;
+    --color-accent-light: #FFF0E6;
+    --color-success: #00A859;
+    --color-navy: #1B2D4B;
+    --color-navy-dark: #0F1A2E;
+    --header-height: 108px;
+    --header-height-mobile: 60px;
+  }
+
   html {
     scroll-behavior: smooth;
   }
 
   body {
-    @apply min-h-screen bg-slate-950 font-sans text-slate-900 antialiased;
+    @apply min-h-screen bg-white font-sans text-slate-800 antialiased;
   }
 
   #root {
@@ -33,7 +46,7 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: rgba(148, 163, 184, 0.35); /* subtle slate-400 */
+    background: rgba(148, 163, 184, 0.35);
     border-radius: 9999px;
   }
 
@@ -41,7 +54,6 @@
     background: rgba(148, 163, 184, 0.6);
   }
 
-  /* Hide default scrollbar arrows/buttons */
   ::-webkit-scrollbar-button {
     display: none;
     width: 0;
@@ -50,5 +62,77 @@
 
   ::-webkit-scrollbar-corner {
     background: transparent;
+  }
+}
+
+@layer components {
+  /* Primary CTA button */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-lg active:translate-y-0;
+  }
+
+  /* Accent/Orange CTA button */
+  .btn-accent {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-accent-600 hover:shadow-lg active:translate-y-0;
+  }
+
+  /* Outline button */
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border-2 border-primary bg-transparent px-5 py-2.5 text-sm font-semibold text-primary transition-all duration-200 hover:bg-primary hover:text-white;
+  }
+
+  /* Ghost button */
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-transparent px-4 py-2 text-sm font-semibold text-slate-600 transition-all duration-200 hover:bg-slate-100;
+  }
+
+  /* Section eyebrow label */
+  .eyebrow {
+    @apply mb-1 text-xs font-bold uppercase tracking-[0.15em] text-primary;
+  }
+
+  /* Section title */
+  .section-title {
+    @apply font-display text-2xl font-bold leading-tight tracking-tight text-navy sm:text-3xl;
+  }
+
+  /* Card base */
+  .card {
+    @apply overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-card transition-all duration-300;
+  }
+
+  .card:hover {
+    @apply -translate-y-1 shadow-card-hover border-primary-200;
+  }
+
+  /* Trust badge strip */
+  .trust-strip {
+    @apply flex items-center gap-2 text-xs font-semibold;
+  }
+
+  /* WhatsApp button */
+  .btn-whatsapp {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-[#25D366] px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#1EBE5A] hover:shadow-lg;
+  }
+}
+
+@layer utilities {
+  .text-gradient-primary {
+    background: linear-gradient(135deg, #0094DA, #006DA8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .bg-gradient-hero {
+    background: linear-gradient(135deg, #0F1A2E 0%, #1B2D4B 40%, #003352 100%);
+  }
+
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, #0094DA, #006DA8);
+  }
+
+  .bg-gradient-accent {
+    background: linear-gradient(135deg, #F26522, #D9551A);
   }
 }

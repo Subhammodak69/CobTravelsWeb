@@ -1,6 +1,6 @@
-// WishlistPage.jsx
 import { useEffect, useState } from "react";
-import { ArrowUpRight, Heart, LoaderCircle, Trash2 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ArrowRight, Heart, LoaderCircle, Trash2, MapPin } from "lucide-react";
 import { fetchWishlist, removeFromWishlist } from "../api";
 
 function WishlistCard({ item, onRemove }) {
@@ -16,54 +16,51 @@ function WishlistCard({ item, onRemove }) {
   };
 
   return (
-    <article className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-      <div className="relative h-44 overflow-hidden bg-slate-200">
+    <article className="card flex flex-col justify-between overflow-hidden">
+      <div className="relative h-44 overflow-hidden bg-slate-100">
         <img 
-          className="h-full w-full object-cover transition duration-500 group-hover:scale-105" 
+          className="h-full w-full object-cover transition duration-700 hover:scale-105" 
           src={item.banner?.image || item.image || "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=900&q=85"} 
           alt={item.title || item.destination || "Saved journey"} 
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 to-transparent" />
-        <span className="absolute bottom-3 left-3 rounded-full bg-white/15 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.15em] text-white backdrop-blur">
-          {item.type || "Journey"}
+        <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/70 via-transparent to-transparent" />
+        <span className="absolute bottom-2.5 left-3 rounded-md bg-white/90 backdrop-blur px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-navy">
+          {item.type === "DOMESTIC" ? "India" : "International"}
         </span>
-        <Heart className="absolute right-3 top-3 text-rose-400" size={18} fill="currentColor" />
+        <button 
+          onClick={remove} 
+          disabled={removing}
+          className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full bg-white/90 shadow-sm text-rose-500 transition hover:bg-rose-50 hover:scale-110 disabled:opacity-50"
+          title="Remove from wishlist"
+        >
+          {removing ? <LoaderCircle size={14} className="animate-spin text-rose-500" /> : <Heart size={15} fill="currentColor" />}
+        </button>
       </div>
       
-      <div className="p-4">
-        <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-rose-500">
-          {item.tour_code || item.season_name || item.destination}
-        </p>
-        <h2 className="mt-1.5 text-base font-semibold text-slate-950 line-clamp-1">
-          {item.title || "Saved journey"}
-        </h2>
-        <p className="mt-1.5 line-clamp-2 text-xs leading-5 text-slate-500">
-          {item.description || `A journey through ${item.destination || "somewhere wonderful"}.`}
-        </p>
+      <div className="p-4 flex flex-1 flex-col justify-between">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-primary mb-1">
+            {item.tour_code || item.season_name || item.destination}
+          </p>
+          <h3 className="font-display text-sm font-bold text-navy line-clamp-1">
+            {item.title || "Saved journey"}
+          </h3>
+          <p className="mt-1 line-clamp-2 text-xs text-slate-500 leading-relaxed">
+            {item.description || `A handcrafted journey through ${item.destination || "wonderful places"}.`}
+          </p>
+        </div>
         
-        <div className="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 pt-3">
+        <div className="mt-4 flex items-center justify-between gap-2 border-t border-slate-100 pt-3">
           <span className="text-[10px] text-slate-400">
             Saved {item.wishlisted_at ? new Date(item.wishlisted_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "recently"}
           </span>
-          <div className="flex items-center gap-1.5">
-            <button 
-              onClick={remove} 
-              disabled={removing} 
-              className="grid h-7 w-7 place-items-center rounded-lg border border-slate-200 text-slate-400 transition hover:border-rose-300 hover:text-rose-500 disabled:opacity-50"
-              aria-label={`Remove ${item.title || "journey"} from wishlist`}
-              title="Remove from wishlist"
-            >
-              {removing ? <LoaderCircle size={13} className="animate-spin" /> : <Trash2 size={13} />}
-            </button>
-            <a 
-              href={`/journey/${item.slug || item.package_id}`} 
-              className="grid h-7 w-7 place-items-center rounded-lg bg-amber-300 text-slate-950 transition hover:bg-amber-200"
-              aria-label={`View ${item.title || "journey"}`}
-              title="View journey"
-            >
-              <ArrowUpRight size={14} />
-            </a>
-          </div>
+          <Link 
+            to={`/journey/${item.slug || item.package_id || item.id}`} 
+            className="inline-flex items-center gap-1 rounded-lg bg-primary-50 px-2.5 py-1 text-xs font-bold text-primary transition hover:bg-primary hover:text-white"
+          >
+            <span>View</span>
+            <ArrowRight size={13} />
+          </Link>
         </div>
       </div>
     </article>
@@ -92,7 +89,6 @@ export default function WishlistPage() {
 
   const remove = async (item) => {
     try {
-      // Use the package slug or ID to remove from wishlist
       const identifier = item.slug || item.package_id || item.id;
       await removeFromWishlist(identifier);
       setItems((current) => current.filter((saved) => saved.id !== item.id));
@@ -102,61 +98,60 @@ export default function WishlistPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 lg:px-8 max-w-8xl mx-auto">
-      {/* HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200/80 pb-5 mb-6">
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-rose-500 mb-1">Saved for later</p>
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-950 font-display">
-            Your <span className="text-amber-500">wishlist.</span>
-          </h1>
-          <p className="text-xs text-slate-500 max-w-md mt-1 leading-relaxed">
-            The journeys that caught your eye, kept together until you are ready to go.
-          </p>
+    <div className="min-h-screen bg-slate-50 pb-20">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+        {/* HEADER */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200 pb-5 mb-6">
+          <div>
+            <p className="eyebrow">Saved For Later</p>
+            <h1 className="section-title text-2xl sm:text-3xl">
+              My <span className="text-primary">Wishlist</span>
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-500 max-w-md mt-1">
+              Holiday packages and tours you saved to explore and plan later.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 text-rose-500 font-bold text-sm bg-rose-50 px-3 py-1.5 rounded-xl border border-rose-100 w-fit">
+            <Heart size={16} fill="currentColor" />
+            <span>{items.length} Saved</span>
+          </div>
         </div>
-        <Heart className="hidden sm:block text-rose-400" size={28} fill="currentColor" />
+
+        {/* ERROR */}
+        {error && (
+          <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-semibold text-rose-700 flex items-center justify-between">
+            <span>{error}</span>
+            <button onClick={() => setError("")} className="text-rose-400 hover:text-rose-600">✕</button>
+          </div>
+        )}
+
+        {/* WISHLIST GRID */}
+        {loading ? (
+          <div className="card flex items-center justify-center p-12 text-slate-400">
+            <LoaderCircle className="animate-spin text-primary" size={26} />
+          </div>
+        ) : items.length ? (
+          <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {items.map((item) => (
+              <WishlistCard key={item.id} item={item} onRemove={remove} />
+            ))}
+          </div>
+        ) : (
+          <div className="card p-12 text-center">
+            <Heart className="mx-auto text-slate-300" size={36} />
+            <h2 className="mt-3 font-display text-lg font-bold text-navy">Your Wishlist is Empty</h2>
+            <p className="mt-1 text-xs text-slate-500 max-w-xs mx-auto">
+              Save your favourite destinations and packages by clicking the heart icon on any tour card.
+            </p>
+            <Link 
+              to="/tours" 
+              className="btn-primary mt-6 text-xs font-bold"
+            >
+              Explore Tour Packages →
+            </Link>
+          </div>
+        )}
       </div>
-
-      {/* ERROR */}
-      {error && (
-        <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 flex items-center justify-between">
-          <span>{error}</span>
-          <button onClick={() => setError("")} className="text-rose-400 hover:text-rose-600">✕</button>
-        </div>
-      )}
-
-      {/* WISHLIST GRID */}
-      {loading ? (
-        <div className="flex items-center justify-center rounded-2xl border border-slate-200 bg-white p-12 text-slate-400">
-          <LoaderCircle className="animate-spin" size={22} />
-        </div>
-      ) : items.length ? (
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {items.map((item) => (
-            <WishlistCard key={item.id} item={item} onRemove={remove} />
-          ))}
-        </div>
-      ) : (
-        <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center">
-          <Heart className="mx-auto text-slate-300" size={28} />
-          <h2 className="mt-3 text-base font-semibold text-slate-800">Nothing saved yet</h2>
-          <p className="mt-1 text-xs text-slate-500">Tap the heart on a journey to keep it close.</p>
-          <a 
-            href="/#journeys" 
-            className="mt-4 inline-flex rounded-lg bg-amber-300 px-4 py-2 text-xs font-bold text-slate-950 shadow-sm hover:bg-amber-200 transition"
-          >
-            Explore journeys
-          </a>
-        </div>
-      )}
-
-      {/* COUNT FOOTER */}
-      {!loading && items.length > 0 && (
-        <div className="mt-6 flex justify-between items-center text-[10px] text-slate-400 border-t border-slate-200/80 pt-4">
-          <span>{items.length} journey{items.length === 1 ? "" : "s"} saved</span>
-          <span>❤️ {items.length} hearts</span>
-        </div>
-      )}
     </div>
   );
 }
