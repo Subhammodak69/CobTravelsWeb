@@ -30,8 +30,23 @@ export default function ReferralsPage() {
   }, []);
 
   const copyLink = async () => {
+    if (!link) return;
+    const message = `Join me on Coochbehar Travels and plan your next journey: ${link}`;
     try {
-      await navigator.clipboard.writeText(link);
+      if (navigator.share && /mobile|android|iphone|ipad/i.test(navigator.userAgent)) {
+        await navigator.share({
+          title: "Join Coochbehar Travels",
+          text: message,
+          url: link,
+        });
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1800);
+        return;
+      }
+    } catch {}
+
+    try {
+      await navigator.clipboard.writeText(message);
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
     } catch {

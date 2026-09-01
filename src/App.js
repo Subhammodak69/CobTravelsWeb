@@ -14,6 +14,7 @@ import DocumentsPage from "./pages/DocumentsPage";
 import WishlistPage from "./pages/WishlistPage";
 import ReferralsPage from "./pages/ReferralsPage";
 import ToursExplorePage from "./pages/ToursExplorePage";
+import InviteLandingPage from "./pages/InviteLandingPage";
 import { captureReferralFromUrl } from "./api";
 import useVisitorTracking from "./hooks/useVisitorTracking";
 import PrivacyPolicyPage from "./pages/PrivacyPolicy";
@@ -24,7 +25,7 @@ import { useTravel } from "./contexts/TravelContext";
 
 function Layout({ children }) {
   const location = useLocation();
-  const isAuthPage = location.pathname === "/login" || location.pathname === "/signup";
+  const isAuthPage = location.pathname === "/login" || location.pathname === "/signup" || location.pathname === "/invite";
   const hero = {
     "/documents": { image: "https://images.unsplash.com/photo-1452421822248-d4c2b47f0c81?auto=format&fit=crop&w=2000&q=90", eyebrow: "Your travel files", title: "Travel,", accent: "organized.", alt: "Travel documents and planning" },
     "/wishlist": { image: "https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=2000&q=90", eyebrow: "Saved for later", title: "Journeys worth", accent: "keeping.", alt: "Scenic travel destination" },
@@ -49,9 +50,18 @@ function VisitorTracking() {
 function ReferralCapture() {
   const location = useLocation();
   useEffect(() => {
-    const encoded = new URLSearchParams(location.search).get("ref");
-    if (encoded) {
-      captureReferralFromUrl(encoded).finally(() => window.history.replaceState({}, "", location.pathname + location.hash));
+    // If not already on /invite page (which has its own dedicated rich landing UX)
+    if (location.pathname !== "/invite") {
+      const searchParams = new URLSearchParams(location.search);
+      const encoded = searchParams.get("r") || searchParams.get("ref");
+      if (encoded) {
+        captureReferralFromUrl(encoded).finally(() => {
+          searchParams.delete("r");
+          searchParams.delete("ref");
+          const remaining = searchParams.toString();
+          window.history.replaceState({}, "", location.pathname + (remaining ? `?${remaining}` : "") + location.hash);
+        });
+      }
     }
   }, [location.search, location.pathname, location.hash]);
   return null;
@@ -139,6 +149,14 @@ function AppRoutes() {
                 <AuthPage />
               </Layout>
             </PublicOnlyRoute>
+          }
+        />
+        <Route
+          path="/invite"
+          element={
+            <Layout>
+              <InviteLandingPage />
+            </Layout>
           }
         />
         <Route path="*" element={<Navigate to="/" replace />} />

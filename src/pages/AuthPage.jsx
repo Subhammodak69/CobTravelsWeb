@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ArrowRight, ShieldCheck } from "lucide-react";
-import { captureReferralFromUrl, loginGoogle, requestOtp, verifyOtp } from "../api";
+import { ArrowRight, ShieldCheck, Gift } from "lucide-react";
+import { captureReferralFromUrl, getStoredReferralCode, loginGoogle, requestOtp, verifyOtp } from "../api";
 import { useTravel } from "../contexts/TravelContext";
 
 const AUTH_BG = "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=2000&q=90";
@@ -13,22 +13,33 @@ export default function AuthPage() {
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [hasReferral, setHasReferral] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const isSignup = location.pathname === "/signup";
   const { loginSuccess } = useTravel();
-  const referralToken = new URLSearchParams(location.search).get("ref");
+  const searchParams = new URLSearchParams(location.search);
+  const referralToken = searchParams.get("r") || searchParams.get("ref");
   const googleButtonRef = useRef(null);
   const [googleBusy, setGoogleBusy] = useState(false);
   const [googleReady, setGoogleReady] = useState(false);
   const [googleError, setGoogleError] = useState("");
-  const captureReferral = async () => {
-    if (referralToken) await captureReferralFromUrl(referralToken);
-  };
+  const captureReferral = useCallback(async () => {
+    if (referralToken) {
+      const res = await captureReferralFromUrl(referralToken);
+      if (res) setHasReferral(true);
+    } else {
+      setHasReferral(Boolean(getStoredReferralCode()));
+    }
+  }, [referralToken]);
   const loginSuccessRef = useRef(loginSuccess);
   const captureReferralRef = useRef(captureReferral);
   loginSuccessRef.current = loginSuccess;
   captureReferralRef.current = captureReferral;
+
+  useEffect(() => {
+    captureReferral();
+  }, [captureReferral]);
 
   useEffect(() => {
     const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID_WEB;
@@ -134,6 +145,12 @@ export default function AuthPage() {
           <p className="mb-3 text-xs font-bold uppercase tracking-[0.3em] text-rose-500">Continue your journey</p>
           <h2 className="font-display text-4xl font-semibold leading-none tracking-tight" id="auth-form-title">{sent ? "Check your messages." : isSignup ? "Create your account." : "Sign in to your account."}</h2>
           <p className="mt-3 text-sm leading-6 text-slate-500">{sent ? `We sent a six-digit code to ${identifier}.` : "Use your mobile number or email to continue."}</p>
+          {hasReferral && (
+            <div className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800 ring-1 ring-amber-200/80">
+              <Gift size={14} className="text-amber-600" />
+              <span>Referral invitation applied</span>
+            </div>
+          )}
         </div>
         <form className="mt-8 flex flex-col gap-3" onSubmit={submit}>
           {!sent && isSignup && <><label className="text-[11px] font-bold uppercase tracking-wider text-slate-500" htmlFor="auth-name">Full name</label><input className="h-12 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-amber-300 focus:ring-4 focus:ring-amber-200/50 disabled:opacity-60" id="auth-name" value={name} onChange={(event) => setName(event.target.value)} placeholder="Your full name" autoComplete="name" disabled={busy} /></>}

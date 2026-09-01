@@ -25,19 +25,57 @@ export function isValidUUID(str) {
 function referralCode() { return storage.getItem(REFERRAL_CODE) || ""; }
 function toBase64Url(value) { return btoa(unescape(encodeURIComponent(value))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, ""); }
 function fromBase64Url(value) { return decodeURIComponent(escape(atob(value.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - value.length % 4) % 4)))); }
+
 export function encodeReferralCode(code) { return toBase64Url(code); }
-export function getReferralLink(code) { return `${window.location.origin}/?ref=${encodeURIComponent(toBase64Url(code))}`; }
+
+export function decodeReferralToken(token) {
+  if (!token || typeof token !== "string") return "";
+  const cleaned = token.trim();
+  try {
+    const raw = fromBase64Url(cleaned).trim();
+    if (raw) return raw;
+  } catch {}
+  try {
+    const decoded = atob(cleaned.replace(/-/g, "+").replace(/_/g, "/")).trim();
+    if (decoded) return decoded;
+  } catch {}
+  return cleaned;
+}
+
+export function getReferralLink(code) { 
+  return `${window.location.origin}/invite?r=${encodeURIComponent(toBase64Url(code))}`; 
+}
+
+export function getReferralShareMessage(code) {
+  return `Join me on Coochbehar Travels and plan your next journey: ${getReferralLink(code)}`;
+}
+
 export function getStoredReferralCode() { return referralCode(); }
+
+export function clearReferralCode() {
+  storage.removeItem(REFERRAL_CODE);
+}
+
+export async function validateInviteToken(tokenOrCode) {
+  if (!tokenOrCode) {
+    throw new Error("No referral code provided.");
+  }
+  const code = decodeReferralToken(tokenOrCode);
+  if (!code || code.length > 128) {
+    throw new Error("Invalid referral code format.");
+  }
+  const response = await request(`/api/v1/referrals/invite/${encodeURIComponent(code)}`);
+  if (response?.success !== false && response?.data?.referral_code) {
+    storage.setItem(REFERRAL_CODE, response.data.referral_code);
+    return response.data;
+  }
+  throw new Error(response?.message || "Invalid or expired referral code.");
+}
+
 export async function captureReferralFromUrl(value) {
   if (!value) return null;
   try {
-    const code = fromBase64Url(value).trim();
-    if (!code || code.length > 128) return null;
-    const response = await request(`/api/v1/referrals/invite/${encodeURIComponent(code)}`);
-    if (response?.success !== false && response?.data?.referral_code) {
-      storage.setItem(REFERRAL_CODE, response.data.referral_code);
-      return response.data;
-    }
+    return await validateInviteToken(value);
   } catch {}
   return null;
 }
