@@ -365,7 +365,7 @@ export default function PackageDetailsPage() {
                 Send Travel Enquiry →
               </button>
               <a
-                href={`https://wa.me/919876543210?text=Hello%2C%20I%20am%20interested%20in%20booking%20the%20${encodeURIComponent(pack.title)}%20tour.`}
+                href={`https://wa.me/919932204885?text=Hello%2C%20I%20am%20interested%20in%20booking%20the%20${encodeURIComponent(pack.title)}%20tour.`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-whatsapp w-full justify-center rounded-xl py-3 text-sm font-bold"
@@ -537,7 +537,7 @@ export default function PackageDetailsPage() {
         </div>
         <div className="flex items-center gap-2 ml-auto">
           <a
-            href={`https://wa.me/919876543210?text=Hello%2C%20I%20am%20interested%20in%20${encodeURIComponent(pack.title)}.`}
+            href={`https://wa.me/919932204885?text=Hello%2C%20I%20am%20interested%20in%20${encodeURIComponent(pack.title)}.`}
             target="_blank"
             rel="noopener noreferrer"
             className="btn-whatsapp rounded-xl text-xs font-bold px-3.5 py-2"

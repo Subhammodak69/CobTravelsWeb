@@ -1,29 +1,52 @@
 import { useEffect, useRef, useState } from "react";
-import { Download, FileText, FolderUp, LoaderCircle, Trash2, Upload, X } from "lucide-react";
+import {
+  Download, FileText, FolderUp, LoaderCircle, Trash2, Upload, X,
+  Shield, CreditCard, Ticket, FileCheck, CheckCircle2, Plus
+} from "lucide-react";
 import { fetchDocuments, uploadDocument, downloadDocument, deleteDocument, uploadFile } from "../api";
 import CustomSelect from "../components/CustomSelect";
 
-const DOCUMENT_TYPES = ["ID_PROOF", "PASSPORT", "VISA", "TICKET", "INSURANCE", "OTHER"];
-const EMPTY_FORM = { fileUrl: "", fileName: "", fileSize: 0, fileType: "", documentType: "ID_PROOF", title: "", description: "" };
+const DOCUMENT_TYPES = [
+  { value: "ID_PROOF", label: "ID Proof" },
+  { value: "PASSPORT", label: "Passport" },
+  { value: "VISA", label: "Visa" },
+  { value: "TICKET", label: "Travel Ticket / Flight" },
+  { value: "INSURANCE", label: "Travel Insurance" },
+  { value: "OTHER", label: "Other Documents" },
+];
+
+const TYPE_CONFIG = {
+  ID_PROOF: { label: "ID Proof", color: "bg-blue-50 text-primary border-primary-200", icon: CreditCard },
+  PASSPORT: { label: "Passport", color: "bg-accent-50 text-accent border-accent/20", icon: Shield },
+  VISA: { label: "Visa", color: "bg-green-50 text-success border-green-200", icon: FileCheck },
+  TICKET: { label: "Ticket", color: "bg-purple-50 text-purple-700 border-purple-200", icon: Ticket },
+  INSURANCE: { label: "Insurance", color: "bg-amber-50 text-amber-800 border-amber-200", icon: Shield },
+  OTHER: { label: "Document", color: "bg-slate-100 text-slate-700 border-slate-200", icon: FileText },
+};
+
+const EMPTY_FORM = {
+  fileUrl: "", fileName: "", fileSize: 0, fileType: "", documentType: "ID_PROOF", title: "", description: ""
+};
 
 const formatDate = (value) => {
   if (!value) return "Date unavailable";
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 };
+
 const formatSize = (value) => {
   if (!value) return "Unknown size";
   if (value < 1024) return `${value} B`;
   if (value < 1024 * 1024) return `${(value / 1024).toFixed(0)} KB`;
   return `${(value / (1024 * 1024)).toFixed(1)} MB`;
 };
-const label = (value) => (value || "OTHER").replace(/_/g, " ");
 
 export default function DocumentsPage() {
   const fileInput = useRef(null);
 
   const [documents, setDocuments] = useState([]);
   const [activeTab, setActiveTab] = useState("incoming");
+  const [selectedTypeFilter, setSelectedTypeFilter] = useState("ALL");
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -40,20 +63,30 @@ export default function DocumentsPage() {
         const data = response?.data;
         setDocuments(Array.isArray(data) ? data : data?.items || data?.results || []);
       })
-      .catch((err) => setError(err.message || "Could not load documents."))
+      .catch((err) => setError(err.message || "Could not load travel documents."))
       .finally(() => setLoading(false));
   };
-  useEffect(() => { loadDocuments(); }, []);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    loadDocuments();
+  }, []);
 
   const isOutgoing = (doc) => {
-    // If the API provides a direction field, use it
     if (doc.direction) return doc.direction === "outgoing";
-    // Otherwise, try to infer from uploaded_by
     return doc.uploaded_by === "CUSTOMER" || doc.uploaded_by === "customer";
   };
-  const visibleDocuments = documents.filter((doc) => (activeTab === "outgoing" ? isOutgoing(doc) : !isOutgoing(doc)));
+
+  const incomingDocs = documents.filter((doc) => !isOutgoing(doc));
+  const outgoingDocs = documents.filter((doc) => isOutgoing(doc));
+
+  const currentTabDocuments = activeTab === "outgoing" ? outgoingDocs : incomingDocs;
+  const visibleDocuments = selectedTypeFilter === "ALL"
+    ? currentTabDocuments
+    : currentTabDocuments.filter((doc) => doc.document_type === selectedTypeFilter);
 
   const setField = (name, value) => setForm((curr) => ({ ...curr, [name]: value }));
+  
   const closeModal = () => {
     setShowModal(false);
     setForm(EMPTY_FORM);
@@ -69,9 +102,16 @@ export default function DocumentsPage() {
       const response = await uploadFile(file);
       const data = response?.data;
       if (!data?.url) throw new Error("Upload did not return a file URL.");
-      setForm((curr) => ({ ...curr, fileUrl: data.url, fileName: file.name, fileSize: file.size, fileType: file.type }));
+      setForm((curr) => ({
+        ...curr,
+        fileUrl: data.url,
+        fileName: file.name,
+        fileSize: file.size,
+        fileType: file.type,
+        title: curr.title || file.name.replace(/\.[^/.]+$/, ""),
+      }));
     } catch (err) {
-      setError(err.message || "Could not upload file.");
+      setError(err.message || "Could not upload file. Please try again.");
     } finally {
       setUploading(false);
     }
@@ -81,6 +121,7 @@ export default function DocumentsPage() {
   const onDrop = (e) => { e.preventDefault(); setDragActive(false); handleFile(e.dataTransfer.files?.[0]); };
   const onDragOver = (e) => { e.preventDefault(); if (!uploading) setDragActive(true); };
   const onDragLeave = (e) => { e.preventDefault(); setDragActive(false); };
+  
   const clearFile = () => {
     setForm((curr) => ({ ...curr, fileUrl: "", fileName: "", fileSize: 0, fileType: "" }));
     if (fileInput.current) fileInput.current.value = "";
@@ -89,14 +130,16 @@ export default function DocumentsPage() {
   const submit = async (e) => {
     e.preventDefault();
     if (uploading) return setError("Please wait for the file to finish uploading.");
-    if (!form.fileUrl) return setError("Choose a document before uploading.");
-    setBusy(true); setError(""); setNotice("");
+    if (!form.fileUrl) return setError("Choose a document file before submitting.");
+    setBusy(true);
+    setError("");
+    setNotice("");
     try {
-      await uploadDocument({ 
-        fileUrl: form.fileUrl, 
-        documentType: form.documentType, 
-        title: form.title, 
-        description: form.description 
+      await uploadDocument({
+        fileUrl: form.fileUrl,
+        documentType: form.documentType,
+        title: form.title || form.fileName,
+        description: form.description,
       });
       setNotice("Document uploaded successfully.");
       closeModal();
@@ -111,249 +154,368 @@ export default function DocumentsPage() {
   const download = async (doc) => {
     try {
       const response = await downloadDocument(doc.id);
-      const url = response?.data?.download_url;
+      const url = response?.data?.download_url || doc.file_url;
       if (!url) throw new Error("Download link unavailable.");
       window.open(url, "_blank", "noopener,noreferrer");
     } catch (err) {
-      setError(err.message || "Could not prepare download.");
+      setError(err.message || "Could not prepare download link.");
     }
   };
 
   const remove = async (doc) => {
-    if (!window.confirm(`Delete ${doc.file_name || "this document"}?`)) return;
+    if (!window.confirm(`Are you sure you want to delete "${doc.title || doc.file_name || "this document"}"?`)) return;
     try {
       await deleteDocument(doc.id);
       setDocuments((curr) => curr.filter((item) => item.id !== doc.id));
-      setNotice("Document deleted.");
+      setNotice("Document removed.");
     } catch (err) {
       setError(err.message || "Could not delete document.");
     }
   };
 
   return (
-    <>
-      <style>{`
-        @keyframes optionFade {
-          0% { opacity: 0; transform: translateY(-4px) scale(0.97); }
-          100% { opacity: 1; transform: translateY(0) scale(1); }
-        }
-      `}</style>
-
-      <div className="min-h-screen bg-[#f5f6f2] px-4 py-6 sm:px-6 lg:px-8 max-w-8xl mx-auto">
-        {/* HEADER */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200/80 pb-5 mb-6">
+    <div className="min-h-screen bg-slate-50 pb-24">
+      {/* Top Hero Banner in Thomas Cook Deep Navy */}
+      <section className="relative flex min-h-[220px] items-center overflow-hidden bg-navy px-4 pb-8 pt-8 text-white sm:px-6 lg:px-12">
+        <div className="relative z-10 mx-auto w-full max-w-7xl flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-rose-500 mb-1">Travel files</p>
-            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-950 font-display">
-              Your <span className="text-amber-500">documents.</span>
+            <p className="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-accent-300">
+              Travel Records & Files
+            </p>
+            <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl text-white">
+              Document <span className="text-primary-300">Vault</span>
             </h1>
-            <p className="text-xs text-slate-500 max-w-md mt-1 leading-relaxed">Keep files from your team and shared documents in one place.</p>
+            <p className="mt-1 text-xs sm:text-sm text-white/80 max-w-xl">
+              Access tickets, vouchers, visas, and IDs securely. Keep all your travel papers organized for your upcoming journeys.
+            </p>
           </div>
-          <div className="flex rounded-xl bg-white p-1 shadow-sm ring-1 ring-slate-200/80" role="tablist">
-            {["incoming", "outgoing"].map((tab) => (
+
+          <button
+            onClick={() => { setShowModal(true); setActiveTab("outgoing"); }}
+            className="btn-accent rounded-xl text-xs font-bold px-4 py-2.5 shadow-lg flex-shrink-0 w-fit"
+          >
+            <Plus size={16} />
+            <span>Upload Document</span>
+          </button>
+        </div>
+      </section>
+
+      {/* Main Container */}
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+        {/* Top Control Bar: Tab Switcher & Quick Stats */}
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+          {/* Tab Switcher */}
+          <div className="flex items-center gap-2 rounded-2xl bg-white p-1.5 shadow-card border border-slate-200 w-fit">
+            <button
+              onClick={() => { setActiveTab("incoming"); setSelectedTypeFilter("ALL"); }}
+              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
+                activeTab === "incoming"
+                  ? "bg-primary text-white shadow-md shadow-primary/20"
+                  : "text-slate-600 hover:text-navy hover:bg-slate-50"
+              }`}
+            >
+              <span>Received from Team</span>
+              <span className={`rounded-full px-2 py-0.5 text-[10px] ${
+                activeTab === "incoming" ? "bg-white/20 text-white" : "bg-slate-100 text-slate-600"
+              }`}>
+                {incomingDocs.length}
+              </span>
+            </button>
+
+            <button
+              onClick={() => { setActiveTab("outgoing"); setSelectedTypeFilter("ALL"); }}
+              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
+                activeTab === "outgoing"
+                  ? "bg-primary text-white shadow-md shadow-primary/20"
+                  : "text-slate-600 hover:text-navy hover:bg-slate-50"
+              }`}
+            >
+              <span>Uploaded by You</span>
+              <span className={`rounded-full px-2 py-0.5 text-[10px] ${
+                activeTab === "outgoing" ? "bg-white/20 text-white" : "bg-slate-100 text-slate-600"
+              }`}>
+                {outgoingDocs.length}
+              </span>
+            </button>
+          </div>
+
+          {/* Quick Filter Pill Chips */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <button
+              onClick={() => setSelectedTypeFilter("ALL")}
+              className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
+                selectedTypeFilter === "ALL"
+                  ? "bg-navy text-white shadow-sm"
+                  : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+              }`}
+            >
+              All Types
+            </button>
+            {DOCUMENT_TYPES.map((t) => (
               <button
-                key={tab}
-                role="tab"
-                aria-selected={activeTab === tab}
-                onClick={() => setActiveTab(tab)}
-                className={`text-[11px] font-semibold px-3 py-1.5 rounded-xl transition ${
-                  activeTab === tab ? "bg-slate-950 text-white" : "text-slate-500 hover:text-slate-950"
+                key={t.value}
+                onClick={() => setSelectedTypeFilter(t.value)}
+                className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
+                  selectedTypeFilter === t.value
+                    ? "bg-navy text-white shadow-sm"
+                    : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
                 }`}
               >
-                {tab === "incoming" ? "Incoming" : "Outgoing"}
+                {t.label}
               </button>
             ))}
           </div>
         </div>
 
-        {/* TOOLBAR */}
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-3">
-            <h2 className="text-lg font-semibold text-slate-950 font-display">
-              {activeTab === "incoming" ? "Received files" : "Files you shared"}
-            </h2>
-            <span className="text-[10px] font-medium text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
-              {visibleDocuments.length} {visibleDocuments.length === 1 ? "doc" : "docs"}
-            </span>
-          </div>
-          {activeTab === "outgoing" && (
-            <button
-              onClick={() => setShowModal(true)}
-              className="inline-flex items-center gap-1.5 bg-amber-300 hover:bg-amber-200 text-slate-950 text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-sm shadow-amber-300/20 transition"
-            >
-              <Upload size={14} /> Upload
-            </button>
-          )}
-        </div>
-
-        {/* NOTICE / ERROR */}
+        {/* Notices and Alerts */}
         {error && (
-          <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 flex items-center justify-between">
+          <div className="mb-6 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-xs font-semibold text-rose-700 flex items-center justify-between shadow-sm">
             <span>{error}</span>
-            <button onClick={() => setError("")}><X size={14} /></button>
+            <button onClick={() => setError("")} className="text-rose-500 hover:text-rose-700">
+              <X size={16} />
+            </button>
           </div>
         )}
         {notice && (
-          <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700">
-            {notice}
+          <div className="mb-6 rounded-2xl border border-green-200 bg-green-50 p-4 text-xs font-semibold text-success flex items-center gap-2 shadow-sm">
+            <CheckCircle2 size={16} />
+            <span>{notice}</span>
           </div>
         )}
 
-        {/* DOCUMENT GRID */}
+        {/* Document Cards Grid */}
         {loading ? (
-          <div className="flex items-center justify-center rounded-2xl border border-slate-200 bg-white p-12 text-slate-400">
-            <LoaderCircle className="animate-spin" size={22} />
+          <div className="card flex items-center justify-center p-16 text-slate-400">
+            <LoaderCircle className="animate-spin text-primary" size={28} />
           </div>
         ) : visibleDocuments.length ? (
-          <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-            {visibleDocuments.map((doc) => (
-              <article
-                key={doc.id}
-                className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-amber-100 text-amber-700">
-                    <FileText size={17} />
-                  </div>
-                  <span className="text-[9px] font-bold uppercase tracking-wider bg-slate-100 px-2 py-0.5 rounded-full text-slate-600">
-                    {label(doc.document_type)}
-                  </span>
-                </div>
-                <h3 className="mt-3 text-sm font-bold text-slate-950 truncate" title={doc.file_name}>
-                  {doc.title || doc.file_name || "Untitled"}
-                </h3>
-                <p className="text-[10px] text-slate-400 truncate">{doc.file_name || "File"}</p>
-                <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-2 text-[10px] text-slate-400">
-                  <span>{formatDate(doc.uploaded_at)} · {formatSize(doc.file_size)}</span>
-                  <div className="flex gap-0.5">
-                    <button onClick={() => download(doc)} className="grid h-7 w-7 place-items-center rounded-lg text-slate-400 hover:bg-amber-50 hover:text-amber-600 transition" aria-label="Download">
-                      <Download size={14} />
-                    </button>
-                    {doc.can_delete && (
-                      <button onClick={() => remove(doc)} className="grid h-7 w-7 place-items-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition" aria-label="Delete">
-                        <Trash2 size={14} />
-                      </button>
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {visibleDocuments.map((doc) => {
+              const config = TYPE_CONFIG[doc.document_type] || TYPE_CONFIG.OTHER;
+              const Icon = config.icon;
+
+              return (
+                <article
+                  key={doc.id}
+                  className="card p-5 flex flex-col justify-between hover:border-primary-200 transition-all"
+                >
+                  <div>
+                    {/* Top Row: Icon & Category badge */}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="grid h-11 w-11 place-items-center rounded-xl bg-primary-50 text-primary">
+                        <Icon size={20} />
+                      </div>
+                      <span className={`rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${config.color}`}>
+                        {config.label}
+                      </span>
+                    </div>
+
+                    {/* Title & Metadata */}
+                    <h3 className="mt-3.5 font-display text-sm font-bold text-navy truncate" title={doc.title || doc.file_name}>
+                      {doc.title || doc.file_name || "Document"}
+                    </h3>
+                    <p className="text-[11px] text-slate-400 truncate mt-0.5">{doc.file_name || "File attached"}</p>
+                    
+                    {doc.description && (
+                      <p className="mt-2 text-xs text-slate-500 line-clamp-2 italic bg-slate-50 p-2 rounded-lg">
+                        "{doc.description}"
+                      </p>
                     )}
                   </div>
-                </div>
-              </article>
-            ))}
+
+                  {/* Footer Row: Size & Actions */}
+                  <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-[11px] text-slate-400">
+                    <div>
+                      <span>{formatDate(doc.uploaded_at)}</span>
+                      <span className="block text-[10px] text-slate-400">{formatSize(doc.file_size)}</span>
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => download(doc)}
+                        className="grid h-8 w-8 place-items-center rounded-lg bg-primary-50 text-primary hover:bg-primary hover:text-white transition"
+                        title="Download Document"
+                        aria-label="Download Document"
+                      >
+                        <Download size={15} />
+                      </button>
+                      {doc.can_delete && (
+                        <button
+                          onClick={() => remove(doc)}
+                          className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition"
+                          title="Delete Document"
+                          aria-label="Delete Document"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         ) : (
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center">
-            <FolderUp className="mx-auto text-amber-400" size={26} />
-            <h3 className="mt-3 text-base font-semibold text-slate-950">No {activeTab} documents yet</h3>
-            <p className="text-xs text-slate-500">Uploaded files will appear here when available.</p>
+          <div className="card p-14 text-center">
+            <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-primary-50 text-primary">
+              <FolderUp size={32} />
+            </div>
+            <h3 className="mt-4 font-display text-lg font-bold text-navy">
+              No {activeTab === "incoming" ? "Received" : "Uploaded"} Documents Found
+            </h3>
+            <p className="mt-1 text-xs text-slate-500 max-w-sm mx-auto">
+              {activeTab === "incoming"
+                ? "Your travel manager will upload vouchers, flight tickets, and confirmed booking documents here."
+                : "You haven't uploaded any documents yet. Share copies of passports, visas, or IDs for seamless booking."}
+            </p>
+            {activeTab === "outgoing" && (
+              <button
+                onClick={() => setShowModal(true)}
+                className="btn-primary mt-6 text-xs font-bold px-5 py-2.5"
+              >
+                Upload Document Now →
+              </button>
+            )}
           </div>
         )}
 
-        {/* MODAL */}
+        {/* UPLOAD MODAL */}
         {showModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-            <div className="relative w-full max-w-sm rounded-2xl bg-slate-950 p-5 text-white shadow-2xl">
-              <button onClick={closeModal} className="absolute right-3 top-3 text-white/50 hover:text-white">
-                <X size={18} />
-              </button>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="grid h-9 w-9 place-items-center rounded-xl bg-amber-300 text-slate-950">
-                  <Upload size={16} />
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy-dark/75 backdrop-blur-sm p-4 animate-fade-in">
+            <div className="relative w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden animate-slide-down">
+              {/* Modal Header in Deep Navy */}
+              <div className="bg-navy px-6 py-4 text-white flex items-center justify-between border-b border-navy-light">
+                <div className="flex items-center gap-2.5">
+                  <div className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-white">
+                    <Upload size={16} />
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-bold text-white">Upload Travel Document</h2>
+                    <p className="text-[10px] text-white/70">Share securely with your tour planners</p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-lg font-semibold font-display">Upload a file</h2>
-                  <p className="text-[10px] text-white/50">Share with your travel team</p>
-                </div>
+                <button onClick={closeModal} className="grid h-8 w-8 place-items-center rounded-lg bg-white/10 text-white hover:bg-white/20">
+                  <X size={16} />
+                </button>
               </div>
 
-              <form onSubmit={submit} className="space-y-4">
-                {/* File drop zone */}
+              {/* Form Body */}
+              <form onSubmit={submit} className="p-6 space-y-4">
+                {/* Drop Zone */}
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-white/50">File</p>
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-700 block mb-1.5">
+                    Select File <span className="text-rose-500">*</span>
+                  </label>
                   <div
                     onClick={() => !uploading && fileInput.current?.click()}
                     onDrop={onDrop}
                     onDragOver={onDragOver}
                     onDragLeave={onDragLeave}
-                    className={`mt-1 flex min-h-[72px] flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed p-3 text-center transition ${
-                      uploading ? "cursor-wait border-white/10 bg-white/5 opacity-70" : "cursor-pointer border-white/20 bg-white/5 hover:border-amber-300/60"
-                    } ${dragActive ? "border-amber-300 bg-amber-300/10" : ""}`}
+                    className={`flex min-h-[96px] flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed p-4 text-center transition cursor-pointer ${
+                      uploading
+                        ? "cursor-wait border-slate-200 bg-slate-50 opacity-70"
+                        : dragActive
+                        ? "border-primary bg-primary-50"
+                        : "border-slate-300 bg-slate-50 hover:border-primary hover:bg-primary-50/30"
+                    }`}
                   >
                     <input ref={fileInput} type="file" className="hidden" onChange={onInputChange} />
                     {uploading ? (
                       <>
-                        <LoaderCircle className="animate-spin text-amber-300" size={18} />
-                        <p className="text-[10px] text-white/50">Uploading...</p>
+                        <LoaderCircle className="animate-spin text-primary" size={22} />
+                        <p className="text-xs font-medium text-slate-600">Uploading file…</p>
                       </>
                     ) : form.fileUrl ? (
                       <div className="flex w-full items-center gap-3 text-left">
                         {form.fileType?.startsWith("image/") ? (
-                          <img src={form.fileUrl} alt={form.fileName} className="h-10 w-10 rounded-lg object-cover" />
+                          <img src={form.fileUrl} alt={form.fileName} className="h-12 w-12 rounded-lg object-cover border border-slate-200" />
                         ) : (
-                          <div className="grid h-10 w-10 place-items-center rounded-lg bg-amber-300/20 text-amber-300">
-                            <FileText size={16} />
+                          <div className="grid h-12 w-12 place-items-center rounded-lg bg-primary-100 text-primary">
+                            <FileText size={22} />
                           </div>
                         )}
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-xs font-medium text-white">{form.fileName}</p>
-                          <p className="text-[10px] text-white/40">{formatSize(form.fileSize)}</p>
+                          <p className="truncate text-xs font-bold text-navy">{form.fileName}</p>
+                          <p className="text-[10px] text-slate-400">{formatSize(form.fileSize)}</p>
                         </div>
-                        <button type="button" onClick={(e) => { e.stopPropagation(); clearFile(); }} className="text-white/40 hover:text-white">
-                          <X size={14} />
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); clearFile(); }}
+                          className="grid h-7 w-7 place-items-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600"
+                        >
+                          <X size={15} />
                         </button>
                       </div>
                     ) : (
                       <>
-                        <Upload className="text-white/40" size={18} />
-                        <p className="text-[10px] text-white/50">Drag & drop, or <span className="font-bold text-amber-300">browse</span></p>
+                        <Upload className="text-primary" size={22} />
+                        <p className="text-xs font-semibold text-navy">
+                          Drag & drop file here, or <span className="text-primary underline">browse</span>
+                        </p>
+                        <p className="text-[10px] text-slate-400">PDF, JPG, PNG, DOC (up to 10MB)</p>
                       </>
                     )}
                   </div>
                 </div>
 
-                {/* Document type */}
+                {/* Document Type CustomSelect */}
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-700 mb-1">Document Type</p>
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-700 block mb-1.5">
+                    Document Type <span className="text-rose-500">*</span>
+                  </label>
                   <CustomSelect
                     value={form.documentType}
-                    options={DOCUMENT_TYPES.map((type) => ({ label: label(type), value: type }))}
+                    options={DOCUMENT_TYPES}
                     onChange={(val) => setField("documentType", val)}
-                    triggerClassName="h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs text-slate-800"
+                    triggerClassName="h-11 rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-xs sm:text-sm font-medium text-slate-800"
                   />
                 </div>
 
+                {/* Title */}
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-white/50">Title</p>
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-700 block mb-1.5">
+                    Document Title
+                  </label>
                   <input
                     value={form.title}
                     onChange={(e) => setField("title", e.target.value)}
-                    placeholder="e.g. Passport copy"
-                    className="mt-1 w-full rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 outline-none"
+                    placeholder="e.g. Passport - Front Page"
+                    className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-xs sm:text-sm font-medium text-slate-800 outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 
+                {/* Notes */}
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-white/50">Description</p>
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-700 block mb-1.5">
+                    Notes / Details (Optional)
+                  </label>
                   <textarea
                     value={form.description}
                     onChange={(e) => setField("description", e.target.value)}
-                    rows="2"
-                    placeholder="Add a note for your team"
-                    className="mt-1 w-full resize-none rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 outline-none"
+                    rows={2}
+                    placeholder="e.g. For visa processing for adult traveller"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs sm:text-sm font-medium text-slate-800 outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20 resize-none"
                   />
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={busy || uploading || !form.fileUrl}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-300 py-2.5 text-sm font-bold text-slate-950 transition hover:bg-amber-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {busy ? <LoaderCircle className="animate-spin" size={16} /> : <Upload size={16} />}
-                  {busy ? "Uploading..." : "Upload document"}
-                </button>
+                {/* Submit & Cancel */}
+                <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
+                  <button type="button" onClick={closeModal} className="btn-ghost text-xs font-semibold">
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={busy || uploading || !form.fileUrl}
+                    className="btn-accent rounded-xl text-xs font-bold px-5 py-2.5 disabled:opacity-50"
+                  >
+                    {busy ? "Saving Document…" : "Save Document →"}
+                  </button>
+                </div>
               </form>
             </div>
           </div>
         )}
-      </div>
-    </>
+      </main>
+    </div>
   );
 }

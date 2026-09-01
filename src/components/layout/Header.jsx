@@ -63,12 +63,12 @@ export default function Header() {
       <div className="bg-navy text-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-1.5 text-xs sm:px-6">
           <div className="flex items-center gap-4">
-            <a href="tel:+919876543210" className="flex items-center gap-1.5 transition hover:text-primary-200">
+            <a href="tel:+919932204885" className="flex items-center gap-1.5 transition hover:text-primary-200">
               <Phone size={12} />
-              <span className="hidden sm:inline">+91 98765 43210</span>
+              <span className="hidden sm:inline">+91 99322 04885</span>
             </a>
             <a
-              href="https://wa.me/919876543210?text=Hello%20Coochbehar%20Travel%2C%20I%20need%20help%20planning%20a%20trip!"
+              href="https://wa.me/919932204885?text=Hello%20Coochbehar%20Travel%2C%20I%20need%20help%20planning%20a%20trip!"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 text-[#25D366] transition hover:text-[#1EBE5A]"
@@ -227,7 +227,7 @@ export default function Header() {
                 ))}
                 <hr className="my-3 border-slate-100" />
                 <a
-                  href="https://wa.me/919876543210?text=Hello%20Coochbehar%20Travel%2C%20I%20need%20help%20planning%20a%20trip!"
+                  href="https://wa.me/919932204885?text=Hello%20Coochbehar%20Travel%2C%20I%20need%20help%20planning%20a%20trip!"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-[#25D366] transition hover:bg-green-50"
@@ -236,11 +236,11 @@ export default function Header() {
                   Chat on WhatsApp
                 </a>
                 <a
-                  href="tel:+919876543210"
+                  href="tel:+919932204885"
                   className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
                 >
                   <Phone size={16} className="text-primary" />
-                  +91 98765 43210
+                  +91 99322 04885
                 </a>
               </nav>
             </div>

@@ -306,7 +306,7 @@ export default function HomePage() {
                 Plan Custom Trip →
               </Link>
               <a
-                href="https://wa.me/919876543210?text=Hello%20Coochbehar%20Travel%2C%20I%20am%20interested%20in%20planning%20a%20customized%20trip!"
+                href="https://wa.me/919932204885?text=Hello%20Coochbehar%20Travel%2C%20I%20am%20interested%20in%20planning%20a%20customized%20trip!"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-whatsapp rounded-xl text-sm font-bold"
