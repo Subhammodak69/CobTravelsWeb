@@ -380,6 +380,18 @@ export default function HomePage() {
               Plan a Custom Journey →
             </Link>
           </div>
+          <Link
+            to="/terms-of-service"
+            className="mt-3 inline-block text-xs font-bold text-slate-700 hover:underline"
+          >
+            Terms of Service →
+          </Link>
+          <Link
+            to="/privacy-policy"
+            className="mt-3 inline-block text-xs font-bold text-slate-700 hover:underline"
+          >
+            Privacy Policy →
+          </Link>
         </div>
       </section>
     </div>

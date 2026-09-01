@@ -16,6 +16,8 @@ import ReferralsPage from "./pages/ReferralsPage";
 import ToursExplorePage from "./pages/ToursExplorePage";
 import { captureReferralFromUrl } from "./api";
 import useVisitorTracking from "./hooks/useVisitorTracking";
+import PrivacyPolicyPage from "./pages/PrivacyPolicy";
+import TermsOfServicePage from "./pages/TermsOfService";
 
 import { useTravel } from "./contexts/TravelContext";
 
@@ -102,7 +104,8 @@ function AppRoutes() {
         <Route path="/tours" element={<Layout><ToursExplorePage /></Layout>} />
         <Route path="/journey/:id" element={<Layout><PackageDetailsPage /></Layout>} />
         <Route path="/custom-tour-enquiry" element={<Layout><CustomTourEnquiryPage /></Layout>} />
-
+        <Route path="/privacy-policy" element={<Layout><PrivacyPolicyPage /></Layout>} />
+        <Route path="/terms-of-service" element={<Layout><TermsOfServicePage /></Layout>} />
         <Route
           path="/profile"
           element={
