@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchEnquiries } from "../api";
-import { useTravel } from "../contexts/TravelContext";
-import { ArrowRight, Plane, Calendar, Phone, MessageSquareText } from "lucide-react";
+import { MessageSquareText } from "lucide-react";
 
 function formatDate(value) {
   if (!value) return "Date not set";
@@ -26,7 +25,6 @@ const STATUS_THEMES = {
 };
 
 export default function EnquiriesPage() {
-  const { isMember } = useTravel();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

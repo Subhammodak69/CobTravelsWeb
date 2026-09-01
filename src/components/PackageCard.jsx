@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTravel } from "../contexts/TravelContext";
 import EnquiryModal from "./EnquiryModal";
 import { addToWishlist, removeFromWishlist } from "../api";
-import { Heart, LoaderCircle, MapPin, Clock, ArrowRight, Sparkles } from "lucide-react";
+import { Heart, LoaderCircle, MapPin, Clock, ArrowRight } from "lucide-react";
 
 export default function PackageCard({ pack, index }) {
   const { selectPackage, isMember } = useTravel();

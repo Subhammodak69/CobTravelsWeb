@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Heart, LoaderCircle, Trash2, MapPin } from "lucide-react";
+import { ArrowRight, Heart, LoaderCircle } from "lucide-react";
 import { fetchWishlist, removeFromWishlist } from "../api";
 
 function WishlistCard({ item, onRemove }) {

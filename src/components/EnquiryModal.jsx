@@ -2,17 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { submitEnquiry, fetchPackageSelect, isValidUUID } from "../api";
 import { useTravel } from "../contexts/TravelContext";
 import CustomSelect from "./CustomSelect";
-import enums from "../utils/enums.json";
 import { X } from "lucide-react";
-
-const CHANNELS = Object.keys(enums?.EnquiryChannel || {
-  WEBSITE: "WEBSITE",
-  WHATSAPP: "WHATSAPP",
-  PHONE: "PHONE",
-  EMAIL: "EMAIL",
-  OFFLINE: "OFFLINE",
-  ADMIN: "ADMIN",
-});
 
 const INITIAL = { name: "", mobile: "", channel: "WEBSITE", subject: "", message: "", variant_id: "" };
 
@@ -29,7 +19,6 @@ export default function EnquiryModal({
   const [variants, setVariants] = useState([]);
   const [resolvedPackageId, setResolvedPackageId] = useState(packageId);
   const [displayTitle, setDisplayTitle] = useState(packageTitle);
-  const [loadingVariants, setLoadingVariants] = useState(false);
   const [status, setStatus] = useState("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const firstRef = useRef(null);
@@ -42,7 +31,6 @@ export default function EnquiryModal({
     const lookupKey = packageSlug || packageId;
 
     if (lookupKey) {
-      setLoadingVariants(true);
       fetchPackageSelect(lookupKey)
         .then((data) => {
           if (!isMounted || !data) return;
@@ -60,10 +48,7 @@ export default function EnquiryModal({
             }));
           }
         })
-        .catch(() => {})
-        .finally(() => {
-          if (isMounted) setLoadingVariants(false);
-        });
+        .catch(() => {});
     }
 
     return () => {

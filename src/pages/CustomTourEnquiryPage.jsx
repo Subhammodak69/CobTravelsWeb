@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { submitCustomEnquiry } from "../api";
 import { useTravel } from "../contexts/TravelContext";
 import CustomSelect from "../components/CustomSelect";
 import enums from "../utils/enums.json";
-import { Sparkle, CheckCircle, ArrowRight, MessageCircle } from "lucide-react";
+import { Sparkle } from "lucide-react";
 
 const VEHICLE_OPTIONS = Object.values(enums.VehicleType);
 const MEAL_OPTIONS = Object.values(enums.MealPlan);

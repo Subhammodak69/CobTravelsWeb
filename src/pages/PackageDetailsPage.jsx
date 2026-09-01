@@ -4,8 +4,8 @@ import { useTravel } from "../contexts/TravelContext";
 import usePackages from "../hooks/usePackages";
 import { addToWishlist, checkReviewEligibility, fetchReviews, fetchVariant, removeFromWishlist, submitReview } from "../api";
 import {
-  Heart, LoaderCircle, MapPin, Clock, Calendar, Check, X as CloseIcon,
-  Video, Image as ImageIcon, ArrowRight, MessageCircle, Star, Sparkles, ChevronDown, ChevronUp
+  Heart, LoaderCircle, MapPin, Clock, Check, X as CloseIcon,
+  Video, Image as ImageIcon, MessageCircle, ChevronDown, ChevronUp
 } from "lucide-react";
 import PackageGallery from "../components/PackageGallery";
 import Reviews from "../components/Reviews";

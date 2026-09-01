@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Check, Copy, Gift, LoaderCircle, Share2 } from "lucide-react";
+import { Check, Copy, Gift, LoaderCircle } from "lucide-react";
 import { fetchReferralCode, fetchReferrals, getReferralLink } from "../api";
 
 const formatDate = (value) => {

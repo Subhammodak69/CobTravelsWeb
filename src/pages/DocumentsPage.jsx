@@ -1,7 +1,7 @@
-// DocumentsPage.jsx
 import { useEffect, useRef, useState } from "react";
 import { Download, FileText, FolderUp, LoaderCircle, Trash2, Upload, X } from "lucide-react";
 import { fetchDocuments, uploadDocument, downloadDocument, deleteDocument, uploadFile } from "../api";
+import CustomSelect from "../components/CustomSelect";
 
 const DOCUMENT_TYPES = ["ID_PROOF", "PASSPORT", "VISA", "TICKET", "INSURANCE", "OTHER"];
 const EMPTY_FORM = { fileUrl: "", fileName: "", fileSize: 0, fileType: "", documentType: "ID_PROOF", title: "", description: "" };
@@ -311,16 +311,13 @@ export default function DocumentsPage() {
 
                 {/* Document type */}
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-white/50">Document type</p>
-                  <select
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-700 mb-1">Document Type</p>
+                  <CustomSelect
                     value={form.documentType}
-                    onChange={(e) => setField("documentType", e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm text-white outline-none"
-                  >
-                    {DOCUMENT_TYPES.map((type) => (
-                      <option key={type} value={type} className="text-slate-900">{label(type)}</option>
-                    ))}
-                  </select>
+                    options={DOCUMENT_TYPES.map((type) => ({ label: label(type), value: type }))}
+                    onChange={(val) => setField("documentType", val)}
+                    triggerClassName="h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs text-slate-800"
+                  />
                 </div>
 
                 <div>

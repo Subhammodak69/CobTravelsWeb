@@ -3,8 +3,8 @@ import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import {
   UserRound, ChevronDown, User, MessageSquareText, MapPinned, Files,
-  Heart, Gift, LoaderCircle, Phone, Headphones, MapPin, Menu, X,
-  Search, Globe, Plane, Sparkles, Tag, Sparkle, Bell
+  Heart, Gift, LoaderCircle, Phone, Headphones, Menu, X,
+  Search, Globe
 } from "lucide-react";
 
 function ProfileAvatar({ src }) {
@@ -33,7 +33,7 @@ const PROFILE_MENU = [
 ];
 
 export default function Header() {
-  const { goHome, goBack, isMember, authReady, user } = useTravel();
+  const { goHome, isMember, authReady, user } = useTravel();
   const location = useLocation();
   const navigate = useNavigate();
   const [profileOpen, setProfileOpen] = useState(false);

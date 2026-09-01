@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import {
-  Search, SlidersHorizontal, Compass, Sparkles, MapPin, Globe, Tag,
-  Sparkle, X, ArrowUpDown, RefreshCw
+  Search, Compass, Sparkles, MapPin, Globe, Tag,
+  Sparkle, X, RefreshCw
 } from "lucide-react";
 import PackageCard from "../components/PackageCard";
+import CustomSelect from "../components/CustomSelect";
 import usePackages from "../hooks/usePackages";
 import useScrollReveal from "../hooks/useScrollReveal";
 
@@ -34,7 +35,6 @@ export default function ToursExplorePage() {
   const pageParam = parseInt(searchParams.get("page") || "1", 10);
 
   const [searchInput, setSearchInput] = useState(searchParam);
-  const [showFiltersMobile, setShowFiltersMobile] = useState(false);
 
   // Sync state with URL params
   const activeFilters = useMemo(() => ({
@@ -185,30 +185,36 @@ export default function ToursExplorePage() {
             </div>
 
             {/* Filter Dropdowns on Desktop */}
-            <div className="flex items-center gap-2">
-              <select
-                value={typeParam}
-                onChange={(e) => updateParams({ type: e.target.value, page: 1 })}
-                className="h-11 rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs font-semibold text-slate-700 outline-none transition focus:border-primary focus:bg-white"
-              >
-                <option value="">All Regions</option>
-                <option value="DOMESTIC">Domestic (India)</option>
-                <option value="INTERNATIONAL">International</option>
-              </select>
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="w-40 sm:w-44">
+                <CustomSelect
+                  value={typeParam}
+                  options={[
+                    { label: "All Regions", value: "" },
+                    { label: "Domestic (India)", value: "DOMESTIC" },
+                    { label: "International", value: "INTERNATIONAL" },
+                  ]}
+                  onChange={(val) => updateParams({ type: val, page: 1 })}
+                  triggerClassName="h-11 rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs font-semibold text-slate-700 hover:border-primary"
+                />
+              </div>
 
-              <select
-                value={`${sortByParam}_${sortOrderParam}`}
-                onChange={(e) => {
-                  const [field, order] = e.target.value.split("_");
-                  updateParams({ sort_by: field, sort_order: order, page: 1 });
-                }}
-                className="h-11 rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs font-semibold text-slate-700 outline-none transition focus:border-primary focus:bg-white"
-              >
-                <option value="created_at_desc">Newest First</option>
-                <option value="price_asc">Price: Low to High</option>
-                <option value="price_desc">Price: High to Low</option>
-                <option value="title_asc">Name: A to Z</option>
-              </select>
+              <div className="w-40 sm:w-48">
+                <CustomSelect
+                  value={`${sortByParam}_${sortOrderParam}`}
+                  options={[
+                    { label: "Newest First", value: "created_at_desc" },
+                    { label: "Price: Low to High", value: "price_asc" },
+                    { label: "Price: High to Low", value: "price_desc" },
+                    { label: "Name: A to Z", value: "title_asc" },
+                  ]}
+                  onChange={(val) => {
+                    const [field, order] = val.split("_");
+                    updateParams({ sort_by: field, sort_order: order, page: 1 });
+                  }}
+                  triggerClassName="h-11 rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs font-semibold text-slate-700 hover:border-primary"
+                />
+              </div>
 
               {hasActiveFilters && (
                 <button

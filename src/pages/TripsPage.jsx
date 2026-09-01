@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchEnquiries } from "../api";
-import { MapPin, Calendar, Users, Plane, LoaderCircle } from "lucide-react";
-
-const HERO_IMG = "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=2000&q=90";
+import { Calendar, Users, Plane, LoaderCircle } from "lucide-react";
 
 function formatDate(value) {
   const d = new Date(value);

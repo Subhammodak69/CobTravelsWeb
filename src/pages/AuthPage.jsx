@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import { ArrowRight, ShieldCheck, Gift, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Gift, CheckCircle2 } from "lucide-react";
 import { captureReferralFromUrl, getStoredReferralCode, loginGoogle, requestOtp, verifyOtp } from "../api";
 import { useTravel } from "../contexts/TravelContext";
 

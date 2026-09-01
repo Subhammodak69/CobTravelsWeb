@@ -3,9 +3,10 @@ import { useNavigate, Link } from "react-router-dom";
 import {
   Search, MapPin, Globe, Tag, Sparkles, ArrowRight, ShieldCheck,
   HeartHandshake, Headphones, Award, Compass, MessageCircle, Star,
-  Calendar, CheckCircle2, ChevronRight, Sparkle
+  Sparkle
 } from "lucide-react";
 import PackageCard from "../components/PackageCard";
+import CustomSelect from "../components/CustomSelect";
 import usePackages from "../hooks/usePackages";
 import useScrollReveal from "../hooks/useScrollReveal";
 
@@ -171,16 +172,17 @@ export default function HomePage() {
               </div>
 
               {/* Type Selector */}
-              <div className="sm:w-44">
-                <select
+              <div className="sm:w-48 text-left">
+                <CustomSelect
                   value={tourTypeFilter}
-                  onChange={(e) => setTourTypeFilter(e.target.value)}
-                  className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs sm:text-sm font-medium text-slate-700 outline-none transition focus:border-primary focus:bg-white"
-                >
-                  <option value="ALL">All Types</option>
-                  <option value="DOMESTIC">Domestic Tours</option>
-                  <option value="INTERNATIONAL">International</option>
-                </select>
+                  options={[
+                    { label: "All Regions", value: "ALL" },
+                    { label: "Domestic (India)", value: "DOMESTIC" },
+                    { label: "International", value: "INTERNATIONAL" },
+                  ]}
+                  onChange={(val) => setTourTypeFilter(val)}
+                  triggerClassName="h-12 rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-xs sm:text-sm font-medium text-slate-700 hover:border-primary"
+                />
               </div>
 
               {/* Search Button */}
