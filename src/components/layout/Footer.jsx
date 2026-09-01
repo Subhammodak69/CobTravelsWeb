@@ -5,6 +5,7 @@ const QUICK_LINKS = [
   { label: "Home", path: "/" },
   { label: "All Tours", path: "/tours" },
   { label: "Custom Tour", path: "/custom-tour-enquiry" },
+  { label: "Contact Us", path: "/contact" },
   { label: "Privacy Policy", path: "/privacy-policy" },
   { label: "Terms of Service", path: "/terms-of-service" },
 ];

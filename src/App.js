@@ -19,6 +19,7 @@ import { captureReferralFromUrl } from "./api";
 import useVisitorTracking from "./hooks/useVisitorTracking";
 import PrivacyPolicyPage from "./pages/PrivacyPolicy";
 import TermsOfServicePage from "./pages/TermsOfService";
+import ContactUsPage from "./pages/ContactUsPage";
 
 import { useTravel } from "./contexts/TravelContext";
 
@@ -27,7 +28,6 @@ function Layout({ children }) {
   const location = useLocation();
   const isAuthPage = location.pathname === "/login" || location.pathname === "/signup" || location.pathname === "/invite";
   const hero = {
-    "/documents": { image: "https://images.unsplash.com/photo-1452421822248-d4c2b47f0c81?auto=format&fit=crop&w=2000&q=90", eyebrow: "Your travel files", title: "Travel,", accent: "Organized.", alt: "Travel documents and planning" },
     "/wishlist": { image: "https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=2000&q=90", eyebrow: "Saved for later", title: "Journeys Worth", accent: "Keeping.", alt: "Scenic travel destination" },
     "/referrals": { image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=2000&q=90", eyebrow: "Bring someone along", title: "Travel is Better", accent: "Together.", alt: "Friends travelling together" },
   }[location.pathname];
@@ -127,6 +127,7 @@ function AppRoutes() {
         <Route path="/tours" element={<Layout><ToursExplorePage /></Layout>} />
         <Route path="/journey/:id" element={<Layout><PackageDetailsPage /></Layout>} />
         <Route path="/custom-tour-enquiry" element={<Layout><CustomTourEnquiryPage /></Layout>} />
+        <Route path="/contact" element={<Layout><ContactUsPage /></Layout>} />
         <Route path="/privacy-policy" element={<Layout><PrivacyPolicyPage /></Layout>} />
         <Route path="/terms-of-service" element={<Layout><TermsOfServicePage /></Layout>} />
         <Route

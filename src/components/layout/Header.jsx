@@ -21,6 +21,7 @@ const NAV_LINKS = [
   { label: "Domestic", path: "/tours?type=DOMESTIC" },
   { label: "International", path: "/tours?type=INTERNATIONAL" },
   { label: "Custom Tour", path: "/custom-tour-enquiry" },
+  { label: "Contact Us", path: "/contact" },
 ];
 
 const PROFILE_MENU = [
@@ -50,11 +51,26 @@ export default function Header() {
   useEffect(() => {
     setMobileMenuOpen(false);
     setProfileOpen(false);
-  }, [location.pathname]);
+  }, [location.pathname, location.search]);
 
   const isActive = (path) => {
-    if (path === "/") return location.pathname === "/";
-    return location.pathname.startsWith(path.split("?")[0]);
+    if (path === "/") {
+      return location.pathname === "/" && !location.search;
+    }
+    const [targetPath, targetQuery] = path.split("?");
+    if (location.pathname !== targetPath) {
+      return false;
+    }
+    if (targetQuery) {
+      const targetParams = new URLSearchParams(targetQuery);
+      const currentParams = new URLSearchParams(location.search);
+      for (const [key, val] of targetParams.entries()) {
+        if (currentParams.get(key) !== val) return false;
+      }
+      return true;
+    }
+    const currentParams = new URLSearchParams(location.search);
+    return !currentParams.get("type");
   };
 
   return (
@@ -78,7 +94,7 @@ export default function Header() {
             </a>
           </div>
           <div className="flex items-center gap-4">
-            <Link to="/custom-tour-enquiry" className="flex items-center gap-1.5 transition hover:text-primary-200">
+            <Link to="/contact" className="flex items-center gap-1.5 transition hover:text-primary-200">
               <Headphones size={12} />
               <span className="hidden sm:inline">Contact Us</span>
             </Link>

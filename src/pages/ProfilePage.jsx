@@ -568,6 +568,10 @@ export default function ProfilePage() {
               <p className="eyebrow">Account Actions</p>
               <h2 className="section-title text-base sm:text-lg mb-3">Support & Settings</h2>
               <div className="divide-y divide-slate-100 text-xs">
+                <Link to="/contact" className="flex items-center justify-between py-2.5 font-semibold text-slate-700 hover:text-primary">
+                  <span>Contact Support & Concierge</span>
+                  <ChevronRight size={14} className="text-slate-400" />
+                </Link>
                 <Link to="/privacy-policy" className="flex items-center justify-between py-2.5 font-semibold text-slate-700 hover:text-primary">
                   <span>Privacy Policy</span>
                   <ChevronRight size={14} className="text-slate-400" />
