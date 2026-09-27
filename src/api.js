@@ -265,15 +265,23 @@ export async function deleteAccount({ identifier, otp, name = "", purpose = "LOG
 export function fetchSessions(){return request("/api/v1/sessions/",{},true);}
 export function deleteSession(id){return request(`/api/v1/sessions/${encodeURIComponent(id)}`,{method:"DELETE"},true);}
 export function fetchDocuments(page = 1, pageSize = 50) { return request(`/api/v1/documents?page=${page}&page_size=${pageSize}`, {}, true); }
-export function uploadDocument({ file, fileUrl, documentType, title, description }) {
-  const value = fileUrl || file;
-  if (!value) throw new Error("Please choose a file to upload");
-  const form = new FormData();
-  form.append("file", value);
-  form.append("document_type", documentType || "");
-  form.append("title", title || "");
-  form.append("description", description || "");
-  return request("/api/v1/documents", { method: "POST", body: form }, true);
+export async function uploadDocument({ file, fileUrl, documentType, title, description }) {
+  let uploadedUrl = fileUrl;
+  if (!uploadedUrl && file) {
+    const uploaded = await uploadFile(file);
+    uploadedUrl = uploaded?.data?.url || uploaded?.url;
+  }
+  if (!uploadedUrl) throw new Error("Please choose a file to upload");
+  return request("/api/v1/documents", {
+    method: "POST",
+    body: JSON.stringify({
+      file: uploadedUrl,
+      file_name: file?.name || "document",
+      document_type: documentType || "OTHER",
+      title: title || file?.name || "Document",
+      description: description || null,
+    }),
+  }, true);
 }
 export function downloadDocument(id) { return request(`/api/v1/documents/${encodeURIComponent(id)}/download`, {}, true); }
 export function deleteDocument(id) { return request(`/api/v1/documents/${encodeURIComponent(id)}`, { method: "DELETE" }, true); }
@@ -378,14 +386,18 @@ export async function fetchPackageVariants(packageIdOrSlug, page = 1, pageSize =
   };
 }
 
-export async function fetchHotels(page = 1, pageSize = 20, destinationId = "") {
+export async function fetchHotels(page = 1, pageSize = 20, destinationId = "", category = "") {
   const query = new URLSearchParams({ page: String(page), page_size: String(pageSize) });
   if (destinationId) query.set("destination_id", destinationId);
+  if (category) query.set("category", category);
   return request(`/api/v1/hotels?${query.toString()}`);
 }
 
-export async function fetchVehicles(page = 1, pageSize = 20) {
-  return request(`/api/v1/vehicles?page=${page}&page_size=${pageSize}`);
+export async function fetchVehicles(page = 1, pageSize = 20, vehicleType = "", search = "") {
+  const query = new URLSearchParams({ page: String(page), page_size: String(pageSize) });
+  if (vehicleType) query.set("vehicle_type", vehicleType);
+  if (search) query.set("search", search);
+  return request(`/api/v1/vehicles?${query.toString()}`);
 }
 
 export async function fetchPackage(slug, summaryData = null) {
@@ -398,8 +410,11 @@ export async function fetchPackage(slug, summaryData = null) {
       slug: summaryData.slug || slug,
     };
   } else {
-    const r = await request(`/api/v1/tour-packages/${encodeURIComponent(slug)}`);
-    d = r.data;
+    // The end-user API exposes package lists and variant details, not a
+    // singular /tour-packages/{slug} endpoint. Resolve the summary from the
+    // supported list route before loading variants.
+    const result = await fetchPackages({ search: slug, page: 1, page_size: 100 });
+    d = result.items.find((item) => item.slug === slug) || result.items[0];
   }
   if (!d) throw new Error("Tour package was not found");
   const packageSlug = d.slug || slug;
@@ -435,12 +450,7 @@ export async function fetchPackage(slug, summaryData = null) {
 export async function fetchVariant(slug, variantSlug, listedItems = null) {
   const listed = listedItems ? { items: listedItems } : await fetchPackageVariants(slug).catch(() => ({ items: [] }));
   const listedVariant = listed.items.find((item) => item.id === variantSlug || item.slug === variantSlug || item.variant_id === variantSlug);
-  let r;
-  try {
-    r = await request(`/api/v1/tour-packages/${encodeURIComponent(slug)}/variants/${encodeURIComponent(listedVariant?.slug || variantSlug)}/details`);
-  } catch {
-    r = await request(`/api/v1/tour-packages/${encodeURIComponent(slug)}/variants/${encodeURIComponent(variantSlug)}`);
-  }
+  const r = await request(`/api/v1/tour-packages/${encodeURIComponent(slug)}/variants/${encodeURIComponent(listedVariant?.slug || variantSlug)}/details`);
   const detail = r?.data?.variant || r?.data;
   if (!detail) throw new Error("Tour variant was not found");
   return variant({ ...listedVariant, ...detail });
@@ -595,8 +605,8 @@ export async function deleteCustomerTourTraveller(bookingId, travellerId) {
   }, true);
 }
 
-export async function fetchReviews(slugOrId) {
-  return request(`/api/v1/reviews/package/${encodeURIComponent(slugOrId)}`);
+export async function fetchReviews(slugOrId, page = 1, pageSize = 10) {
+  return request(`/api/v1/reviews/package/${encodeURIComponent(slugOrId)}?page=${page}&page_size=${pageSize}`);
 }
 
 export async function checkReviewEligibility(slugOrId) {
@@ -607,19 +617,47 @@ export async function submitReview({ package_id = "", rating = 5, review = "", r
   return request("/api/v1/reviews", {
     method: "POST",
     body: JSON.stringify({ package_id, rating: Number(rating), review, review_gallery }),
-  });
+  }, true);
 }
 
 export async function updateReview(reviewId, { rating = 5, review = "", review_gallery = [] } = {}) {
   return request(`/api/v1/reviews/${encodeURIComponent(reviewId)}`, {
     method: "PATCH",
     body: JSON.stringify({ rating: Number(rating), review, review_gallery }),
-  });
+  }, true);
 }
 
 export async function deleteReview(reviewId) {
   return request(`/api/v1/reviews/${encodeURIComponent(reviewId)}`, {
     method: "DELETE",
-  });
+  }, true);
+}
+
+// ── Quotations ───────────────────────────────────────────────────────
+export async function fetchEnquiryQuotations(enquiryId) {
+  return request(`/api/v1/quotations/enquiry/${encodeURIComponent(enquiryId)}`, {}, true);
+}
+
+export async function acceptQuotation(quotationId, travellers = []) {
+  return request(`/api/v1/quotations/${encodeURIComponent(quotationId)}/accept`, {
+    method: "POST",
+    body: JSON.stringify({ travellers }),
+  }, true);
+}
+
+export async function rejectQuotation(quotationId, reason) {
+  return request(`/api/v1/quotations/${encodeURIComponent(quotationId)}/reject`, {
+    method: "POST",
+    body: JSON.stringify({ reason }),
+  }, true);
+}
+
+// ── Wallet and transactions ─────────────────────────────────────────
+export async function fetchWalletBalance() {
+  return request("/api/v1/transactions/balance", {}, true);
+}
+
+export async function fetchTransactions(page = 1, pageSize = 20) {
+  return request(`/api/v1/transactions?page=${page}&page_size=${pageSize}`, {}, true);
 }
 
