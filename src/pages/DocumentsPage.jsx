@@ -3,7 +3,7 @@ import {
   Download, FileText, FolderUp, LoaderCircle, Trash2, Upload, X,
   Shield, CreditCard, Ticket, FileCheck, CheckCircle2, Plus
 } from "lucide-react";
-import { fetchDocuments, uploadDocument, downloadDocument, deleteDocument, uploadFile } from "../api";
+import { fetchDocuments, uploadDocument, downloadDocumentFile, deleteDocument, uploadFile } from "../api";
 import CustomSelect from "../components/CustomSelect";
 
 const DOCUMENT_TYPES = [
@@ -50,6 +50,7 @@ export default function DocumentsPage() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [downloadingId, setDownloadingId] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -73,6 +74,7 @@ export default function DocumentsPage() {
   }, []);
 
   const isOutgoing = (doc) => {
+    if (doc.type) return String(doc.type).toLowerCase() === "outgoing";
     if (doc.direction) return doc.direction === "outgoing";
     return doc.uploaded_by === "CUSTOMER" || doc.uploaded_by === "customer";
   };
@@ -152,13 +154,25 @@ export default function DocumentsPage() {
   };
 
   const download = async (doc) => {
+    setDownloadingId(doc.id);
+    setError("");
+    setNotice("");
     try {
-      const response = await downloadDocument(doc.id);
-      const url = response?.data?.download_url || doc.file_url;
-      if (!url) throw new Error("Download link unavailable.");
-      window.open(url, "_blank", "noopener,noreferrer");
+      const { blob, fileName } = await downloadDocumentFile(doc.id);
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = fileName || doc.file_name || "document";
+      anchor.style.display = "none";
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setNotice(`${fileName || doc.file_name || "Document"} downloaded successfully.`);
     } catch (err) {
-      setError(err.message || "Could not prepare download link.");
+      setError(err.message || "Could not download document.");
+    } finally {
+      setDownloadingId(null);
     }
   };
 
@@ -333,11 +347,12 @@ export default function DocumentsPage() {
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => download(doc)}
+                        disabled={downloadingId === doc.id}
                         className="grid h-8 w-8 place-items-center rounded-lg bg-primary-50 text-primary hover:bg-primary hover:text-white transition"
                         title="Download Document"
                         aria-label="Download Document"
                       >
-                        <Download size={15} />
+                        {downloadingId === doc.id ? <LoaderCircle className="animate-spin" size={15} /> : <Download size={15} />}
                       </button>
                       {doc.can_delete && (
                         <button

@@ -293,6 +293,39 @@ export async function uploadDocument({ file, fileUrl, documentType, title, descr
   }, true);
 }
 export function downloadDocument(id) { return request(`/api/v1/documents/${encodeURIComponent(id)}/download`, {}, true); }
+export async function downloadDocumentFile(id) {
+  const response = await downloadDocument(id);
+  const data = response?.data;
+  const downloadUrl = data?.download_url;
+  if (!downloadUrl) throw new Error("Download link unavailable.");
+
+  const fetchFile = () => fetch(
+    downloadUrl.startsWith("http") ? downloadUrl : `${BASE_API}${downloadUrl}`,
+    {
+      credentials: "include",
+      headers: {
+        Accept: "application/octet-stream",
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      },
+    }
+  );
+
+  let fileResponse = await fetchFile();
+  if (fileResponse.status === 401) {
+    await refreshAccessToken();
+    fileResponse = await fetchFile();
+  }
+  if (!fileResponse.ok) {
+    const body = await fileResponse.json().catch(() => ({}));
+    throw new Error(body.message || `Download failed (${fileResponse.status})`);
+  }
+
+  return {
+    blob: await fileResponse.blob(),
+    fileName: data.file_name || "document",
+    mimeType: fileResponse.headers.get("content-type") || "application/octet-stream",
+  };
+}
 export function deleteDocument(id) { return request(`/api/v1/documents/${encodeURIComponent(id)}`, { method: "DELETE" }, true); }
 export function fetchReferralCode() { return request("/api/v1/referrals/code", {}, true); }
 export function fetchReferrals(page = 1, pageSize = 20) { return request(`/api/v1/referrals?page=${page}&page_size=${pageSize}`, {}, true); }
