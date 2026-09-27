@@ -1,11 +1,13 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { fetchMe, getAccessToken, refreshSession, logout, setOnUnauthorized } from "../api";
+import { useLocation, useNavigate } from "react-router-dom";
+import { fetchMe, getAccessToken, refreshSession, logout, setOnUnauthorized, identifyVisitor } from "../api";
+import { createNotificationSocket, createVisitorSocket } from "../realtime/socket";
 
 const TravelContext = createContext(null);
 
 export function TravelProvider({ children }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [selectedPackageId, setSelectedPackageId] = useState(null);
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [status, setStatus] = useState("unknown"); // "unknown" | "authenticated" | "anonymous"
@@ -13,6 +15,7 @@ export function TravelProvider({ children }) {
   const [user, setUser] = useState(null);
   const [authReady, setAuthReady] = useState(false);
   const authBootstrapRef = useRef(false);
+  const realtimeRef = useRef(null);
 
   useEffect(() => {
     setOnUnauthorized(() => {
@@ -21,6 +24,65 @@ export function TravelProvider({ children }) {
       setStatus("anonymous");
     });
   }, []);
+
+  useEffect(() => {
+    if (!authReady) return undefined;
+
+    let disposed = false;
+    let notificationSocket = null;
+
+    const connectRealtime = async () => {
+      const resolvedVisitorId = await identifyVisitor(user?.id || "");
+      if (disposed) return;
+
+      const socket = createVisitorSocket({
+        customerId: user?.id || "",
+        page: window.location.pathname,
+      });
+      realtimeRef.current = socket;
+      socket.on("connect", () => {
+        socket.emit("visitor_identify", {
+          visitor_id: resolvedVisitorId || undefined,
+          customer_id: user?.id || undefined,
+          page: window.location.pathname,
+          current_url: window.location.href,
+        });
+      });
+      socket.on("connect_error", (error) => {
+        window.dispatchEvent(new CustomEvent("cobtravels:realtime", {
+          detail: { status: "error", error: error?.message || "Realtime connection failed" },
+        }));
+      });
+      socket.on("connect", () => {
+        window.dispatchEvent(new CustomEvent("cobtravels:realtime", {
+          detail: { status: "connected" },
+        }));
+      });
+
+      const token = getAccessToken();
+      notificationSocket = createNotificationSocket(token, (message) => {
+        window.dispatchEvent(new CustomEvent("cobtravels:notification", { detail: message }));
+      });
+    };
+
+    connectRealtime();
+    return () => {
+      disposed = true;
+      realtimeRef.current?.disconnect();
+      realtimeRef.current = null;
+      notificationSocket?.close();
+    };
+  }, [authReady, user?.id]);
+
+  useEffect(() => {
+    const socket = realtimeRef.current;
+    if (socket?.connected) {
+      socket.emit("page_view", {
+        path: location.pathname,
+        current_url: window.location.href,
+      });
+    }
+  }, [location.pathname]);
 
   const refreshUser = async () => {
     try {
