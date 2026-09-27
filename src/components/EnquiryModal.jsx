@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { submitEnquiry, fetchPackageVariants, isValidUUID } from "../api";
+import { submitEnquiry, fetchPackageVariants, fetchHotels, fetchVehicles, isValidUUID } from "../api";
 import { useTravel } from "../contexts/TravelContext";
 import CustomSelect from "./CustomSelect";
 import { X } from "lucide-react";
 
-const INITIAL = { name: "", mobile: "", email: "", channel: "WEBSITE", subject: "", message: "", variant_id: "", travel_date: "" };
+const INITIAL = { name: "", mobile: "", email: "", channel: "WEBSITE", subject: "", message: "", variant_id: "", travel_date: "", hotel_id: "", vehicle_id: "" };
 
 export default function EnquiryModal({
   open,
@@ -19,6 +19,9 @@ export default function EnquiryModal({
   const { user } = useTravel();
   const [form, setForm] = useState(INITIAL);
   const [variants, setVariants] = useState([]);
+  const [hotels, setHotels] = useState([]);
+  const [vehicles, setVehicles] = useState([]);
+  const [facilitiesLoading, setFacilitiesLoading] = useState(false);
   const [status, setStatus] = useState("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const firstRef = useRef(null);
@@ -51,6 +54,29 @@ export default function EnquiryModal({
   }, [open, packageSlug, packageId, variantId, packageTitle]);
 
   useEffect(() => {
+    if (!open || !destinationId) {
+      setHotels([]);
+      setVehicles([]);
+      return undefined;
+    }
+    let isMounted = true;
+    setFacilitiesLoading(true);
+    Promise.all([fetchHotels(1, 20, destinationId), fetchVehicles(1, 20)])
+      .then(([hotelResponse, vehicleResponse]) => {
+        if (!isMounted) return;
+        setHotels(Array.isArray(hotelResponse?.data) ? hotelResponse.data : []);
+        setVehicles(Array.isArray(vehicleResponse?.data) ? vehicleResponse.data : []);
+      })
+      .catch(() => {
+        if (!isMounted) return;
+        setHotels([]);
+        setVehicles([]);
+      })
+      .finally(() => isMounted && setFacilitiesLoading(false));
+    return () => { isMounted = false; };
+  }, [open, destinationId]);
+
+  useEffect(() => {
     if (open) {
       setForm({
         name: user?.name || "",
@@ -61,6 +87,8 @@ export default function EnquiryModal({
         message: "",
         variant_id: variantId || "",
         travel_date: travelDate || "",
+        hotel_id: "",
+        vehicle_id: "",
       });
       setStatus("idle");
       setErrorMsg("");
@@ -108,8 +136,10 @@ export default function EnquiryModal({
         adult_count: 1,
         child_count: 0,
         senior_count: 0,
+        hotel_id: form.hotel_id,
+        vehicle_id: form.vehicle_id,
         room_count: 0,
-        vehicle_count: 0,
+        vehicle_count: form.vehicle_id ? 1 : 0,
         customer_id: user?.id || "",
       });
       setStatus("success");
@@ -224,6 +254,31 @@ export default function EnquiryModal({
                   />
                 </div>
               )}
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-700">Preferred Hotel</label>
+                  <CustomSelect
+                    value={form.hotel_id}
+                    options={[{ label: "Any / No preference", value: "" }, ...hotels.map((hotel) => ({ label: `${hotel.name}${hotel.category ? ` · ${hotel.category}` : ""}`, value: hotel.id }))]}
+                    onChange={(value) => setForm((f) => ({ ...f, hotel_id: value }))}
+                    placeholder={facilitiesLoading ? "Loading hotels…" : destinationId ? "Select hotel" : "Select a destination first"}
+                    triggerClassName="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs text-slate-800"
+                    className="w-full"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-700">Preferred Vehicle</label>
+                  <CustomSelect
+                    value={form.vehicle_id}
+                    options={[{ label: "Any / No preference", value: "" }, ...vehicles.map((vehicle) => ({ label: `${vehicle.name}${vehicle.capacity ? ` · ${vehicle.capacity} seats` : ""}`, value: vehicle.id }))]}
+                    onChange={(value) => setForm((f) => ({ ...f, vehicle_id: value }))}
+                    placeholder={facilitiesLoading ? "Loading vehicles…" : "Select vehicle"}
+                    triggerClassName="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs text-slate-800"
+                    className="w-full"
+                  />
+                </div>
+              </div>
 
               <div>
                 <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-700" htmlFor="enq-subject">

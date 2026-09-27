@@ -378,8 +378,10 @@ export async function fetchPackageVariants(packageIdOrSlug, page = 1, pageSize =
   };
 }
 
-export async function fetchHotels(page = 1, pageSize = 20) {
-  return request(`/api/v1/hotels?page=${page}&page_size=${pageSize}`);
+export async function fetchHotels(page = 1, pageSize = 20, destinationId = "") {
+  const query = new URLSearchParams({ page: String(page), page_size: String(pageSize) });
+  if (destinationId) query.set("destination_id", destinationId);
+  return request(`/api/v1/hotels?${query.toString()}`);
 }
 
 export async function fetchVehicles(page = 1, pageSize = 20) {
@@ -520,15 +522,17 @@ export async function submitCustomEnquiry({
   special_requirements = "",
   enquiry_type = "CUSTOM_TOUR",
   customer_id = "",
+  package_id = "",
+  destination_id = "",
   hotel_id = "",
   vehicle_id = "",
   email = "",
 } = {}) {
   return submitEnquiry({
     enquiry_type: enquiry_type && enquiry_type.trim() ? enquiry_type.trim() : "CUSTOM_TOUR",
-    package_id: "",
+    package_id,
     variant_id: "",
-    destination_id: "",
+    destination_id,
     channel: "WEBSITE",
     message: `Destination: ${destination.trim()}`,
     name,

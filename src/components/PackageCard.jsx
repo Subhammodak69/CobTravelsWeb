@@ -175,6 +175,7 @@ export default function PackageCard({ pack, index }) {
         packageSlug={pack.slug || pack.id}
         variantId={pack.default_variant_id || ""}
         packageTitle={pack.title}
+        destinationId={pack.destination_id || ""}
       />
     </>
   );
