@@ -51,7 +51,7 @@ export default function PackageCard({ pack, index }) {
     <>
       <article
         className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-card transition-all duration-300 hover:-translate-y-1.5 hover:border-primary-300 hover:shadow-card-hover cursor-pointer"
-        onClick={() => selectPackage(pack.slug || pack.id)}
+        onClick={() => selectPackage(pack.slug || pack.id, pack)}
         onMouseEnter={playVideo}
         onMouseLeave={stopVideo}
       >

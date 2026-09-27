@@ -301,19 +301,23 @@ export async function endVisitorSession(exitPage=window.location.pathname){const
 export async function trackVisitorEvent(eventName,page=window.location.pathname,eventMetadata={}){const visitor=storage.getItem(VISITOR_SERVER_ID);const session=storage.getItem(VISITOR_SESSION_ID);if(!visitor||!session)return null;try{const r=await request("/api/v1/visitors/events",{method:"POST",body:JSON.stringify({visitor_id:visitor,session_id:session,event_name:eventName,page,event_metadata:eventMetadata}),keepalive:true});return r?.data||null;}catch{return null;}}
 export async function trackVisitorEventsBatch(events=[]){if(!events.length)return null;try{const r=await request("/api/v1/visitors/events/batch",{method:"POST",body:JSON.stringify({events}),keepalive:true});return r?.data||null;}catch{return null;}}
 function variant(v, i = 0) {
-  const realId = v.id || v.variant_id;
+  const realId = v.variant_id || v.id;
+  const price = v.selling_price ?? v.price ?? v.starting_price ?? v.list_price ?? 0;
   return {
     ...v,
     id: realId || `variant-${i}`,
     variant_id: isValidUUID(realId) ? realId : undefined,
     slug: v.slug || `variant-${i}`,
-    cover_image: v.banner?.image || "",
+    cover_image: v.banner?.image || v.cover_image || "",
     duration: `${v.duration_nights || 0}N | ${v.duration_days || 0}D`,
-    starting_price: Number(v.price || 0),
-    dates: v.departure_dates || [],
+    starting_price: Number(price || 0),
+    price: Number(price || 0),
+    list_price: v.list_price == null ? null : Number(v.list_price),
+    selling_price: v.selling_price == null ? null : Number(v.selling_price),
+    dates: (v.departure_dates || v.dates || []).map((date) => ({ ...date, date: date.date || date.departure_date || "" })),
     gallery: (v.gallery || []).filter((x) => x?.url).map((x) => ({ ...x, url: x.url })),
     route: v.route || [],
-    is_default: i === 0,
+    is_default: Boolean(v.is_default ?? i === 0),
   };
 }
 
@@ -330,8 +334,8 @@ function summary(x) {
     video: x.banner?.video || "",
     season_name: x.season_name || "",
     badge: x.badge || "",
-    destination: x.destination || "",
-    price: x.price == null ? null : Number(x.price),
+    destination: x.destination_name || x.destination || "",
+    price: x.selling_price == null ? (x.price == null ? null : Number(x.price)) : Number(x.selling_price),
     duration: x.duration || "",
     route: x.route || [],
     accent: "#f2c14e",
@@ -341,25 +345,65 @@ function summary(x) {
 
 export async function fetchPackages(filters = {}) {
   const query = new URLSearchParams();
+  if (filters.page == null) query.set("page", "1");
+  if (filters.page_size == null) query.set("page_size", "10");
+  if (filters.sort_by == null) query.set("sort_by", "created_at");
+  if (filters.sort_order == null) query.set("sort_order", "desc");
   Object.entries(filters).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== "") query.set(key, String(value));
   });
   const r = await request("/api/v1/tour-packages" + (query.toString() ? "?" + query.toString() : ""));
   const raw = r.data;
   const items = Array.isArray(raw) ? raw : (raw?.items || raw?.results || raw?.packages || []);
+  const pageInfo = r.pagination || raw?.pagination || {};
+  const total = Number(pageInfo.total_items ?? raw?.total ?? raw?.count ?? items.length);
+  const pageSize = Number(pageInfo.page_size ?? filters.page_size ?? 10);
+  const page = Number(pageInfo.current_page ?? filters.page ?? 1);
   return {
     items: items.map(summary),
-    total: Number(raw?.total ?? raw?.count ?? items.length),
-    page: Number(raw?.page ?? filters.page ?? 1),
-    page_size: Number(raw?.page_size ?? filters.page_size ?? 20),
-    pages: Number(raw?.pages ?? Math.ceil(Number(raw?.total ?? raw?.count ?? items.length) / Number(raw?.page_size ?? filters.page_size ?? 20))) || 1,
+    total,
+    page,
+    page_size: pageSize,
+    pages: Number(pageInfo.total_pages ?? Math.ceil(total / pageSize)) || 1,
+    has_next: Boolean(pageInfo.has_next),
+    has_previous: Boolean(pageInfo.has_previous),
   };
 }
 
-export async function fetchPackage(slug) {
-  const r = await request(`/api/v1/tour-packages/${encodeURIComponent(slug)}`);
-  const d = r.data;
+export async function fetchPackageVariants(packageIdOrSlug, page = 1, pageSize = 10) {
+  const r = await request(`/api/v1/tour-packages/${encodeURIComponent(packageIdOrSlug)}/variants?page=${page}&page_size=${pageSize}`);
+  return {
+    items: (Array.isArray(r.data) ? r.data : []).map(variant),
+    pagination: r.pagination || {},
+  };
+}
+
+export async function fetchPackage(slug, summaryData = null) {
+  let d;
+  if (summaryData?.package_id || summaryData?.id) {
+    d = {
+      ...summaryData,
+      id: summaryData.package_id || summaryData.id,
+      package_id: summaryData.package_id || summaryData.id,
+      slug: summaryData.slug || slug,
+    };
+  } else {
+    const r = await request(`/api/v1/tour-packages/${encodeURIComponent(slug)}`);
+    d = r.data;
+  }
   if (!d) throw new Error("Tour package was not found");
+  const packageSlug = d.slug || slug;
+  const listed = await fetchPackageVariants(packageSlug).catch(() => ({ items: [] }));
+  let seasons = listed.items.length
+    ? listed.items
+    : [d.default_variant, ...(d.other_variants || [])].filter(Boolean).map(variant);
+  if (listed.items.length) {
+    const defaultVariant = listed.items.find((item) => item.is_default) || listed.items[0];
+    const detailedDefault = await fetchVariant(packageSlug, defaultVariant.slug || defaultVariant.id, listed.items).catch(() => null);
+    if (detailedDefault) {
+      seasons = [detailedDefault, ...listed.items.filter((item) => item.id !== defaultVariant.id)];
+    }
+  }
   return {
     ...d,
     package_id: d.id,
@@ -367,10 +411,11 @@ export async function fetchPackage(slug) {
     slug: d.slug,
     is_wishlist: Boolean(d.is_wishlist),
     code: d.tour_code,
-    image: d.default_variant?.banner?.image || "",
-    price: Number(d.default_variant?.price || 0),
-    duration: `${d.default_variant?.duration_nights || 0}N | ${d.default_variant?.duration_days || 0}D`,
-    seasons: [d.default_variant, ...(d.other_variants || [])].filter(Boolean).map(variant),
+    destination: d.destination_name || d.destination || "",
+    image: d.default_variant?.banner?.image || d.banner?.image || d.image || "",
+    price: Number(d.default_variant?.selling_price ?? d.default_variant?.price ?? d.price ?? 0),
+    duration: d.duration || `${d.default_variant?.duration_nights || 0}N | ${d.default_variant?.duration_days || 0}D`,
+    seasons,
     gallery: (d.default_variant?.gallery || []).filter((x) => x?.url),
     route: d.default_variant?.route || [],
     default_variant_id: d.default_variant?.id || undefined,
@@ -382,31 +427,75 @@ export async function fetchPackageSelect(slug) {
   return r?.data ? { ...r.data, is_wishlist: Boolean(r.data.is_wishlist) } : null;
 }
 
-export async function fetchVariant(slug, variantSlug) {
-  const r = await request(`/api/v1/tour-packages/${encodeURIComponent(slug)}/variants/${encodeURIComponent(variantSlug)}`);
-  return variant(r.data.variant);
+export async function fetchVariant(slug, variantSlug, listedItems = null) {
+  const listed = listedItems ? { items: listedItems } : await fetchPackageVariants(slug).catch(() => ({ items: [] }));
+  const listedVariant = listed.items.find((item) => item.id === variantSlug || item.slug === variantSlug || item.variant_id === variantSlug);
+  let r;
+  try {
+    r = await request(`/api/v1/tour-packages/${encodeURIComponent(slug)}/variants/${encodeURIComponent(listedVariant?.slug || variantSlug)}/details`);
+  } catch {
+    r = await request(`/api/v1/tour-packages/${encodeURIComponent(slug)}/variants/${encodeURIComponent(variantSlug)}`);
+  }
+  const detail = r?.data?.variant || r?.data;
+  if (!detail) throw new Error("Tour variant was not found");
+  return variant({ ...listedVariant, ...detail });
 }
 
 export async function submitEnquiry({
+  enquiry_type = "FIXED_TOUR",
   package_id = "",
   variant_id = "",
+  destination_id = "",
   channel = "WEBSITE",
   subject = "",
   message = "",
   name = "",
   mobile = "",
+  phone = "",
+  email = "",
+  travel_date = "",
+  travel_duration_day = 0,
+  travel_duration_night = 0,
+  adult_count = 1,
+  child_count = 0,
+  senior_count = 0,
+  hotel_id = "",
+  vehicle_id = "",
+  room_count = 0,
+  vehicle_count = 0,
+  budget_min = 0,
+  budget_max = 0,
+  special_requirements = "",
+  meal_plan = "ANY",
   customer_id = "",
 } = {}) {
+  const enquiryMessage = [subject, message].filter(Boolean).join("\n\n");
   const payload = {
-    package_id: isValidUUID(package_id) ? package_id : "",
-    variant_id: isValidUUID(variant_id) ? variant_id : "",
-    channel: "WEBSITE",
-    subject: subject ? subject.trim() : "",
-    message: message ? message.trim() : "",
-    name: name.trim(),
-    mobile: mobile.trim(),
+    enquiry_type,
     visitor_id: isValidUUID(visitorId()) ? visitorId() : "",
     customer_id: isValidUUID(customer_id) ? customer_id : "",
+    package_id: isValidUUID(package_id) ? package_id : "",
+    variant_id: isValidUUID(variant_id) ? variant_id : "",
+    destination_id: isValidUUID(destination_id) ? destination_id : "",
+    channel,
+    message: enquiryMessage.trim(),
+    name: name.trim(),
+    phone: (phone || mobile).trim(),
+    email: email.trim(),
+    travel_date: travel_date ? travel_date.trim() : "",
+    travel_duration_day: Number(travel_duration_day) || 0,
+    travel_duration_night: Number(travel_duration_night) || 0,
+    adult_count: Number(adult_count) || 0,
+    child_count: Number(child_count) || 0,
+    senior_count: Number(senior_count) || 0,
+    hotel_id: isValidUUID(hotel_id) ? hotel_id : "",
+    vehicle_id: isValidUUID(vehicle_id) ? vehicle_id : "",
+    room_count: Number(room_count) || 0,
+    vehicle_count: Number(vehicle_count) || 0,
+    budget_min: Number(budget_min) || 0,
+    budget_max: Number(budget_max) || 0,
+    special_requirements: special_requirements ? special_requirements.trim() : "",
+    meal_plan,
   };
 
   return request("/api/v1/enquiries", {
@@ -452,8 +541,21 @@ export async function submitCustomEnquiry({
   }, true);
 }
 
-export async function fetchEnquiries() {
-  return request("/api/v1/enquiries", {}, true);
+export async function fetchEnquiries(skip = 0, limit = 50) {
+  return request(`/api/v1/enquiries?skip=${skip}&limit=${limit}`, {}, true);
+}
+
+export async function updateEnquiry(id, payload) {
+  return request(`/api/v1/enquiries/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  }, true);
+}
+
+export async function deleteEnquiry(id) {
+  return request(`/api/v1/enquiries/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  }, true);
 }
 
 export async function fetchCustomerTours(page = 1, pageSize = 20) {

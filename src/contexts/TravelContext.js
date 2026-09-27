@@ -7,6 +7,7 @@ const TravelContext = createContext(null);
 export function TravelProvider({ children }) {
   const navigate = useNavigate();
   const [selectedPackageId, setSelectedPackageId] = useState(null);
+  const [selectedPackage, setSelectedPackage] = useState(null);
   const [status, setStatus] = useState("unknown"); // "unknown" | "authenticated" | "anonymous"
   const [isMember, setIsMember] = useState(false);
   const [user, setUser] = useState(null);
@@ -89,20 +90,20 @@ export function TravelProvider({ children }) {
     }
   };
 
-  const goHome = () => { setSelectedPackageId(null); navigate("/"); };
+  const goHome = () => { setSelectedPackageId(null); setSelectedPackage(null); navigate("/"); };
   const goBack = () => {
     if (window.history.length > 1) navigate(-1);
     else navigate("/");
   };
   const goProfile = () => navigate("/profile");
 
-  const selectPackage = (id) => { setSelectedPackageId(id); navigate(`/journey/${id}`); };
-  const returnToJourneys = () => { setSelectedPackageId(null); navigate("/"); };
+  const selectPackage = (id, packageData = null) => { setSelectedPackageId(id); setSelectedPackage(packageData); navigate(`/journey/${id}`); };
+  const returnToJourneys = () => { setSelectedPackageId(null); setSelectedPackage(null); navigate("/"); };
 
   return (
     <TravelContext.Provider value={{
       goHome, goBack, goProfile,
-      selectedPackageId, setSelectedPackageId, selectPackage, returnToJourneys,
+      selectedPackageId, setSelectedPackageId, selectedPackage, setSelectedPackage, selectPackage, returnToJourneys,
       status, isMember, user, setUser, setIsMember, authReady,
       refreshUser, loginSuccess, handleLogout,
       toggleMember: () => (isMember ? handleLogout() : navigate("/login")),

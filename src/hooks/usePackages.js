@@ -11,9 +11,9 @@ const listCache = new Map();
 // Detail page deduplication
 const detailPromises = new Map();
 
-function fetchPackageOnce(id) {
+function fetchPackageOnce(id, summary) {
   if (!detailPromises.has(id)) {
-    detailPromises.set(id, fetchPackage(id));
+    detailPromises.set(id, fetchPackage(id, summary));
   }
   return detailPromises.get(id);
 }
@@ -87,7 +87,7 @@ export default function usePackages(id, filters = {}) {
     let currentPromise;
     try {
       if (id) {
-        currentPromise = fetchPackageOnce(id);
+        currentPromise = fetchPackageOnce(id, filters);
         activePromiseRef.current = currentPromise;
         const result = await currentPromise;
         // Ignore if a newer fetch has started

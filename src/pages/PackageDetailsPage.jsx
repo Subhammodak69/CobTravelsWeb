@@ -14,8 +14,8 @@ import CustomSelect from "../components/CustomSelect";
 
 export default function PackageDetailsPage() {
   const { id } = useParams();
-  const { goHome, isMember } = useTravel();
-  const { pack, loading, error } = usePackages(id);
+  const { goHome, isMember, selectedPackage } = useTravel();
+  const { pack, loading, error } = usePackages(id, selectedPackage || {});
   const [selected, setSelected] = useState(0);
   const [variant, setVariant] = useState(null);
   const [showBannerVideo, setShowBannerVideo] = useState(false);
@@ -110,9 +110,9 @@ export default function PackageDetailsPage() {
     setSelected(index);
     setShowBannerVideo(false);
     const option = pack.seasons[index];
-    if (index && option.slug) {
+    if (index && (option.id || option.slug)) {
       try {
-        setVariant(await fetchVariant(pack.slug, option.slug));
+        setVariant(await fetchVariant(pack.slug, option.slug || option.id));
       } catch {
         setVariant(option);
       }
