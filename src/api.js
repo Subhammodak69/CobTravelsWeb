@@ -264,6 +264,15 @@ export async function deleteAccount({ identifier, otp, name = "", purpose = "LOG
 }
 export function fetchSessions(){return request("/api/v1/sessions/",{},true);}
 export function deleteSession(id){return request(`/api/v1/sessions/${encodeURIComponent(id)}`,{method:"DELETE"},true);}
+export function fetchEnums(group = "", search = "") {
+  const query = new URLSearchParams();
+  if (group) query.set("group", group);
+  if (search) query.set("search", search);
+  return request(`/api/v1/enums${query.toString() ? `?${query.toString()}` : ""}`, {}, true);
+}
+export function fetchNotifications(limit = 50) { return request(`/api/v1/notifications?limit=${limit}`, {}, true); }
+export function markNotificationRead(id) { return request(`/api/v1/notifications/${encodeURIComponent(id)}/read`, { method: "PATCH" }, true); }
+export function markAllNotificationsRead() { return request("/api/v1/notifications/read-all", { method: "POST" }, true); }
 export function fetchDocuments(page = 1, pageSize = 50) { return request(`/api/v1/documents?page=${page}&page_size=${pageSize}`, {}, true); }
 export async function uploadDocument({ file, fileUrl, documentType, title, description }) {
   let uploadedUrl = fileUrl;
@@ -287,7 +296,13 @@ export function downloadDocument(id) { return request(`/api/v1/documents/${encod
 export function deleteDocument(id) { return request(`/api/v1/documents/${encodeURIComponent(id)}`, { method: "DELETE" }, true); }
 export function fetchReferralCode() { return request("/api/v1/referrals/code", {}, true); }
 export function fetchReferrals(page = 1, pageSize = 20) { return request(`/api/v1/referrals?page=${page}&page_size=${pageSize}`, {}, true); }
-export function fetchWishlist(page = 1, pageSize = 50) { return request(`/api/v1/wishlist?page=${page}&page_size=${pageSize}`, {}, true); }
+export function fetchWishlist(page = 1, pageSize = 50, filters = {}) {
+  const query = new URLSearchParams({ page: String(page), page_size: String(pageSize) });
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") query.set(key, String(value));
+  });
+  return request(`/api/v1/wishlist?${query.toString()}`, {}, true);
+}
 export function addToWishlist(packageSlug) { return request(`/api/v1/wishlist/${encodeURIComponent(packageSlug)}`, { method: "POST" }, true); }
 export function removeFromWishlist(packageSlug) { return request(`/api/v1/wishlist/${encodeURIComponent(packageSlug)}`, { method: "DELETE" }, true); }
 export async function uploadFile(file){
@@ -577,8 +592,12 @@ export async function deleteEnquiry(id) {
   }, true);
 }
 
-export async function fetchCustomerTours(page = 1, pageSize = 20) {
-  return request(`/api/v1/customer-tours?page=${page}&page_size=${pageSize}`, {}, true);
+export async function fetchCustomerTours(page = 1, pageSize = 20, filters = {}) {
+  const query = new URLSearchParams({ page: String(page), page_size: String(pageSize) });
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") query.set(key, String(value));
+  });
+  return request(`/api/v1/customer-tours?${query.toString()}`, {}, true);
 }
 
 export async function fetchCustomerTour(bookingId) {
