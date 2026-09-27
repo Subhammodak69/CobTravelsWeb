@@ -1,103 +1,98 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { fetchEnquiries } from "../api";
-import { Calendar, Users, Plane, LoaderCircle } from "lucide-react";
+import { addCustomerTourTraveller, deleteCustomerTourTraveller, fetchCustomerTour, fetchCustomerTours, updateCustomerTourTraveller } from "../api";
+import { Calendar, ChevronRight, LoaderCircle, Plane, Plus, Trash2, Users, X } from "lucide-react";
 
 function formatDate(value) {
   const d = new Date(value);
-  return value && !Number.isNaN(d.getTime())
-    ? d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
-    : "Date to be confirmed";
+  return value && !Number.isNaN(d.getTime()) ? d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "Date to be confirmed";
 }
+
+function unwrapTour(response) {
+  const data = response?.data;
+  return Array.isArray(data) ? data[0] || null : data || null;
+}
+
+const emptyTraveller = { full_name: "", gender: "", date_of_birth: "", mobile: "", email: "", relationship_to_customer: "", is_primary: false };
 
 export default function TripsPage() {
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedTour, setSelectedTour] = useState(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [traveller, setTraveller] = useState(emptyTraveller);
+  const [editingTraveller, setEditingTraveller] = useState(null);
+  const [travellerOpen, setTravellerOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    fetchEnquiries()
-      .then((r) => {
-        const d = r?.data;
-        setTrips((Array.isArray(d) ? d : d?.items || []).filter((item) => item.travel_date || item.destination));
-      })
-      .catch(() => setTrips([]))
-      .finally(() => setLoading(false));
-  }, []);
+  const loadTrips = async () => {
+    setLoading(true);
+    try {
+      const response = await fetchCustomerTours(1, 20);
+      const data = response?.data;
+      setTrips(Array.isArray(data) ? data : data?.items || []);
+    } catch (err) {
+      setError(err.message || "Unable to load your bookings.");
+      setTrips([]);
+    } finally { setLoading(false); }
+  };
+
+  useEffect(() => { loadTrips(); }, []);
+
+  const openTour = async (tour) => {
+    setSelectedTour(tour); setDetailLoading(true); setError("");
+    try {
+      const detail = unwrapTour(await fetchCustomerTour(tour.id));
+      if (detail) setSelectedTour(detail);
+    } catch (err) { setError(err.message || "Unable to load booking details."); }
+    finally { setDetailLoading(false); }
+  };
+
+  const openTraveller = (item = null) => {
+    setEditingTraveller(item);
+    setTraveller(item ? {
+      full_name: item.full_name || "", gender: item.gender || "", date_of_birth: item.date_of_birth || "", mobile: item.mobile || "", email: item.email || "", relationship_to_customer: item.relationship_to_customer || "", is_primary: Boolean(item.is_primary),
+    } : { ...emptyTraveller });
+    setTravellerOpen(true);
+  };
+
+  const saveTraveller = async (event) => {
+    event.preventDefault();
+    if (!selectedTour || !traveller.full_name.trim()) return;
+    setSaving(true); setError("");
+    const payload = { full_name: traveller.full_name.trim(), gender: traveller.gender.trim() || null, date_of_birth: traveller.date_of_birth.trim() || null, mobile: traveller.mobile.trim() || null, email: traveller.email.trim() || null, relationship_to_customer: traveller.relationship_to_customer.trim() || null, is_primary: traveller.is_primary };
+    try {
+      if (editingTraveller) await updateCustomerTourTraveller(selectedTour.id, editingTraveller.id, payload);
+      else await addCustomerTourTraveller(selectedTour.id, payload);
+      setSelectedTour(unwrapTour(await fetchCustomerTour(selectedTour.id)) || selectedTour);
+      setTravellerOpen(false);
+    } catch (err) { setError(err.message || "Could not save traveller."); }
+    finally { setSaving(false); }
+  };
+
+  const removeTraveller = async (item) => {
+    if (!selectedTour || !window.confirm(`Remove ${item.full_name} from this booking?`)) return;
+    setError("");
+    try {
+      await deleteCustomerTourTraveller(selectedTour.id, item.id);
+      setSelectedTour(unwrapTour(await fetchCustomerTour(selectedTour.id)) || selectedTour);
+    } catch (err) { setError(err.message || "Could not remove traveller."); }
+  };
+
+  const tripCount = (trip) => trip.travellers?.length || 1;
 
   return (
-    <main className="bg-slate-50 min-h-screen pb-20">
-      {/* Top Banner */}
-      <section className="relative flex min-h-[220px] items-center overflow-hidden bg-navy px-4 pb-8 pt-8 text-white sm:px-6 lg:px-12">
-        <div className="relative z-10 mx-auto w-full max-w-7xl">
-          <p className="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-accent-300">
-            Bookings & Itineraries
-          </p>
-          <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl text-white">
-            My <span className="text-primary-300">Trips</span>
-          </h1>
-          <p className="mt-1 text-xs sm:text-sm text-white/80 max-w-xl">
-            Track confirmed bookings and itineraries as your upcoming journeys take shape.
-          </p>
-        </div>
-      </section>
-
-      {/* Trips Content */}
+    <main className="min-h-screen bg-slate-50 pb-20">
+      <section className="relative flex min-h-[220px] items-center overflow-hidden bg-navy px-4 pb-8 pt-8 text-white sm:px-6 lg:px-12"><div className="relative z-10 mx-auto w-full max-w-7xl"><p className="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-accent-300">Bookings & Itineraries</p><h1 className="font-display text-3xl font-extrabold tracking-tight text-white sm:text-4xl">My <span className="text-primary-300">Trips</span></h1><p className="mt-1 max-w-xl text-xs text-white/80 sm:text-sm">Track bookings, payment status, and travellers for every journey.</p></div></section>
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-        {loading ? (
-          <div className="card flex items-center justify-center p-12 text-slate-400">
-            <LoaderCircle className="animate-spin text-primary" size={26} />
-          </div>
-        ) : trips.length ? (
-          <div className="grid gap-5 md:grid-cols-2">
-            {trips.map((trip) => (
-              <article key={trip.id} className="card p-6 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
-                      {trip.enquiry_code || "PLANNED TRIP"}
-                    </span>
-                    <span className="rounded-full bg-primary-50 px-2.5 py-0.5 text-[10px] font-bold uppercase text-primary border border-primary-200">
-                      {trip.status || "NEW"}
-                    </span>
-                  </div>
-                  <h2 className="font-display text-xl font-bold text-navy">
-                    {trip.destination || trip.subject || "Custom Journey"}
-                  </h2>
-
-                  <div className="mt-4 grid grid-cols-2 gap-3 rounded-xl bg-slate-50 p-3 text-xs text-slate-600">
-                    <div className="flex items-center gap-1.5">
-                      <Calendar size={14} className="text-primary" />
-                      <span>{formatDate(trip.travel_date)}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <Users size={14} className="text-primary" />
-                      <span>{trip.pax_no || 1} Traveller{Number(trip.pax_no) === 1 ? "" : "s"}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-3 text-xs">
-                  <span className="text-slate-400 text-[11px]">Coochbehar Travel Team</span>
-                  <Link to="/custom-tour-enquiry" className="font-bold text-primary hover:underline">
-                    View Details →
-                  </Link>
-                </div>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <div className="card p-12 text-center">
-            <Plane className="mx-auto text-primary-300" size={36} />
-            <h2 className="mt-3 font-display text-lg font-bold text-navy">No Trips Scheduled Yet</h2>
-            <p className="mt-1 text-xs text-slate-500 max-w-xs mx-auto">
-              You haven't booked any upcoming holiday packages yet. Ready to start planning?
-            </p>
-            <Link to="/tours" className="btn-primary mt-6 text-xs font-bold">
-              Explore Available Tours →
-            </Link>
-          </div>
-        )}
+        {error && !selectedTour && <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+        {loading ? <div className="card flex items-center justify-center p-12 text-slate-400"><LoaderCircle className="animate-spin text-primary" size={26} /></div> : trips.length ? <div className="grid gap-5 md:grid-cols-2">{trips.map((trip) => <article key={trip.id} className="card flex flex-col justify-between p-6"><div><div className="mb-2 flex items-center justify-between gap-2"><span className="text-[10px] font-bold uppercase tracking-wider text-primary">{trip.booking_code || "PLANNED TRIP"}</span><span className="rounded-full border border-primary-200 bg-primary-50 px-2.5 py-0.5 text-[10px] font-bold uppercase text-primary">{trip.status || "TENTATIVE"}</span></div><h2 className="font-display text-xl font-bold text-navy">{trip.destination_name || trip.package?.name || "Custom Journey"}</h2><p className="mt-1 text-xs text-slate-500">{trip.package?.name || ""}{trip.variant?.name ? ` • ${trip.variant.name}` : ""}</p><div className="mt-4 grid grid-cols-2 gap-3 rounded-xl bg-slate-50 p-3 text-xs text-slate-600"><div className="flex items-center gap-1.5"><Calendar size={14} className="text-primary" /><span>{formatDate(trip.departure_date)}</span></div><div className="flex items-center gap-1.5"><Users size={14} className="text-primary" /><span>{tripCount(trip)} Traveller{tripCount(trip) === 1 ? "" : "s"}</span></div></div></div><button type="button" onClick={() => openTour(trip)} className="mt-5 flex items-center justify-end gap-1 border-t border-slate-100 pt-3 text-xs font-bold text-primary hover:underline">View booking details <ChevronRight size={15} /></button></article>)}</div> : <div className="card p-12 text-center"><Plane className="mx-auto text-primary-300" size={36} /><h2 className="mt-3 font-display text-lg font-bold text-navy">No Trips Scheduled Yet</h2><p className="mx-auto mt-1 max-w-xs text-xs text-slate-500">Your customer-tour bookings will appear here once they are created.</p><Link to="/tours" className="btn-primary mt-6 text-xs font-bold">Explore Available Tours →</Link></div>}
       </section>
+
+      {selectedTour && <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/60 p-0 sm:items-center sm:p-6" onMouseDown={(event) => event.target === event.currentTarget && setSelectedTour(null)}><div className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-3xl bg-white p-6 shadow-2xl sm:rounded-3xl"><div className="flex items-start justify-between gap-4"><div><p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Booking details</p><h2 className="mt-1 font-display text-2xl font-bold text-navy">{selectedTour.booking_code || "Your booking"}</h2></div><button type="button" onClick={() => setSelectedTour(null)} className="rounded-full bg-slate-100 p-2 text-slate-600"><X size={18} /></button></div>{detailLoading ? <div className="flex justify-center p-12"><LoaderCircle className="animate-spin text-primary" /></div> : <><div className="mt-4">{error && <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}</div><h3 className="mt-5 font-display text-xl font-bold text-navy">{selectedTour.destination_name || selectedTour.package?.name || "Your journey"}</h3><p className="mt-1 text-xs text-slate-500">{selectedTour.package?.name || ""}{selectedTour.variant?.name ? ` • ${selectedTour.variant.name}` : ""}</p><div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">{[["Departure", formatDate(selectedTour.departure_date)], ["Return", formatDate(selectedTour.return_date)], ["Total", `₹${selectedTour.total_amount ?? "0"}`], ["Due", `₹${selectedTour.due_amount ?? "0"}`]].map(([label, value]) => <div key={label} className="rounded-xl bg-slate-50 p-3"><p className="text-[10px] font-bold uppercase text-slate-400">{label}</p><p className="mt-1 text-sm font-bold text-navy">{value}</p></div>)}</div><div className="mt-7 flex items-center justify-between"><h3 className="font-display text-lg font-bold text-navy">Travellers</h3><button type="button" onClick={() => openTraveller()} className="flex items-center gap-1 text-xs font-bold text-primary"><Plus size={15} /> Add traveller</button></div><div className="mt-3 divide-y divide-slate-100">{(selectedTour.travellers || []).length ? selectedTour.travellers.map((item) => <div key={item.id} className="flex items-center gap-3 py-3"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-50 text-primary"><Users size={16} /></div><div className="min-w-0 flex-1"><p className="truncate text-sm font-bold text-navy">{item.full_name}{item.is_primary ? " · Primary" : ""}</p><p className="truncate text-xs text-slate-500">{item.email || item.mobile || item.relationship_to_customer || "Traveller details"}</p></div><button type="button" onClick={() => openTraveller(item)} className="text-xs font-bold text-primary">Edit</button><button type="button" onClick={() => removeTraveller(item)} className="text-red-500"><Trash2 size={16} /></button></div>) : <p className="py-4 text-sm text-slate-500">No travellers added yet.</p>}</div></>}</div></div>}
+
+      {travellerOpen && <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/60 p-4"><form onSubmit={saveTraveller} className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl"><div className="flex items-center justify-between"><h2 className="font-display text-xl font-bold text-navy">{editingTraveller ? "Edit traveller" : "Add traveller"}</h2><button type="button" onClick={() => setTravellerOpen(false)} className="rounded-full bg-slate-100 p-2 text-slate-600"><X size={18} /></button></div><div className="mt-5 grid gap-3 sm:grid-cols-2">{[["full_name", "Full name", "Enter full name"], ["gender", "Gender", "e.g. Male"], ["date_of_birth", "Date of birth", "YYYY-MM-DD"], ["mobile", "Mobile", "Mobile number"], ["email", "Email", "Email address"], ["relationship_to_customer", "Relationship", "e.g. Spouse"]].map(([key, label, placeholder]) => <label key={key} className="text-xs font-bold text-slate-600">{label}<input required={key === "full_name"} value={traveller[key]} onChange={(event) => setTraveller((current) => ({ ...current, [key]: event.target.value }))} placeholder={placeholder} className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-normal text-slate-800 outline-none focus:border-primary" /></label>)}</div><label className="mt-4 flex items-center gap-2 text-sm font-semibold text-slate-700"><input type="checkbox" checked={traveller.is_primary} onChange={(event) => setTraveller((current) => ({ ...current, is_primary: event.target.checked }))} /> Primary traveller</label><button disabled={saving} className="btn-primary mt-6 flex w-full items-center justify-center gap-2">{saving && <LoaderCircle size={16} className="animate-spin" />}{editingTraveller ? "Save changes" : "Add traveller"}</button></form></div>}
     </main>
   );
 }

@@ -456,6 +456,34 @@ export async function fetchEnquiries() {
   return request("/api/v1/enquiries", {}, true);
 }
 
+export async function fetchCustomerTours(page = 1, pageSize = 20) {
+  return request(`/api/v1/customer-tours?page=${page}&page_size=${pageSize}`, {}, true);
+}
+
+export async function fetchCustomerTour(bookingId) {
+  return request(`/api/v1/customer-tours/${encodeURIComponent(bookingId)}`, {}, true);
+}
+
+export async function addCustomerTourTraveller(bookingId, payload) {
+  return request(`/api/v1/customer-tours/${encodeURIComponent(bookingId)}/travellers`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  }, true);
+}
+
+export async function updateCustomerTourTraveller(bookingId, travellerId, payload) {
+  return request(`/api/v1/customer-tours/${encodeURIComponent(bookingId)}/travellers/${encodeURIComponent(travellerId)}`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  }, true);
+}
+
+export async function deleteCustomerTourTraveller(bookingId, travellerId) {
+  return request(`/api/v1/customer-tours/${encodeURIComponent(bookingId)}/travellers/${encodeURIComponent(travellerId)}`, {
+    method: "DELETE",
+  }, true);
+}
+
 export async function fetchReviews(slugOrId) {
   return request(`/api/v1/reviews/package/${encodeURIComponent(slugOrId)}`);
 }
