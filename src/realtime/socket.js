@@ -1,5 +1,5 @@
 import { io } from "socket.io-client";
-import { BASE_API, getAccessToken, visitorId } from "../api";
+import { BASE_API, getAccessToken, visitorId, visitorSessionId } from "../api";
 
 const REALTIME_BASE = BASE_API || "https://coochbehar-travels.onrender.com";
 
@@ -13,6 +13,7 @@ export function createVisitorSocket({ customerId = "", page = "" } = {}) {
     auth: {
       token: getAccessToken() || undefined,
       visitor_id: visitorId() || undefined,
+      session_id: visitorSessionId() || undefined,
       customer_id: customerId || undefined,
       current_url: page || window.location.pathname,
       source: "web",
@@ -40,4 +41,3 @@ export function createNotificationSocket(token, onMessage) {
 
   return socket;
 }
-

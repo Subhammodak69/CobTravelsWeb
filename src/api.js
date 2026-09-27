@@ -92,6 +92,10 @@ export function visitorId() {
   return "";
 }
 
+export function visitorSessionId() {
+  return storage.getItem(VISITOR_SESSION_ID) || "";
+}
+
 async function authVisitorId() {
   let id = storage.getItem(VISITOR_SERVER_ID);
   if (!id || !isValidUUID(id)) id = await identifyVisitor();
