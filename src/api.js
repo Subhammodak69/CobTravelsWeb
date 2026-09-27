@@ -294,13 +294,18 @@ export async function uploadDocument({ file, fileUrl, documentType, title, descr
 }
 export async function fetchDocumentFile(fileUrl, { fileName = "document", mimeType = "" } = {}) {
   if (!fileUrl) throw new Error("Document view link unavailable.");
+  const isExternalUrl = /^https?:\/\//i.test(fileUrl);
+  const targetUrl = isExternalUrl ? fileUrl : `${BASE_API}${fileUrl}`;
+
   const fetchFile = () => fetch(
-    fileUrl.startsWith("http") ? fileUrl : `${BASE_API}${fileUrl}`,
+    targetUrl,
     {
-      credentials: "include",
+      // Cloudinary is a public third-party asset host. Sending credentials or
+      // our API bearer token makes the browser's CORS preflight fail.
+      credentials: isExternalUrl ? "omit" : "include",
       headers: {
         Accept: "application/octet-stream",
-        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+        ...(!isExternalUrl && accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       },
     }
   );
