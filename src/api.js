@@ -440,6 +440,23 @@ export async function fetchPackageVariants(packageIdOrSlug, page = 1, pageSize =
   };
 }
 
+async function fetchPackageSummaryBySlug(slug) {
+  const pageSize = 100;
+  let page = 1;
+
+  // The API search filter does not include package slugs, so resolve the
+  // route parameter from the unfiltered package list instead.
+  while (true) {
+    const result = await fetchPackages({ page, page_size: pageSize });
+    const match = result.items.find((item) =>
+      item.slug === slug || item.id === slug || item.package_id === slug
+    );
+    if (match) return match;
+    if (!result.has_next && page >= result.pages) return null;
+    page += 1;
+  }
+}
+
 export async function fetchHotels(page = 1, pageSize = 20, destinationId = "", category = "") {
   const query = new URLSearchParams({ page: String(page), page_size: String(pageSize) });
   if (destinationId) query.set("destination_id", destinationId);
@@ -465,10 +482,9 @@ export async function fetchPackage(slug, summaryData = null) {
     };
   } else {
     // The end-user API exposes package lists and variant details, not a
-    // singular /tour-packages/{slug} endpoint. Resolve the summary from the
-    // supported list route before loading variants.
-    const result = await fetchPackages({ search: slug, page: 1, page_size: 100 });
-    d = result.items.find((item) => item.slug === slug) || result.items[0];
+    // singular /tour-packages/{slug} endpoint. Resolve the summary by exact
+    // slug so a browser reload works without the in-memory package object.
+    d = await fetchPackageSummaryBySlug(slug);
   }
   if (!d) throw new Error("Tour package was not found");
   const packageSlug = d.slug || slug;
