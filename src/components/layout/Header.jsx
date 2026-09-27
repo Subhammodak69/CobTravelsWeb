@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import {
   UserRound, ChevronDown, User, MessageSquareText, MapPinned, Files,
   Heart, Gift, LoaderCircle, Phone, Headphones, Menu, X,
-  Search, Globe
+  Search, Globe, LogOut
 } from "lucide-react";
 
 function ProfileAvatar({ src }) {
@@ -34,7 +34,7 @@ const PROFILE_MENU = [
 ];
 
 export default function Header() {
-  const { goHome, isMember, authReady, user } = useTravel();
+  const { goHome, isMember, authReady, user, handleLogout } = useTravel();
   const location = useLocation();
   const navigate = useNavigate();
   const [profileOpen, setProfileOpen] = useState(false);
@@ -194,6 +194,16 @@ export default function Header() {
                         {label}
                       </button>
                     ))}
+                    <div className="my-1 border-t border-slate-100 pt-1">
+                      <button
+                        className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm font-semibold text-rose-600 transition hover:bg-rose-50"
+                        onClick={() => { setProfileOpen(false); handleLogout(false); }}
+                        role="menuitem"
+                      >
+                        <LogOut size={15} />
+                        Log out
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -242,6 +252,15 @@ export default function Header() {
                   </Link>
                 ))}
                 <hr className="my-3 border-slate-100" />
+                {isMember && (
+                  <button
+                    className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm font-semibold text-rose-600 transition hover:bg-rose-50"
+                    onClick={() => { setMobileMenuOpen(false); handleLogout(false); }}
+                  >
+                    <LogOut size={16} />
+                    Log out
+                  </button>
+                )}
                 <a
                   href="https://wa.me/919932204885?text=Hello%20Coochbehar%20Travel%2C%20I%20need%20help%20planning%20a%20trip!"
                   target="_blank"
