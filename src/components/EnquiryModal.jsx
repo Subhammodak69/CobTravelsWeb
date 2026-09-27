@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { submitEnquiry, fetchPackageSelect, isValidUUID } from "../api";
+import { submitEnquiry, fetchPackageVariants, isValidUUID } from "../api";
 import { useTravel } from "../contexts/TravelContext";
 import CustomSelect from "./CustomSelect";
 import { X } from "lucide-react";
 
-const INITIAL = { name: "", mobile: "", channel: "WEBSITE", subject: "", message: "", variant_id: "" };
+const INITIAL = { name: "", mobile: "", email: "", channel: "WEBSITE", subject: "", message: "", variant_id: "", travel_date: "" };
 
 export default function EnquiryModal({
   open,
@@ -13,12 +13,12 @@ export default function EnquiryModal({
   packageSlug = "",
   variantId = "",
   packageTitle = "",
+  destinationId = "",
+  travelDate = "",
 }) {
   const { user } = useTravel();
   const [form, setForm] = useState(INITIAL);
   const [variants, setVariants] = useState([]);
-  const [resolvedPackageId, setResolvedPackageId] = useState(packageId);
-  const [displayTitle, setDisplayTitle] = useState(packageTitle);
   const [status, setStatus] = useState("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const firstRef = useRef(null);
@@ -31,20 +31,14 @@ export default function EnquiryModal({
     const lookupKey = packageSlug || packageId;
 
     if (lookupKey) {
-      fetchPackageSelect(lookupKey)
-        .then((data) => {
-          if (!isMounted || !data) return;
-          if (data.id && isValidUUID(data.id)) {
-            setResolvedPackageId(data.id);
-          }
-          if (data.title && !packageTitle) {
-            setDisplayTitle(data.title);
-          }
-          if (Array.isArray(data.variants) && data.variants.length > 0) {
-            setVariants(data.variants);
+      fetchPackageVariants(lookupKey)
+        .then((result) => {
+          if (!isMounted || !result) return;
+          if (Array.isArray(result.items) && result.items.length > 0) {
+            setVariants(result.items);
             setForm((f) => ({
               ...f,
-              variant_id: variantId || f.variant_id || data.variants[0].id || "",
+              variant_id: variantId || f.variant_id || result.items[0].id || "",
             }));
           }
         })
@@ -61,16 +55,18 @@ export default function EnquiryModal({
       setForm({
         name: user?.name || "",
         mobile: user?.mobile || user?.phone || "",
+        email: user?.email || "",
         channel: "WEBSITE",
-        subject: (packageTitle || displayTitle) ? `Enquiry about ${packageTitle || displayTitle}` : "",
+        subject: packageTitle ? `Enquiry about ${packageTitle}` : "",
         message: "",
         variant_id: variantId || "",
+        travel_date: travelDate || "",
       });
       setStatus("idle");
       setErrorMsg("");
       setTimeout(() => firstRef.current?.focus(), 50);
     }
-  }, [open, user, packageTitle, displayTitle, variantId]);
+  }, [open, user, packageTitle, variantId, travelDate]);
 
   useEffect(() => {
     if (!open) return;
@@ -95,15 +91,25 @@ export default function EnquiryModal({
     setStatus("loading");
     setErrorMsg("");
     try {
-      const finalPkgId = isValidUUID(resolvedPackageId) ? resolvedPackageId : (isValidUUID(packageId) ? packageId : "");
+      const finalPkgId = isValidUUID(packageId) ? packageId : "";
+      const finalVariantId = isValidUUID(form.variant_id) ? form.variant_id : (isValidUUID(variantId) ? variantId : "");
       await submitEnquiry({
+        enquiry_type: "FIXED_TOUR",
         package_id: finalPkgId,
-        variant_id: form.variant_id || variantId,
+        variant_id: finalVariantId,
+        destination_id: destinationId,
         channel: form.channel || "WEBSITE",
         subject: form.subject,
         message: form.message,
         name: form.name,
         mobile: form.mobile,
+        email: form.email,
+        travel_date: form.travel_date,
+        adult_count: 1,
+        child_count: 0,
+        senior_count: 0,
+        room_count: 0,
+        vehicle_count: 0,
         customer_id: user?.id || "",
       });
       setStatus("success");
@@ -135,7 +141,7 @@ export default function EnquiryModal({
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent-300">Quick Holiday Enquiry</p>
             <h2 id="enquiry-modal-title" className="font-display text-base font-bold text-white truncate max-w-sm">
-              {displayTitle || packageTitle ? `${displayTitle || packageTitle}` : "Send Travel Enquiry"}
+              {packageTitle || "Send Travel Enquiry"}
             </h2>
           </div>
           <button
@@ -186,6 +192,17 @@ export default function EnquiryModal({
                     className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20"
                     required
                   />
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-700" htmlFor="enq-email">Email</label>
+                  <input id="enq-email" type="email" value={form.email} onChange={set("email")} placeholder="you@example.com" className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20" />
+                </div>
+                <div>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-700" htmlFor="enq-date">Travel Date</label>
+                  <input id="enq-date" type="date" value={form.travel_date} onChange={set("travel_date")} className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20" />
                 </div>
               </div>
 

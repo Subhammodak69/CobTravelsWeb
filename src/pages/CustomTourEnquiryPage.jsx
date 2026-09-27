@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { submitCustomEnquiry } from "../api";
+import { fetchHotels, fetchVehicles, submitCustomEnquiry } from "../api";
 import { useTravel } from "../contexts/TravelContext";
 import CustomSelect from "../components/CustomSelect";
 import enums from "../utils/enums.json";
@@ -14,7 +14,7 @@ const ENQUIRY_TYPE_OPTIONS = Object.values(enums.EnquiryType).filter(
 
 const INITIAL = {
   name: "", mobile: "", destination: "", travel_date: "", travel_duration: "",
-  pax_no: 2, no_room: 1, vehicle_type: "", meal_plan: "", special_requirements: "", enquiry_type: "CUSTOM_TOUR",
+  pax_no: 2, no_room: 1, vehicle_type: "", hotel_id: "", vehicle_id: "", meal_plan: "", special_requirements: "", enquiry_type: "CUSTOM_TOUR",
 };
 
 export default function CustomTourEnquiryPage() {
@@ -24,6 +24,8 @@ export default function CustomTourEnquiryPage() {
   const [status, setStatus] = useState("idle"); // idle | loading | success | error
   const [errorMsg, setErrorMsg] = useState("");
   const firstRef = useRef(null);
+  const [hotels, setHotels] = useState([]);
+  const [vehicles, setVehicles] = useState([]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -34,6 +36,15 @@ export default function CustomTourEnquiryPage() {
     }));
     setTimeout(() => firstRef.current?.focus(), 100);
   }, [user]);
+
+  useEffect(() => {
+    Promise.all([fetchHotels(1, 20), fetchVehicles(1, 20)])
+      .then(([hotelResponse, vehicleResponse]) => {
+        setHotels(Array.isArray(hotelResponse?.data) ? hotelResponse.data : []);
+        setVehicles(Array.isArray(vehicleResponse?.data) ? vehicleResponse.data : []);
+      })
+      .catch(() => {});
+  }, []);
 
   const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
   const setNum = (field) => (e) => setForm((f) => ({ ...f, [field]: Number(e.target.value) || 1 }));
@@ -192,6 +203,26 @@ export default function CustomTourEnquiryPage() {
                       value={form.vehicle_type}
                       options={[{ label: "Any / No preference", value: "ANY" }, ...VEHICLE_OPTIONS.map((v) => ({ label: v, value: v }))]}
                       onChange={(value) => setForm((f) => ({ ...f, vehicle_type: value }))}
+                      placeholder="Select vehicle"
+                      triggerClassName={selectTriggerCls}
+                    />
+                  </div>
+                  <div>
+                    <label className={labelCls}>Preferred Hotel</label>
+                    <CustomSelect
+                      value={form.hotel_id}
+                      options={[{ label: "Any / No preference", value: "" }, ...hotels.map((hotel) => ({ label: `${hotel.name}${hotel.category ? ` · ${hotel.category}` : ""}`, value: hotel.id }))]}
+                      onChange={(value) => setForm((f) => ({ ...f, hotel_id: value }))}
+                      placeholder="Select hotel"
+                      triggerClassName={selectTriggerCls}
+                    />
+                  </div>
+                  <div>
+                    <label className={labelCls}>Preferred Vehicle</label>
+                    <CustomSelect
+                      value={form.vehicle_id}
+                      options={[{ label: "Any / No preference", value: "" }, ...vehicles.map((vehicle) => ({ label: `${vehicle.name}${vehicle.capacity ? ` · ${vehicle.capacity} seats` : ""}`, value: vehicle.id }))]}
+                      onChange={(value) => setForm((f) => ({ ...f, vehicle_id: value }))}
                       placeholder="Select vehicle"
                       triggerClassName={selectTriggerCls}
                     />

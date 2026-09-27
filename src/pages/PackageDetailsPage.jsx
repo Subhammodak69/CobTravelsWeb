@@ -563,6 +563,8 @@ export default function PackageDetailsPage() {
         packageSlug={pack.slug || id}
         variantId={active?.id || ""}
         packageTitle={pack.title}
+        destinationId={pack.destination_id || ""}
+        travelDate={active?.dates?.[0]?.date || ""}
       />
     </div>
   );

@@ -378,6 +378,14 @@ export async function fetchPackageVariants(packageIdOrSlug, page = 1, pageSize =
   };
 }
 
+export async function fetchHotels(page = 1, pageSize = 20) {
+  return request(`/api/v1/hotels?page=${page}&page_size=${pageSize}`);
+}
+
+export async function fetchVehicles(page = 1, pageSize = 20) {
+  return request(`/api/v1/vehicles?page=${page}&page_size=${pageSize}`);
+}
+
 export async function fetchPackage(slug, summaryData = null) {
   let d;
   if (summaryData?.package_id || summaryData?.id) {
@@ -420,11 +428,6 @@ export async function fetchPackage(slug, summaryData = null) {
     route: d.default_variant?.route || [],
     default_variant_id: d.default_variant?.id || undefined,
   };
-}
-
-export async function fetchPackageSelect(slug) {
-  const r = await request(`/api/v1/tour-packages/select/${encodeURIComponent(slug)}`);
-  return r?.data ? { ...r.data, is_wishlist: Boolean(r.data.is_wishlist) } : null;
 }
 
 export async function fetchVariant(slug, variantSlug, listedItems = null) {
@@ -517,28 +520,30 @@ export async function submitCustomEnquiry({
   special_requirements = "",
   enquiry_type = "CUSTOM_TOUR",
   customer_id = "",
+  hotel_id = "",
+  vehicle_id = "",
+  email = "",
 } = {}) {
-  const payload = {
-    name: name.trim(),
-    mobile: mobile.trim(),
-    destination: destination.trim(),
-    travel_date: travel_date ? travel_date.trim() : "",
-    travel_duration: travel_duration ? travel_duration.trim() : "",
-    pax_no: Number(pax_no) || 1,
-    no_room: Number(no_room) || 1,
-    vehicle_type: vehicle_type && vehicle_type.trim() ? vehicle_type.trim() : "ANY",
-    meal_plan: meal_plan && meal_plan.trim() ? meal_plan.trim() : "ANY",
-    special_requirements: special_requirements ? special_requirements.trim() : "",
+  return submitEnquiry({
     enquiry_type: enquiry_type && enquiry_type.trim() ? enquiry_type.trim() : "CUSTOM_TOUR",
+    package_id: "",
+    variant_id: "",
+    destination_id: "",
     channel: "WEBSITE",
-    visitor_id: isValidUUID(visitorId()) ? visitorId() : "",
-    customer_id: isValidUUID(customer_id) ? customer_id : "",
-  };
-
-  return request("/api/v1/enquiries/custom", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  }, true);
+    message: `Destination: ${destination.trim()}`,
+    name,
+    mobile,
+    email,
+    travel_date,
+    adult_count: Number(pax_no) || 1,
+    room_count: Number(no_room) || 1,
+    hotel_id,
+    vehicle_id,
+    vehicle_count: vehicle_type && vehicle_type !== "ANY" ? 1 : 0,
+    special_requirements,
+    meal_plan: meal_plan && meal_plan.trim() ? meal_plan.trim() : "ANY",
+    customer_id,
+  });
 }
 
 export async function fetchEnquiries(skip = 0, limit = 50) {
