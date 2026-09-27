@@ -292,15 +292,10 @@ export async function uploadDocument({ file, fileUrl, documentType, title, descr
     }),
   }, true);
 }
-export function downloadDocument(id) { return request(`/api/v1/documents/${encodeURIComponent(id)}/download`, {}, true); }
-export async function downloadDocumentFile(id) {
-  const response = await downloadDocument(id);
-  const data = response?.data;
-  const downloadUrl = data?.download_url;
-  if (!downloadUrl) throw new Error("Download link unavailable.");
-
+export async function fetchDocumentFile(fileUrl, { fileName = "document", mimeType = "" } = {}) {
+  if (!fileUrl) throw new Error("Document view link unavailable.");
   const fetchFile = () => fetch(
-    downloadUrl.startsWith("http") ? downloadUrl : `${BASE_API}${downloadUrl}`,
+    fileUrl.startsWith("http") ? fileUrl : `${BASE_API}${fileUrl}`,
     {
       credentials: "include",
       headers: {
@@ -322,9 +317,15 @@ export async function downloadDocumentFile(id) {
 
   return {
     blob: await fileResponse.blob(),
-    fileName: data.file_name || "document",
-    mimeType: fileResponse.headers.get("content-type") || "application/octet-stream",
+    fileName,
+    mimeType: fileResponse.headers.get("content-type") || mimeType || "application/octet-stream",
   };
+}
+export async function downloadDocumentFile(id, { fileName = "document", mimeType = "" } = {}) {
+  return fetchDocumentFile(`/api/v1/documents/${encodeURIComponent(id)}/download`, {
+    fileName,
+    mimeType,
+  });
 }
 export function deleteDocument(id) { return request(`/api/v1/documents/${encodeURIComponent(id)}`, { method: "DELETE" }, true); }
 export function fetchReferralCode() { return request("/api/v1/referrals/code", {}, true); }

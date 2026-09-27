@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  Download, FileText, FolderUp, LoaderCircle, Trash2, Upload, X,
+  Download, Eye, FileText, FolderUp, LoaderCircle, Trash2, Upload, X,
   Shield, CreditCard, Ticket, FileCheck, CheckCircle2, Plus
 } from "lucide-react";
-import { fetchDocuments, uploadDocument, downloadDocumentFile, deleteDocument, uploadFile } from "../api";
+import { fetchDocuments, uploadDocument, downloadDocumentFile, fetchDocumentFile, deleteDocument, uploadFile } from "../api";
 import CustomSelect from "../components/CustomSelect";
 
 const DOCUMENT_TYPES = [
@@ -51,6 +51,8 @@ export default function DocumentsPage() {
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [downloadingId, setDownloadingId] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -158,7 +160,10 @@ export default function DocumentsPage() {
     setError("");
     setNotice("");
     try {
-      const { blob, fileName } = await downloadDocumentFile(doc.id);
+      const { blob, fileName } = await downloadDocumentFile(doc.id, {
+        fileName: doc.file_name || doc.title || "document",
+        mimeType: doc.mime_type || "",
+      });
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       anchor.href = url;
@@ -175,6 +180,48 @@ export default function DocumentsPage() {
       setDownloadingId(null);
     }
   };
+
+  const closePreview = () => {
+    if (preview?.url) URL.revokeObjectURL(preview.url);
+    setPreview(null);
+  };
+
+  const previewDocument = async (doc) => {
+    setPreviewLoading(true);
+    setError("");
+    try {
+      const { blob, fileName, mimeType } = await fetchDocumentFile(doc.file_url, {
+        fileName: doc.file_name || doc.title || "document",
+        mimeType: doc.mime_type || "",
+      });
+      const url = URL.createObjectURL(blob);
+      setPreview({
+        url,
+        fileName: fileName || doc.file_name || "document",
+        mimeType: mimeType || doc.mime_type || "application/octet-stream",
+      });
+    } catch (err) {
+      setError(err.message || "Could not load document preview.");
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
+  const savePreview = () => {
+    if (!preview?.url) return;
+    const anchor = document.createElement("a");
+    anchor.href = preview.url;
+    anchor.download = preview.fileName;
+    anchor.click();
+  };
+
+  const previewKind = preview
+    ? preview.mimeType.startsWith("image/")
+      ? "image"
+      : preview.mimeType === "application/pdf" || preview.fileName.toLowerCase().endsWith(".pdf")
+        ? "pdf"
+        : "file"
+    : "file";
 
   const remove = async (doc) => {
     if (!window.confirm(`Are you sure you want to delete "${doc.title || doc.file_name || "this document"}"?`)) return;
@@ -345,6 +392,15 @@ export default function DocumentsPage() {
                     </div>
 
                     <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => previewDocument(doc)}
+                        disabled={previewLoading}
+                        className="grid h-8 w-8 place-items-center rounded-lg bg-slate-100 text-slate-600 hover:bg-primary hover:text-white transition"
+                        title="View Document"
+                        aria-label="View Document"
+                      >
+                        <Eye size={15} />
+                      </button>
                       <button
                         onClick={() => download(doc)}
                         disabled={downloadingId === doc.id}
@@ -527,6 +583,47 @@ export default function DocumentsPage() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {(previewLoading || preview) && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-navy-dark/80 p-4 backdrop-blur-sm" onClick={closePreview}>
+            <div className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl" onClick={(event) => event.stopPropagation()}>
+              <div className="flex items-center justify-between border-b border-slate-200 bg-navy px-5 py-4 text-white">
+                <div className="min-w-0">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary-200">Document preview</p>
+                  <h2 className="truncate text-sm font-bold">{preview?.fileName || "Loading document…"}</h2>
+                </div>
+                <button onClick={closePreview} className="grid h-8 w-8 place-items-center rounded-lg bg-white/10 hover:bg-white/20" aria-label="Close preview">
+                  <X size={17} />
+                </button>
+              </div>
+
+              <div className="flex min-h-[360px] flex-1 items-center justify-center overflow-auto bg-slate-100 p-4 sm:p-8">
+                {previewLoading ? (
+                  <LoaderCircle className="animate-spin text-primary" size={32} />
+                ) : previewKind === "image" ? (
+                  <img src={preview.url} alt={preview.fileName} className="max-h-[65vh] max-w-full rounded-lg object-contain shadow" />
+                ) : previewKind === "pdf" ? (
+                  <iframe src={preview.url} title={preview.fileName} className="h-[65vh] w-full rounded-lg bg-white" />
+                ) : (
+                  <div className="max-w-sm text-center">
+                    <FileText className="mx-auto text-primary" size={56} />
+                    <h3 className="mt-4 font-display text-lg font-bold text-navy">Preview unavailable in browser</h3>
+                    <p className="mt-2 text-sm text-slate-500">This file type can be downloaded and opened with its compatible application.</p>
+                  </div>
+                )}
+              </div>
+
+              {preview && (
+                <div className="flex items-center justify-between gap-3 border-t border-slate-200 bg-white px-5 py-4">
+                  <span className="truncate text-xs text-slate-500">{preview.mimeType}</span>
+                  <button onClick={savePreview} className="btn-primary shrink-0 text-xs font-bold">
+                    <Download size={15} /> Download file
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}
