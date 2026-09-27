@@ -210,7 +210,7 @@ async function request(path, options = {}, isRetry = false) {
 export async function requestOtp(identifier, purpose = "LOGIN") {
   return request("/api/v1/auth/otp/request", {
     method: "POST",
-    body: JSON.stringify({ identifier, purpose, visitor_id: await authVisitorId() }),
+    body: JSON.stringify({ identifier, purpose, visitor_id: await authVisitorId(), referral_code: referralCode() }),
   });
 }
 
