@@ -95,7 +95,7 @@ export function visitorId() {
 async function authVisitorId() {
   let id = storage.getItem(VISITOR_SERVER_ID);
   if (!id || !isValidUUID(id)) id = await identifyVisitor();
-  return (id && isValidUUID(id)) ? id : undefined;
+  return (id && isValidUUID(id)) ? id : "";
 }
 
 
@@ -207,17 +207,17 @@ async function request(path, options = {}, isRetry = false) {
   return body;
 }
 
-export async function requestOtp(identifier) {
+export async function requestOtp(identifier, purpose = "LOGIN") {
   return request("/api/v1/auth/otp/request", {
     method: "POST",
-    body: JSON.stringify({ identifier, purpose: "LOGIN", visitor_id: await authVisitorId(), referral_code: referralCode() }),
+    body: JSON.stringify({ identifier, purpose, visitor_id: await authVisitorId() }),
   });
 }
 
-export async function verifyOtp(identifier, otp, name = "") {
+export async function verifyOtp(identifier, otp, name = "", purpose = "LOGIN") {
   const r = await request("/api/v1/auth/otp/verify", {
     method: "POST",
-    body: JSON.stringify({ identifier, otp, name, purpose: "LOGIN", visitor_id: await authVisitorId(), referral_code: referralCode() }),
+    body: JSON.stringify({ identifier, otp, name, purpose, visitor_id: await authVisitorId(), referral_code: referralCode() }),
   });
   saveTokens(r);
   return r;
@@ -253,8 +253,15 @@ export async function logout(all = false) {
     }
   }
 }
-export function fetchMe(){return request("/api/v1/account/me",{},true);}
+export function fetchMe(){return request("/api/v1/auth/me",{},true);}
 export function updateMe(data){return request("/api/v1/account/me",{method:"PATCH",body:JSON.stringify(data)},true);}
+export async function deleteAccount({ identifier, otp, name = "", purpose = "LOGIN", visitor_id = "", referral_code = "" } = {}) {
+  const visitorId = visitor_id || await authVisitorId();
+  return request("/api/v1/account/me", {
+    method: "DELETE",
+    body: JSON.stringify({ identifier, otp, name, purpose, ...(visitorId ? { visitor_id: visitorId } : {}), referral_code }),
+  }, true);
+}
 export function fetchSessions(){return request("/api/v1/sessions/",{},true);}
 export function deleteSession(id){return request(`/api/v1/sessions/${encodeURIComponent(id)}`,{method:"DELETE"},true);}
 export function fetchDocuments(page = 1, pageSize = 50) { return request(`/api/v1/documents?page=${page}&page_size=${pageSize}`, {}, true); }

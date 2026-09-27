@@ -118,7 +118,7 @@ export default function AuthPage() {
     setError("");
     try {
       await captureReferral();
-      await requestOtp(identifier.trim());
+      await requestOtp(identifier.trim(), isSignup ? "SIGNUP" : "LOGIN");
       setSent(true);
     } catch (e) {
       setError(e.message || "Failed to send OTP. Please try again.");
@@ -134,7 +134,7 @@ export default function AuthPage() {
     setError("");
     try {
       await captureReferral();
-      const r = await verifyOtp(identifier.trim(), otp.trim(), isSignup ? name.trim() : "");
+      const r = await verifyOtp(identifier.trim(), otp.trim(), isSignup ? name.trim() : "", isSignup ? "SIGNUP" : "LOGIN");
       await loginSuccess(r);
       const returnTo = location.state?.from?.pathname || "/profile";
       navigate(returnTo, { replace: true });

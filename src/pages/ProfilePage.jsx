@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTravel } from "../contexts/TravelContext";
-import { deleteSession, fetchPackages, fetchSessions, updateMe, uploadFile } from "../api";
+import { deleteAccount, deleteSession, fetchPackages, fetchSessions, requestOtp, updateMe, uploadFile } from "../api";
 import useScrollReveal from "../hooks/useScrollReveal";
 import ImageCropModal from "../components/ImageCropModal";
 import {
@@ -59,6 +59,7 @@ export default function ProfilePage() {
   });
 
   const [saving, setSaving] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
   const [editError, setEditError] = useState("");
   const [profileFile, setProfileFile] = useState(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
@@ -196,7 +197,7 @@ export default function ProfilePage() {
     setSaving(true);
     setEditError("");
     try {
-      const response = await updateMe({ ...profileForm, name: profileForm.name.trim(), source: "WEBSITE", is_imported: true });
+      const response = await updateMe({ ...profileForm, name: profileForm.name.trim(), source: "WEBSITE", is_active: true });
       const updatedUser = response?.data?.user || response?.data || response?.user;
       setUser(updatedUser ? { ...user, ...updatedUser } : { ...user, ...profileForm });
       setEditing(false);
@@ -204,6 +205,26 @@ export default function ProfilePage() {
       setEditError(error.message || "Could not update your profile.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const removeAccount = async () => {
+    if (deletingAccount) return;
+    const identifier = user?.mobile || user?.email || "";
+    if (!identifier) return setEditError("No mobile number or email is available for account verification.");
+    if (!window.confirm("Delete your account permanently? This cannot be undone.")) return;
+    setDeletingAccount(true);
+    setEditError("");
+    try {
+      await requestOtp(identifier, "DELETE_ACCOUNT");
+      const otp = window.prompt(`Enter the OTP sent to ${identifier}.`);
+      if (!otp?.trim()) return;
+      await deleteAccount({ identifier, otp: otp.trim(), purpose: "LOGIN" });
+      await handleLogout(true);
+    } catch (error) {
+      setEditError(error.message || "Could not delete your account.");
+    } finally {
+      setDeletingAccount(false);
     }
   };
 
@@ -589,6 +610,15 @@ export default function ProfilePage() {
                     <LogOut size={14} />
                     <span>Sign Out</span>
                   </span>
+                  <ChevronRight size={14} />
+                </button>
+                <button
+                  type="button"
+                  onClick={removeAccount}
+                  disabled={deletingAccount}
+                  className="flex w-full items-center justify-between py-3 font-bold text-rose-600 hover:bg-rose-50/50 rounded-lg px-1 transition disabled:opacity-60"
+                >
+                  <span>{deletingAccount ? "Deleting Account…" : "Delete Account"}</span>
                   <ChevronRight size={14} />
                 </button>
               </div>
