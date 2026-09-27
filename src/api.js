@@ -273,6 +273,24 @@ export function fetchEnums(group = "", search = "") {
 export function fetchNotifications(limit = 50) { return request(`/api/v1/notifications?limit=${limit}`, {}, true); }
 export function markNotificationRead(id) { return request(`/api/v1/notifications/${encodeURIComponent(id)}/read`, { method: "PATCH" }, true); }
 export function markAllNotificationsRead() { return request("/api/v1/notifications/read-all", { method: "POST" }, true); }
+export async function fetchInvoices(page = 1, pageSize = 100) {
+  const response = await request(`/api/v1/transactions?page=${page}&page_size=${pageSize}`, {}, true);
+  const data = response?.data;
+  const transactions = Array.isArray(data)
+    ? data
+    : data?.items || data?.results || response?.items || response?.results || [];
+  return transactions.map((transaction) => ({
+    ...transaction,
+    id: transaction.id,
+    invoice_code: transaction.reference || transaction.booking_code || transaction.id,
+    destination: transaction.description || "Travel booking",
+    amount: Number(transaction.amount || 0),
+    currency: transaction.currency || "INR",
+    booking_date: transaction.created_at || transaction.transaction_date || undefined,
+    travel_date: transaction.transaction_date || undefined,
+    status: transaction.status || "PENDING",
+  }));
+}
 export function fetchDocuments(page = 1, pageSize = 50) { return request(`/api/v1/documents?page=${page}&page_size=${pageSize}`, {}, true); }
 export async function uploadDocument({ file, fileUrl, documentType, title, description }) {
   let uploadedUrl = fileUrl;

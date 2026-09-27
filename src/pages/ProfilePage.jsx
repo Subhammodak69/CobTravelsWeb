@@ -6,7 +6,7 @@ import useScrollReveal from "../hooks/useScrollReveal";
 import ImageCropModal from "../components/ImageCropModal";
 import {
   Edit3, Camera, LogOut, Heart, Files, MessageSquareText, MapPinned,
-  X, ChevronRight, Laptop, Smartphone, Eye, Award, Calendar, Gift
+  X, ChevronRight, Laptop, Smartphone, Eye, Award, Calendar, Gift, ReceiptText
 } from "lucide-react";
 
 let profilePackagesPromise;
@@ -321,7 +321,7 @@ export default function ProfilePage() {
       {/* Main Content Dashboard */}
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
         {/* Quick Nav Cards Strip */}
-        <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-5">
+        <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           <Link
             to="/my-trips"
             className="card p-4 hover:border-primary-300 transition-all group flex flex-col justify-between"
@@ -383,6 +383,22 @@ export default function ProfilePage() {
             <div className="mt-4">
               <h3 className="font-display text-sm font-bold text-navy">Documents</h3>
               <p className="text-[11px] text-slate-400">Passports & tickets vault</p>
+            </div>
+          </Link>
+
+          <Link
+            to="/bills-invoices"
+            className="card p-4 hover:border-primary-300 transition-all group flex flex-col justify-between"
+          >
+            <div className="flex items-center justify-between">
+              <span className="grid h-10 w-10 place-items-center rounded-xl bg-green-50 text-green-600 group-hover:bg-green-600 group-hover:text-white transition">
+                <ReceiptText size={20} />
+              </span>
+              <ChevronRight size={16} className="text-slate-400 group-hover:text-green-600 transition-transform group-hover:translate-x-0.5" />
+            </div>
+            <div className="mt-4">
+              <h3 className="font-display text-sm font-bold text-navy">Bills & invoices</h3>
+              <p className="text-[11px] text-slate-400">Payments and receipts</p>
             </div>
           </Link>
 

@@ -2,7 +2,7 @@ import { useTravel } from "../../contexts/TravelContext";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import {
-  UserRound, ChevronDown, User, MessageSquareText, MapPinned, Files,
+  UserRound, ChevronDown, User, MessageSquareText, MapPinned, Files, ReceiptText,
   Heart, Gift, LoaderCircle, Phone, Headphones, Menu, X,
   Search, Globe, LogOut
 } from "lucide-react";
@@ -29,6 +29,7 @@ const PROFILE_MENU = [
   { label: "Enquiries", path: "/my-enquiries", Icon: MessageSquareText },
   { label: "Trips", path: "/my-trips", Icon: MapPinned },
   { label: "Documents", path: "/documents", Icon: Files },
+  { label: "Bills & invoices", path: "/bills-invoices", Icon: ReceiptText },
   { label: "Wishlist", path: "/wishlist", Icon: Heart },
   { label: "Referrals", path: "/referrals", Icon: Gift },
 ];

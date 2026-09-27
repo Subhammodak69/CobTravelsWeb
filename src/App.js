@@ -13,6 +13,7 @@ import TripsPage from "./pages/TripsPage";
 import DocumentsPage from "./pages/DocumentsPage";
 import WishlistPage from "./pages/WishlistPage";
 import ReferralsPage from "./pages/ReferralsPage";
+import InvoicesPage from "./pages/InvoicesPage";
 import ToursExplorePage from "./pages/ToursExplorePage";
 import InviteLandingPage from "./pages/InviteLandingPage";
 import { captureReferralFromUrl } from "./api";
@@ -143,6 +144,7 @@ function AppRoutes() {
         <Route path="/my-enquiries" element={<ProtectedRoute><Layout><EnquiriesPage /></Layout></ProtectedRoute>} />
         <Route path="/my-trips" element={<ProtectedRoute><Layout><TripsPage /></Layout></ProtectedRoute>} />
         <Route path="/documents" element={<ProtectedRoute><Layout><DocumentsPage /></Layout></ProtectedRoute>} />
+        <Route path="/bills-invoices" element={<ProtectedRoute><Layout><InvoicesPage /></Layout></ProtectedRoute>} />
         <Route path="/wishlist" element={<ProtectedRoute><Layout><WishlistPage /></Layout></ProtectedRoute>} />
         <Route path="/referrals" element={<ProtectedRoute><Layout><ReferralsPage /></Layout></ProtectedRoute>} />
         <Route
