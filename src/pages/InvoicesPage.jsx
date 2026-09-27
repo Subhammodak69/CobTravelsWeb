@@ -31,6 +31,14 @@ function formatDate(value) {
     : date.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 }
 
+function formatDateTime(value) {
+  if (!value) return "Date unavailable";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? value
+    : date.toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+}
+
 function formatAmount(invoice) {
   const currency = invoice.currency || "INR";
   const amount = Number(invoice.amount || 0);
@@ -165,26 +173,6 @@ export default function InvoicesPage() {
 
         {error && <div className="mb-5 flex items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700"><span>{error}</span><button type="button" onClick={() => loadInvoices()} className="font-bold underline">Try again</button></div>}
 
-        {selectedInvoice && (
-          <section className="card mb-6 overflow-hidden border-primary-200">
-            <div className="flex items-start justify-between gap-4 border-b border-slate-100 p-5 sm:p-6">
-              <div className="flex items-start gap-3">
-                <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary-50 text-primary"><FileText size={19} /></span>
-                <div><p className="text-[10px] font-bold uppercase tracking-wider text-primary">Payment details</p><h2 className="mt-1 font-display text-xl font-bold text-navy">{selectedInvoice.invoice_code || "Invoice"}</h2></div>
-              </div>
-              <button type="button" onClick={() => setSelectedInvoice(null)} className="rounded-full bg-slate-100 p-2 text-slate-500 transition hover:bg-slate-200 hover:text-slate-800" aria-label="Close invoice details"><X size={16} /></button>
-            </div>
-            <div className="grid gap-4 p-5 sm:grid-cols-2 sm:p-6 lg:grid-cols-4">
-              <DetailItem label="Description" value={selectedInvoice.destination || "Travel booking"} />
-              <DetailItem label="Amount" value={formatAmount(selectedInvoice)} />
-              <DetailItem label="Status" value={statusLabel(selectedInvoice.status)} />
-              <DetailItem label="Booked" value={formatDate(selectedInvoice.booking_date)} />
-              <DetailItem label="Travel date" value={formatDate(selectedInvoice.travel_date)} />
-              {selectedInvoice.transaction_id && <DetailItem label="Transaction ID" value={selectedInvoice.transaction_id} />}
-            </div>
-          </section>
-        )}
-
         {loading ? (
           <div className="card flex min-h-56 items-center justify-center text-slate-400"><LoaderCircle size={28} className="animate-spin text-primary" /></div>
         ) : visibleInvoices.length ? (
@@ -212,6 +200,30 @@ export default function InvoicesPage() {
           <div className="card p-12 text-center"><ReceiptText className="mx-auto text-primary-300" size={38} /><h2 className="mt-3 font-display text-lg font-bold text-navy">{query || statusFilter !== "ALL" ? "No matching invoices" : "No invoices yet"}</h2><p className="mx-auto mt-1 max-w-sm text-xs leading-5 text-slate-500">Your booking bills and invoices will appear here once a booking is confirmed.</p></div>
         )}
       </section>
+
+      {selectedInvoice && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/60 p-0 sm:items-center sm:p-6" onMouseDown={(event) => event.target === event.currentTarget && setSelectedInvoice(null)}>
+          <div role="dialog" aria-modal="true" aria-labelledby="invoice-detail-title" className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl">
+            <div className="flex items-start justify-between gap-4 border-b border-slate-100 p-5 sm:p-6">
+              <div className="flex items-start gap-3">
+                <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary-50 text-primary"><FileText size={19} /></span>
+                <div><p className="text-[10px] font-bold uppercase tracking-wider text-primary">Payment details</p><h2 id="invoice-detail-title" className="mt-1 font-display text-xl font-bold text-navy">{selectedInvoice.booking_code || selectedInvoice.invoice_code || "Booking payment"}</h2><p className="mt-1 text-xs text-slate-500">{selectedInvoice.description || selectedInvoice.destination || "Travel booking"}</p></div>
+              </div>
+              <button type="button" onClick={() => setSelectedInvoice(null)} className="rounded-full bg-slate-100 p-2 text-slate-500 transition hover:bg-slate-200 hover:text-slate-800" aria-label="Close invoice details"><X size={16} /></button>
+            </div>
+            <div className="grid gap-3 p-5 sm:grid-cols-2 sm:p-6">
+              <DetailItem label="Amount" value={formatAmount(selectedInvoice)} />
+              <DetailItem label="Status" value={statusLabel(selectedInvoice.status)} />
+              <DetailItem label="Transaction type" value={selectedInvoice.transaction_type} />
+              <DetailItem label="Category" value={selectedInvoice.category} />
+              <DetailItem label="Payment method" value={selectedInvoice.payment_method} />
+              <DetailItem label="Currency" value={selectedInvoice.currency || "INR"} />
+              <DetailItem label="Transaction date" value={formatDateTime(selectedInvoice.transaction_date)} />
+              <DetailItem label="Booking date" value={formatDate(selectedInvoice.booking_date || selectedInvoice.created_at)} />
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
