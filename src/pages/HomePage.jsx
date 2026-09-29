@@ -52,7 +52,7 @@ const TESTIMONIALS = [
     location: "Cooch Behar",
     trip: "Thailand Family Holiday",
     rating: 5,
-    quote: "One of our best family vacations. Coochbehar Travel took care of every detail from delicious Indian meals to 4-star hotel stays throughout.",
+    quote: "One of our best family vacations. Gantabya took care of every detail from delicious Indian meals to 4-star hotel stays throughout.",
     avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
   },
 ];
@@ -306,7 +306,7 @@ export default function HomePage() {
                 Plan Custom Trip →
               </Link>
               <a
-                href="https://wa.me/919932204885?text=Hello%20Coochbehar%20Travel%2C%20I%20am%20interested%20in%20planning%20a%20customized%20trip!"
+                href="https://wa.me/919932204885?text=Hello%20Gantabya%2C%20I%20am%20interested%20in%20planning%20a%20customized%20trip!"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-whatsapp rounded-xl text-sm font-bold"
@@ -346,7 +346,7 @@ export default function HomePage() {
             <p className="eyebrow">Real Experiences</p>
             <h2 className="section-title">Loved by 5,000+ Travellers</h2>
             <p className="mt-2 text-sm text-slate-500">
-              Read authentic feedback from guests who explored the world with Coochbehar Travel.
+              Read authentic feedback from guests who explored the world with Gantabya.
             </p>
           </div>
 
@@ -387,7 +387,7 @@ export default function HomePage() {
       <section className="bg-slate-50 py-12" data-reveal>
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="text-center max-w-2xl mx-auto mb-10">
-            <p className="eyebrow">Why Coochbehar Travel</p>
+            <p className="eyebrow">Why Gantabya</p>
             <h2 className="section-title">Travel With Complete Confidence</h2>
           </div>
 
@@ -413,7 +413,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Story / About Coochbehar Travel */}
+      {/* Story / About Gantabya */}
       <section className="border-t border-slate-200 bg-white" data-reveal>
         <div className="mx-auto grid max-w-7xl lg:grid-cols-2">
           <div
@@ -448,7 +448,7 @@ export default function HomePage() {
               Travel should change the way you <span className="text-primary">feel.</span>
             </h2>
             <p className="mt-3 text-sm text-slate-600 leading-relaxed">
-              For over three decades, Coochbehar Travel has crafted personalized travel experiences across India and international destinations. Our team plans seamless routes while leaving room for the authentic, spontaneous moments that make every journey unforgettable.
+              For over three decades, Gantabya has crafted personalized travel experiences across India and international destinations. Our team plans seamless routes while leaving room for the authentic, spontaneous moments that make every journey unforgettable.
             </p>
             <div className="mt-6 flex flex-wrap gap-2">
               <span className="rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary">✓ 30+ Years Experience</span>

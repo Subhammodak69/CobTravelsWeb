@@ -155,10 +155,8 @@ export default function AuthPage() {
       {/* Left Brand Content */}
       <section className="relative z-10 hidden max-w-xl animate-fade-up lg:block">
         <Link to="/" className="inline-flex items-center gap-2.5 mb-8">
-          <i className="grid h-10 w-10 place-items-center rounded-xl bg-primary font-display text-2xl font-bold text-white shadow-lg">
-            C
-          </i>
-          <span className="text-base font-bold text-white">Coochbehar Travel</span>
+          <img src="/gantabya-logo.jpg" alt="Gantabya" className="h-10 w-10 rounded-xl object-contain shadow-lg" />
+          <span className="text-base font-bold text-white">Gantabya</span>
         </Link>
         <p className="mb-3 text-xs font-bold uppercase tracking-[0.25em] text-accent-300">Member Portal</p>
         <h1 className="font-display text-5xl font-extrabold leading-tight tracking-tight text-white">

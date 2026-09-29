@@ -26,11 +26,9 @@ export default function Footer() {
           {/* Column 1: Brand */}
           <div>
             <div className="mb-4 flex items-center gap-2.5">
-              <i className="grid h-10 w-10 place-items-center rounded-xl bg-primary font-display text-2xl font-bold text-white shadow-lg">
-                C
-              </i>
+              <img src="/gantabya-logo.jpg" alt="Gantabya" className="h-10 w-10 rounded-xl object-contain shadow-lg" />
               <div>
-                <h3 className="text-base font-bold leading-none">Coochbehar Travel</h3>
+                <h3 className="text-base font-bold leading-none">Gantabya</h3>
                 <p className="mt-0.5 text-[10px] font-medium uppercase tracking-[0.15em] text-primary-300">Since 1994</p>
               </div>
             </div>
@@ -133,7 +131,8 @@ export default function Footer() {
       {/* Bottom Bar */}
       <div className="border-t border-white/10 bg-navy-dark">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 py-4 text-xs text-white/50 sm:flex-row sm:px-6">
-          <span>© {new Date().getFullYear()} Coochbehar Travel · All rights reserved</span>
+          <span>© {new Date().getFullYear()} Gantabya · All rights reserved</span>
+          <span>Powered by Coochbehar travels</span>
           <div className="flex items-center gap-4">
             <Link to="/privacy-policy" className="transition hover:text-white">Privacy Policy</Link>
             <span>·</span>

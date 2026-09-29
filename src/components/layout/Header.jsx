@@ -85,7 +85,7 @@ export default function Header() {
               <span className="hidden sm:inline">+91 99322 04885</span>
             </a>
             <a
-              href="https://wa.me/919932204885?text=Hello%20Coochbehar%20Travel%2C%20I%20need%20help%20planning%20a%20trip!"
+              href="https://wa.me/919932204885?text=Hello%20Gantabya%2C%20I%20need%20help%20planning%20a%20trip!"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 text-[#25D366] transition hover:text-[#1EBE5A]"
@@ -121,11 +121,9 @@ export default function Header() {
               {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
             <button className="group flex items-center gap-2.5 text-left" onClick={goHome} id="nav-brand">
-              <i className="grid h-9 w-9 place-items-center rounded-lg bg-primary font-display text-xl font-bold text-white shadow-md transition group-hover:scale-105">
-                C
-              </i>
+              <img src="/gantabya-logo.jpg" alt="Gantabya" className="h-9 w-9 rounded-lg object-contain shadow-md transition group-hover:scale-105" />
               <span className="hidden text-sm font-bold leading-none tracking-tight text-navy sm:inline">
-                Coochbehar<br />
+                Gantabya<br />
                 <b className="text-[9px] font-semibold uppercase tracking-[0.2em] text-primary">Travel</b>
               </span>
             </button>
@@ -227,8 +225,8 @@ export default function Header() {
             <div className="fixed inset-y-0 left-0 z-50 w-72 animate-slide-in-left overflow-y-auto bg-white shadow-2xl">
               <div className="flex items-center justify-between border-b border-slate-100 p-4">
                 <div className="flex items-center gap-2">
-                  <i className="grid h-8 w-8 place-items-center rounded-lg bg-primary font-display text-lg font-bold text-white">C</i>
-                  <span className="text-sm font-bold text-navy">Coochbehar Travel</span>
+                  <img src="/gantabya-logo.jpg" alt="Gantabya" className="h-8 w-8 rounded-lg object-contain" />
+                  <span className="text-sm font-bold text-navy">Gantabya</span>
                 </div>
                 <button
                   className="grid h-8 w-8 place-items-center rounded-lg text-slate-500 transition hover:bg-slate-100"
@@ -263,7 +261,7 @@ export default function Header() {
                   </button>
                 )}
                 <a
-                  href="https://wa.me/919932204885?text=Hello%20Coochbehar%20Travel%2C%20I%20need%20help%20planning%20a%20trip!"
+                  href="https://wa.me/919932204885?text=Hello%20Gantabya%2C%20I%20need%20help%20planning%20a%20trip!"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-[#25D366] transition hover:bg-green-50"

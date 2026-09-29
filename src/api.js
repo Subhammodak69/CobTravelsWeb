@@ -47,7 +47,7 @@ export function getReferralLink(code) {
 }
 
 export function getReferralShareMessage(code) {
-  return `Join me on Coochbehar Travels and plan your next journey: ${getReferralLink(code)}`;
+  return `Join me on Gantabya and plan your next journey: ${getReferralLink(code)}`;
 }
 
 export function getStoredReferralCode() { return referralCode(); }
