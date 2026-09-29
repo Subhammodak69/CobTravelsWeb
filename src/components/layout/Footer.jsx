@@ -26,7 +26,7 @@ export default function Footer() {
           {/* Column 1: Brand */}
           <div>
             <div className="mb-4 flex items-center gap-2.5">
-              <img src="/gantabya-logo-transparent.png" alt="Gantabya" className="h-10 w-10 object-contain" />
+              <img src="/gantabya-transparent.png" alt="Gantabya" className="h-10 w-10 object-contain" />
               <div>
                 <h3 className="text-base font-bold leading-none">Gantabya</h3>
                 <p className="mt-0.5 text-[10px] font-medium uppercase tracking-[0.15em] text-primary-300">Since 1994</p>
