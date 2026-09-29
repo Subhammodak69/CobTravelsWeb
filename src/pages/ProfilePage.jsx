@@ -661,8 +661,8 @@ export default function ProfilePage() {
 
       {/* Edit Profile Modal */}
       {editing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy-dark/75 p-4 backdrop-blur-sm animate-fade-in" onClick={() => !saving && setEditing(false)}>
-          <section className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-viewport fixed inset-0 z-50 flex items-center justify-center bg-navy-dark/75 p-4 backdrop-blur-sm animate-fade-in" onClick={() => !saving && setEditing(false)}>
+          <section className="modal-panel relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
             {/* Header */}
             <div className="bg-navy px-6 py-4 text-white flex items-center justify-between border-b border-navy-light">
               <div>
@@ -808,8 +808,8 @@ export default function ProfilePage() {
 
       {/* View Details Modal */}
       {detailsOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy-dark/75 p-4 backdrop-blur-sm animate-fade-in" onClick={() => setDetailsOpen(false)}>
-          <section className="relative flex max-h-[88vh] w-full max-w-xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-viewport fixed inset-0 z-50 flex items-center justify-center bg-navy-dark/75 p-4 backdrop-blur-sm animate-fade-in" onClick={() => setDetailsOpen(false)}>
+          <section className="modal-panel relative flex max-h-[88vh] w-full max-w-xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="bg-navy px-6 py-4 text-white flex items-center justify-between border-b border-navy-light">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-wider text-accent-300">Account Summary</p>

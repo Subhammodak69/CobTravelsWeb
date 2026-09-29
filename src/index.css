@@ -23,11 +23,11 @@
   }
 
   body {
-    @apply min-h-screen bg-white font-sans text-slate-800 antialiased;
+    @apply min-h-screen overflow-x-hidden bg-white font-sans text-slate-800 antialiased;
   }
 
   #root {
-    @apply min-h-screen;
+    @apply min-h-screen max-w-full overflow-x-hidden;
   }
 
   button,
@@ -113,6 +113,44 @@
   /* WhatsApp button */
   .btn-whatsapp {
     @apply inline-flex items-center justify-center gap-2 rounded-lg bg-[#25D366] px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#1EBE5A] hover:shadow-lg;
+  }
+
+  /* Shared modal constraints: keep every dialog inside the viewport. */
+  .modal-viewport {
+    min-width: 0;
+    max-width: 100vw;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .modal-panel {
+    box-sizing: border-box;
+    min-width: 0;
+    width: min(100%, calc(100vw - 1.5rem));
+    max-width: calc(100vw - 1.5rem);
+    overflow-x: hidden !important;
+  }
+
+  .modal-panel,
+  .modal-panel * {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /* Covers legacy inline modal wrappers that have not been migrated to the shared classes yet. */
+  .fixed.inset-0 {
+    max-width: 100vw;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .fixed.inset-0 > form,
+  .fixed.inset-0 > section,
+  .fixed.inset-0 > div:not(.absolute) {
+    min-width: 0;
+    max-width: calc(100vw - 1.5rem);
+    overflow-x: hidden;
   }
 }
 

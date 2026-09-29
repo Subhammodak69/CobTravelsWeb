@@ -202,8 +202,8 @@ export default function InvoicesPage() {
       </section>
 
       {selectedInvoice && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/60 p-0 sm:items-center sm:p-6" onMouseDown={(event) => event.target === event.currentTarget && setSelectedInvoice(null)}>
-          <div role="dialog" aria-modal="true" aria-labelledby="invoice-detail-title" className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl">
+        <div className="modal-viewport fixed inset-0 z-50 flex items-end justify-center bg-slate-950/60 p-0 sm:items-center sm:p-6" onMouseDown={(event) => event.target === event.currentTarget && setSelectedInvoice(null)}>
+          <div role="dialog" aria-modal="true" aria-labelledby="invoice-detail-title" className="modal-panel max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl">
             <div className="flex items-start justify-between gap-4 border-b border-slate-100 p-5 sm:p-6">
               <div className="flex items-start gap-3">
                 <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary-50 text-primary"><FileText size={19} /></span>

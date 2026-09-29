@@ -148,12 +148,12 @@ export default function AuthPage() {
   const submit = sent ? verify : send;
 
   return (
-    <main className="relative grid min-h-screen overflow-hidden bg-navy px-6 py-20 text-white sm:px-8 lg:grid-cols-[1fr_480px] lg:items-center lg:gap-16 lg:px-20">
+    <main className="relative grid min-h-screen min-w-0 max-w-full overflow-x-hidden overflow-y-auto bg-navy px-4 py-12 text-white sm:px-8 sm:py-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,480px)] lg:items-center lg:gap-16 lg:px-20 lg:py-20">
       <img className="absolute inset-0 h-full w-full object-cover opacity-25" src={AUTH_BG} alt="Mountain landscape" />
       <div className="absolute inset-0 bg-gradient-to-br from-navy-dark via-navy/90 to-primary-950/80" />
 
       {/* Left Brand Content */}
-      <section className="relative z-10 hidden max-w-xl animate-fade-up lg:block">
+      <section className="relative z-10 hidden min-w-0 max-w-xl animate-fade-up lg:block">
         <Link to="/" className="inline-flex items-center gap-2.5 mb-8">
           <img src="/gantabya-logo.jpg" alt="Gantabya" className="h-10 w-10 rounded-xl object-contain shadow-lg" />
           <span className="text-base font-bold text-white">Gantabya</span>
@@ -183,7 +183,7 @@ export default function AuthPage() {
       </section>
 
       {/* Right Auth Card */}
-      <section className="relative z-10 animate-fade-up rounded-2xl border border-white/20 bg-white p-6 text-slate-900 shadow-2xl sm:p-8">
+      <section className="relative z-10 min-w-0 w-full max-w-[480px] justify-self-center animate-fade-up rounded-2xl border border-white/20 bg-white p-5 text-slate-900 shadow-2xl sm:p-8">
         <div>
           <p className="mb-1 text-xs font-bold uppercase tracking-wider text-accent">
             {isSignup ? "New Account" : "Sign In"}
@@ -210,7 +210,7 @@ export default function AuthPage() {
                 Full Name
               </label>
               <input
-                className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-xs font-medium outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20 disabled:opacity-60"
+                className="h-11 min-w-0 w-full max-w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-xs font-medium outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20 disabled:opacity-60"
                 id="auth-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -226,7 +226,7 @@ export default function AuthPage() {
               Mobile Number or Email
             </label>
             <input
-              className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-xs font-medium outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20 disabled:opacity-60"
+              className="h-11 min-w-0 w-full max-w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-xs font-medium outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20 disabled:opacity-60"
               id="auth-identifier"
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
@@ -242,7 +242,7 @@ export default function AuthPage() {
                 Enter 6-Digit OTP
               </label>
               <input
-                className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-center text-base font-bold tracking-widest outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20 disabled:opacity-60"
+                className="h-11 min-w-0 w-full max-w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-center text-base font-bold tracking-widest outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20 disabled:opacity-60"
                 id="auth-otp"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}

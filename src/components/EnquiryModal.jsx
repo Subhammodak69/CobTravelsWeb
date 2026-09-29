@@ -154,7 +154,7 @@ export default function EnquiryModal({
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-[9999] flex items-end justify-center sm:items-center p-0 sm:p-4"
+      className="modal-viewport fixed inset-0 z-[9999] flex items-end justify-center sm:items-center p-0 sm:p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="enquiry-modal-title"
@@ -163,7 +163,7 @@ export default function EnquiryModal({
       <div className="absolute inset-0 bg-navy-dark/75 backdrop-blur-sm" style={{ animation: "fadeInBg 0.2s ease forwards" }} />
 
       <div
-        className="relative z-10 flex flex-col w-full max-w-lg max-h-[90vh] rounded-t-2xl sm:rounded-2xl bg-white shadow-2xl overflow-hidden"
+        className="modal-panel relative z-10 flex flex-col w-full max-w-lg max-h-[90vh] rounded-t-2xl sm:rounded-2xl bg-white shadow-2xl overflow-hidden"
         style={{ animation: "slideUpPanel 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards" }}
       >
         {/* Header */}

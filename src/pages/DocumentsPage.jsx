@@ -452,8 +452,8 @@ export default function DocumentsPage() {
 
         {/* UPLOAD MODAL */}
         {showModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy-dark/75 backdrop-blur-sm p-4 animate-fade-in">
-            <div className="relative w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden animate-slide-down">
+          <div className="modal-viewport fixed inset-0 z-50 flex items-center justify-center bg-navy-dark/75 backdrop-blur-sm p-4 animate-fade-in">
+            <div className="modal-panel relative w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden animate-slide-down">
               {/* Modal Header in Deep Navy */}
               <div className="bg-navy px-6 py-4 text-white flex items-center justify-between border-b border-navy-light">
                 <div className="flex items-center gap-2.5">
@@ -588,8 +588,8 @@ export default function DocumentsPage() {
         )}
 
         {(previewLoading || preview) && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-navy-dark/80 p-4 backdrop-blur-sm" onClick={closePreview}>
-            <div className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl" onClick={(event) => event.stopPropagation()}>
+          <div className="modal-viewport fixed inset-0 z-[60] flex items-center justify-center bg-navy-dark/80 p-4 backdrop-blur-sm" onClick={closePreview}>
+            <div className="modal-panel flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl" onClick={(event) => event.stopPropagation()}>
               <div className="flex items-center justify-between border-b border-slate-200 bg-navy px-5 py-4 text-white">
                 <div className="min-w-0">
                   <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary-200">Document preview</p>

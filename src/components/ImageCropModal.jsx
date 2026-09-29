@@ -163,11 +163,11 @@ export default function ImageCropModal({ imageSrc, open, onCrop, onCancel }) {
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/85 p-4 backdrop-blur-md"
+      className="modal-viewport fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/85 p-4 backdrop-blur-md"
       role="dialog"
       aria-modal="true"
     >
-      <div className="relative flex max-h-[92vh] w-full max-w-md flex-col overflow-hidden rounded-[2.25rem] bg-white shadow-2xl shadow-slate-950/50">
+      <div className="modal-panel relative flex max-h-[92vh] w-full max-w-md flex-col overflow-hidden rounded-[2.25rem] bg-white shadow-2xl shadow-slate-950/50">
         {/* Header */}
         <div className="flex shrink-0 items-center justify-between border-b border-slate-100 px-6 py-5">
           <div>

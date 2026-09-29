@@ -128,7 +128,7 @@ export default function PackageGallery({ pack }) {
       {/* FULL-SCREEN MODAL */}
       {modalOpen && (
         <div 
-          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
+          className="modal-viewport fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
           onClick={closeModal}
         >
           {/* Close Button */}
@@ -178,7 +178,7 @@ export default function PackageGallery({ pack }) {
               </button>
 
               {/* Thumbnail strip at bottom */}
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 px-4 py-2 bg-black/50 rounded-xl backdrop-blur-sm max-w-[90vw] overflow-x-auto">
+              <div className="absolute bottom-4 left-1/2 flex max-w-[90vw] -translate-x-1/2 flex-wrap justify-center gap-2 rounded-xl bg-black/50 px-4 py-2 backdrop-blur-sm max-h-24 overflow-y-auto">
                 {gallery.map((item, index) => (
                   <button
                     key={index}

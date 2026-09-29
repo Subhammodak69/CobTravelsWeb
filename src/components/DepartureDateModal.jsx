@@ -39,12 +39,12 @@ export default function DepartureDateModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-navy/60 backdrop-blur-sm animate-fade-in"
+      className="modal-viewport fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-navy/60 backdrop-blur-sm animate-fade-in"
       onClick={onClose}
       style={{ touchAction: "none", overscrollBehavior: "contain" }}
     >
       <div
-        className="relative w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl bg-white p-6 shadow-2xl animate-scale-up max-h-[90vh] overflow-y-auto"
+        className="modal-panel relative w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl bg-white p-6 shadow-2xl animate-scale-up max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
         style={{ touchAction: "pan-y", overscrollBehavior: "contain" }}
       >
