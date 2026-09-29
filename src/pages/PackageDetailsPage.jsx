@@ -459,12 +459,14 @@ export default function PackageDetailsPage() {
       {/* Upcoming Departure Dates */}
       {active.dates && active.dates.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-          <div className="card p-6 bg-primary-50/50 border-primary-100">
+          {/* NOTE: Using a plain div instead of .card to avoid hover transform (-translate-y-1)
+               which on mobile browsers cancels the tap/click before the modal can open */}
+          <div className="overflow-hidden rounded-xl border border-primary-100 bg-primary-50/50 p-6 shadow-card">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <p className="eyebrow">Available Dates</p>
                 <h2 className="section-title text-xl sm:text-2xl mb-1">Upcoming Departures</h2>
-                <p className="text-xs text-slate-500">Click any departure date to view seat availability & details</p>
+                <p className="text-xs text-slate-500">Tap any departure date to view seat availability & details</p>
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-4">
@@ -475,16 +477,19 @@ export default function PackageDetailsPage() {
                 return (
                   <button
                     key={d.id || i}
-                    onClick={() => {
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setSelectedDepartureDate(d);
                       setDateModalOpen(true);
                     }}
-                    className="flex items-center justify-between gap-3 p-3 rounded-xl border border-primary-200/80 bg-white shadow-sm transition-all hover:border-primary hover:shadow-md text-left group"
+                    style={{ touchAction: "manipulation" }}
+                    className="flex items-center justify-between gap-3 p-3 rounded-xl border border-primary-200/80 bg-white shadow-sm active:bg-primary-50 active:border-primary transition-colors text-left group"
                   >
                     <div className="flex items-center gap-2.5">
                       <span className="text-lg">📅</span>
                       <div>
-                        <p className="text-xs font-bold text-navy group-hover:text-primary transition-colors">
+                        <p className="text-xs font-bold text-navy group-active:text-primary transition-colors">
                           {dateText}
                         </p>
                         {d.return_date && (
