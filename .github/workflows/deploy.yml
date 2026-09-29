@@ -1,0 +1,42 @@
+name: Deploy Gantabya Web
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: gantabyaa-web-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          port: ${{ secrets.DEPLOY_PORT }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          script: |
+            set -e
+
+            APP_DIR="/home/gantabyaa/htdocs/gantabyaa.com"
+
+            cd "$APP_DIR"
+
+            echo "==> Pulling latest code"
+            git fetch origin main
+            git reset --hard origin/main
+
+            echo "==> Installing dependencies"
+            npm ci
+
+            echo "==> Building application"
+            npm run build
+
+            echo "==> Deployment completed"
+            echo "==> Commit: $(git rev-parse --short HEAD)"
