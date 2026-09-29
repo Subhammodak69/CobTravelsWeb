@@ -58,6 +58,11 @@ export function TravelProvider({ children }) {
           detail: { status: "connected" },
         }));
       });
+      socket.on("notification.created", (payload) => {
+        window.dispatchEvent(new CustomEvent("cobtravels:notification", {
+          detail: { event: "notification.created", data: payload },
+        }));
+      });
 
       const token = getAccessToken();
       notificationSocket = createNotificationSocket(token, (message) => {
