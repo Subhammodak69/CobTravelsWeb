@@ -25,6 +25,7 @@ export default function PackageDetailsPage() {
   const [reviewState, setReviewState] = useState({ loading: false, message: "", error: "" });
   const [reviews, setReviews] = useState([]);
   const [eligibility, setEligibility] = useState(null);
+  const [eligibilityLoading, setEligibilityLoading] = useState(false);
   const [wishlistState, setWishlistState] = useState("idle");
   const [openItineraryDays, setOpenItineraryDays] = useState({ 0: true, 1: true });
   const [selectedDepartureDate, setSelectedDepartureDate] = useState(null);
@@ -69,16 +70,27 @@ export default function PackageDetailsPage() {
       .catch(() => {});
   }, [pack?.slug, id]);
 
-  useEffect(() => {
+    useEffect(() => {
     if (!isMember) {
       setEligibility(null);
+      setEligibilityLoading(false);
       return;
     }
     const slug = pack?.slug || id;
     if (!slug) return;
+    setEligibilityLoading(true);
     checkReviewEligibility(slug)
-      .then((r) => setEligibility(r?.data || null))
-      .catch(() => setEligibility(null));
+      .then((r) => {
+        setEligibility(r?.data || null);
+        if (r?.data?.has_reviewed && r?.data?.review) {
+          setReviewForm({
+            rating: r.data.review.rating || 5,
+            review: r.data.review.review || "",
+          });
+        }
+      })
+      .catch(() => setEligibility(null))
+      .finally(() => setEligibilityLoading(false));
   }, [isMember, pack?.slug, id]);
 
   if (loading) {
@@ -533,9 +545,25 @@ export default function PackageDetailsPage() {
         <div className="card p-6 sm:p-8">
           <p className="eyebrow">Feedback</p>
           <h2 className="section-title text-xl sm:text-2xl mb-2">Share Your Travel Experience</h2>
-          {isMember ? (
-            eligibility !== null && !eligibility?.can_review && !eligibility?.has_reviewed ? (
-              <p className="mt-2 text-xs text-slate-500">You need to complete this journey to write a verified review.</p>
+                    {isMember ? (
+            eligibilityLoading ? (
+              <p className="mt-2 text-xs text-slate-500">Checking review eligibility...</p>
+            ) : eligibility?.has_reviewed ? (
+              <div className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50/60 p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold text-emerald-800">✓ You reviewed this tour</span>
+                  <span className="text-xs font-bold text-amber-500">{"★".repeat(eligibility.review?.rating || reviewForm.rating || 5)}</span>
+                </div>
+                {eligibility.review?.review ? (
+                  <p className="text-xs text-slate-700 italic">“{eligibility.review.review}”</p>
+                ) : null}
+                <p className="mt-2 text-[11px] text-slate-500">Thank you for sharing your verified feedback!</p>
+              </div>
+            ) : !eligibility?.can_review ? (
+              <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-xs font-medium text-slate-600">You need to complete this journey to write a verified review.</p>
+                <p className="mt-1 text-[11px] text-slate-400">Reviews can be submitted once your tour package booking has been completed.</p>
+              </div>
             ) : (
               <form className="mt-4 grid gap-3" onSubmit={handleSubmitReview}>
                 <div>

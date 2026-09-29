@@ -713,20 +713,20 @@ export async function submitReview({ package_id = "", rating = 5, review = "", r
   return request("/api/v1/reviews", {
     method: "POST",
     body: JSON.stringify({ package_id, rating: Number(rating), review, review_gallery }),
-  }, true);
+  });
 }
 
 export async function updateReview(reviewId, { rating = 5, review = "", review_gallery = [] } = {}) {
   return request(`/api/v1/reviews/${encodeURIComponent(reviewId)}`, {
     method: "PATCH",
     body: JSON.stringify({ rating: Number(rating), review, review_gallery }),
-  }, true);
+  });
 }
 
 export async function deleteReview(reviewId) {
   return request(`/api/v1/reviews/${encodeURIComponent(reviewId)}`, {
     method: "DELETE",
-  }, true);
+  });
 }
 
 // ── Quotations ───────────────────────────────────────────────────────
