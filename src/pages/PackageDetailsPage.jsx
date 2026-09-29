@@ -11,6 +11,7 @@ import PackageGallery from "../components/PackageGallery";
 import Reviews from "../components/Reviews";
 import EnquiryModal from "../components/EnquiryModal";
 import CustomSelect from "../components/CustomSelect";
+import DepartureDateModal from "../components/DepartureDateModal";
 
 export default function PackageDetailsPage() {
   const { id } = useParams();
@@ -26,6 +27,8 @@ export default function PackageDetailsPage() {
   const [eligibility, setEligibility] = useState(null);
   const [wishlistState, setWishlistState] = useState("idle");
   const [openItineraryDays, setOpenItineraryDays] = useState({ 0: true, 1: true });
+  const [selectedDepartureDate, setSelectedDepartureDate] = useState(null);
+  const [dateModalOpen, setDateModalOpen] = useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -457,18 +460,61 @@ export default function PackageDetailsPage() {
       {active.dates && active.dates.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
           <div className="card p-6 bg-primary-50/50 border-primary-100">
-            <p className="eyebrow">Available Dates</p>
-            <h2 className="section-title text-xl sm:text-2xl mb-3">Upcoming Departures</h2>
-            <div className="flex flex-wrap gap-2 mt-4">
-              {active.dates.map((d, i) => (
-                <button
-                  key={d.id || i}
-                  onClick={() => setEnquiryOpen(true)}
-                  className="rounded-xl border border-primary-200 bg-white px-4 py-2 text-xs font-bold text-navy shadow-sm transition hover:bg-primary hover:text-white"
-                >
-                  📅 {d.date || d}
-                </button>
-              ))}
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <p className="eyebrow">Available Dates</p>
+                <h2 className="section-title text-xl sm:text-2xl mb-1">Upcoming Departures</h2>
+                <p className="text-xs text-slate-500">Click any departure date to view seat availability & details</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-4">
+              {active.dates.map((d, i) => {
+                const isSoldOut = d.available_seats !== undefined && d.available_seats <= 0;
+                const isFewSeats = d.available_seats !== undefined && d.available_seats > 0 && d.available_seats <= 5;
+                const dateText = d.departure_date || d.date || d;
+                return (
+                  <button
+                    key={d.id || i}
+                    onClick={() => {
+                      setSelectedDepartureDate(d);
+                      setDateModalOpen(true);
+                    }}
+                    className="flex items-center justify-between gap-3 p-3 rounded-xl border border-primary-200/80 bg-white shadow-sm transition-all hover:border-primary hover:shadow-md text-left group"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-lg">📅</span>
+                      <div>
+                        <p className="text-xs font-bold text-navy group-hover:text-primary transition-colors">
+                          {dateText}
+                        </p>
+                        {d.return_date && (
+                          <p className="text-[10px] text-slate-400 font-medium">Return: {d.return_date}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="text-right">
+                      {d.available_seats !== undefined ? (
+                        <div>
+                          <span
+                            className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                              isSoldOut
+                                ? "bg-rose-100 text-rose-600"
+                                : isFewSeats
+                                ? "bg-amber-100 text-amber-700 animate-pulse"
+                                : "bg-emerald-100 text-emerald-700"
+                            }`}
+                          >
+                            {isSoldOut ? "Sold Out" : `${d.available_seats} ${d.total_seats ? `/ ${d.total_seats}` : ""} seats`}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-[11px] font-bold text-primary">View Seats →</span>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -555,6 +601,18 @@ export default function PackageDetailsPage() {
         </div>
       </div>
 
+      {/* Departure Date Detail Modal */}
+      <DepartureDateModal
+        open={dateModalOpen}
+        onClose={() => setDateModalOpen(false)}
+        dateInfo={selectedDepartureDate}
+        tourTitle={pack.title}
+        onBookOrEnquire={(dateInfo) => {
+          setSelectedDepartureDate(dateInfo);
+          setEnquiryOpen(true);
+        }}
+      />
+
       {/* Enquiry Modal */}
       <EnquiryModal
         open={enquiryOpen}
@@ -564,7 +622,7 @@ export default function PackageDetailsPage() {
         variantId={active?.id || ""}
         packageTitle={pack.title}
         destinationId={pack.destination_id || ""}
-        travelDate={active?.dates?.[0]?.date || ""}
+        travelDate={selectedDepartureDate?.departure_date || selectedDepartureDate?.date || active?.dates?.[0]?.date || ""}
       />
     </div>
   );

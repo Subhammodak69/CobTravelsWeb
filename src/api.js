@@ -398,7 +398,7 @@ function variant(v, i = 0) {
     price: Number(price || 0),
     list_price: v.list_price == null ? null : Number(v.list_price),
     selling_price: v.selling_price == null ? null : Number(v.selling_price),
-    dates: (v.departure_dates || v.dates || []).map((date) => ({ ...date, date: date.date || date.departure_date || "" })),
+    dates: (v.departure_dates || v.dates || []).map((date) => ({ ...date, date: date.departure_date || date.date || "", departure_date: date.departure_date || date.date || "", return_date: date.return_date || "", total_seats: date.total_seats != null ? Number(date.total_seats) : undefined, available_seats: date.available_seats != null ? Number(date.available_seats) : undefined })),
     gallery: (v.gallery || []).filter((x) => x?.url).map((x) => ({ ...x, url: x.url })),
     route: v.route || [],
     is_default: Boolean(v.is_default ?? i === 0),
