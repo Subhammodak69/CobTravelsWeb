@@ -1,4 +1,4 @@
-export const BASE_API = "https://coochbehar-travels.onrender.com";
+export const BASE_API = "https://api.gantabyaa.in";
 const VISITOR = "@cobtravels/visitor_id";
 const VISITOR_SERVER_ID = "@cobtravels/visitor_server_id";
 const VISITOR_SESSION_ID = "@cobtravels/visitor_session_id";
