@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { TravelProvider } from "./contexts/TravelContext";
+import Seo from "./components/Seo";
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
 import HomePage from "./pages/HomePage";
@@ -87,9 +88,12 @@ function ProtectedRoute({ children }) {
 
   if (!authReady) {
     return (
-      <div className="grid min-h-[60vh] place-items-center bg-slate-50 text-slate-500">
-        <p>Loading your profile…</p>
-      </div>
+      <>
+        <Seo title="Account Portal | Gantabya" description="Member account area for Gantabya travellers." path={location.pathname} robots="noindex,nofollow" />
+        <div className="grid min-h-[60vh] place-items-center bg-slate-50 text-slate-500">
+          <p>Loading your profile…</p>
+        </div>
+      </>
     );
   }
 
@@ -97,17 +101,26 @@ function ProtectedRoute({ children }) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  return children;
+  return (
+    <>
+      <Seo title="Your Account | Gantabya" description="Manage your Gantabya bookings, documents, wishlist and enquiry history." path={location.pathname} robots="noindex,nofollow" />
+      {children}
+    </>
+  );
 }
 
 function PublicOnlyRoute({ children }) {
   const { isMember, authReady } = useTravel();
+  const location = useLocation();
 
   if (!authReady) {
     return (
-      <div className="grid min-h-[60vh] place-items-center bg-slate-50 text-slate-500">
-        <p>Checking authorization…</p>
-      </div>
+      <>
+        <Seo title="Member Access | Gantabya" description="Secure account access for Gantabya travellers." path={location.pathname} robots="noindex,nofollow" />
+        <div className="grid min-h-[60vh] place-items-center bg-slate-50 text-slate-500">
+          <p>Checking authorization…</p>
+        </div>
+      </>
     );
   }
 
@@ -115,7 +128,12 @@ function PublicOnlyRoute({ children }) {
     return <Navigate to="/profile" replace />;
   }
 
-  return children;
+  return (
+    <>
+      <Seo title="Member Access | Gantabya" description="Secure account access for Gantabya travellers." path={location.pathname} robots="noindex,nofollow" />
+      {children}
+    </>
+  );
 }
 
 function AppRoutes() {

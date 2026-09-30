@@ -5,6 +5,8 @@ import {
   HeartHandshake, Headphones, Award, Compass, MessageCircle, Star,
   Sparkle
 } from "lucide-react";
+import Seo from "../components/Seo";
+import StructuredData from "../components/StructuredData";
 import PackageCard from "../components/PackageCard";
 import CustomSelect from "../components/CustomSelect";
 import usePackages from "../hooks/usePackages";
@@ -99,6 +101,37 @@ const DOMESTIC_FILTERS = { type: "DOMESTIC", page_size: 4 };
 const INTERNATIONAL_FILTERS = { type: "INTERNATIONAL", page_size: 4 };
 const ALL_PACKAGES_FILTERS = { page_size: 100 };
 
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Gantabya",
+  url: "https://gantabyaa.com/",
+  logo: "https://gantabyaa.com/gantabya-transparent.png",
+  description: "Gantabya plans customized India and international holiday tours, getaway packages, and guided travel experiences.",
+  email: "info@coochbehartravel.com",
+  telephone: "+91 99322 04885",
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Cooch Behar",
+    addressRegion: "West Bengal",
+    addressCountry: "IN",
+  },
+  foundingDate: "1994",
+};
+
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Gantabya",
+  url: "https://gantabyaa.com/",
+  description: "Gantabya offers curated holiday packages, domestic tours, international trips, and personalized travel itineraries.",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: "https://gantabyaa.com/tours?search={search_term_string}",
+    "query-input": "required name=search_term_string",
+  },
+};
+
 export default function HomePage() {
   const navigate = useNavigate();
   const revealRef = useScrollReveal();
@@ -154,6 +187,14 @@ export default function HomePage() {
 
   return (
     <div ref={revealRef} className="bg-slate-50">
+      <Seo
+        title="Gantabya | India Tour Packages & Travel Experiences"
+        description="Explore curated domestic and international tours from Gantabya, including Kashmir, Kerala, Bhutan, Thailand, and personalized holiday packages."
+        path="/"
+        robots="index,follow"
+        schema={organizationSchema}
+      />
+      <StructuredData data={websiteSchema} />
       {/* Hero Section with Thomas Cook Style Search Widget */}
       <section className="relative flex min-h-[560px] items-center justify-center overflow-hidden bg-navy-dark px-4 pb-14 pt-12 text-white sm:px-6 lg:min-h-[620px] lg:px-12">
         <img

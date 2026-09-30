@@ -3,6 +3,7 @@ import {
   Phone, Mail, MapPin, Clock, MessageCircle, Send, CheckCircle2,
   ShieldCheck, Headphones, Award, ChevronDown, ChevronUp, Sparkles
 } from "lucide-react";
+import Seo from "../components/Seo";
 import CustomSelect from "../components/CustomSelect";
 import { submitCustomEnquiry } from "../api";
 
@@ -83,6 +84,12 @@ export default function ContactUsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
+      <Seo
+        title="Contact Gantabya | Travel Enquiries & Support"
+        description="Contact Gantabya for holiday enquiries, custom itineraries, destination planning and expert travel support."
+        path="/contact"
+        robots="index,follow"
+      />
       {/* Hero Header */}
       <section className="relative overflow-hidden bg-navy px-4 pb-14 pt-10 text-white sm:px-6 lg:px-12">
         <div className="relative z-10 mx-auto w-full max-w-7xl">

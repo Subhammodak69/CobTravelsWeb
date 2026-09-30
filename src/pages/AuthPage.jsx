@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { ArrowRight, Gift, CheckCircle2 } from "lucide-react";
+import Seo from "../components/Seo";
 import { captureReferralFromUrl, getStoredReferralCode, loginGoogle, requestOtp, verifyOtp } from "../api";
 import { useTravel } from "../contexts/TravelContext";
 
@@ -149,6 +150,12 @@ export default function AuthPage() {
 
   return (
     <main className="relative grid min-h-screen min-w-0 max-w-full overflow-x-hidden overflow-y-auto bg-navy px-4 py-12 text-white sm:px-8 sm:py-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,480px)] lg:items-center lg:gap-16 lg:px-20 lg:py-20">
+      <Seo
+        title={isSignup ? "Create Account | Gantabya" : "Member Login | Gantabya"}
+        description={isSignup ? "Create a Gantabya account to save tours, manage enquiries and access your booking dashboard." : "Sign in to your Gantabya account to manage trips, documents and travel plans."}
+        path={isSignup ? "/signup" : "/login"}
+        robots="noindex,nofollow"
+      />
       <img className="absolute inset-0 h-full w-full object-cover opacity-25" src={AUTH_BG} alt="Mountain landscape" />
       <div className="absolute inset-0 bg-gradient-to-br from-navy-dark via-navy/90 to-primary-950/80" />
 

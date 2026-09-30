@@ -4,6 +4,7 @@ import {
   Search, Compass, Sparkles, MapPin, Globe, Tag,
   Sparkle, X, RefreshCw
 } from "lucide-react";
+import Seo from "../components/Seo";
 import PackageCard from "../components/PackageCard";
 import CustomSelect from "../components/CustomSelect";
 import usePackages from "../hooks/usePackages";
@@ -110,6 +111,12 @@ export default function ToursExplorePage() {
 
   return (
     <div ref={revealRef} className="min-h-screen bg-slate-50">
+      <Seo
+        title={headingInfo.title ? `${headingInfo.title} | Gantabya` : "Holiday Packages | Gantabya"}
+        description="Browse curated domestic and international tour packages from Gantabya, including featured holidays, special offers, and custom travel itineraries."
+        path="/tours"
+        robots="index,follow"
+      />
       {/* Top Banner */}
       <section className="relative flex min-h-[280px] items-center overflow-hidden bg-navy px-4 pb-12 pt-12 text-white sm:px-6 lg:px-12">
         <img className="absolute inset-0 h-full w-full object-cover object-center opacity-30 brightness-75" src={HERO_BG} alt="Explore tours background" />

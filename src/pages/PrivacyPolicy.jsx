@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, ShieldCheck } from "lucide-react";
+import Seo from "../components/Seo";
 
 const LAST_UPDATED = "September 1, 2026";
 
@@ -35,6 +36,12 @@ export default function PrivacyPolicy() {
 
   return (
     <div className="bg-slate-50">
+      <Seo
+        title="Privacy Policy | Gantabya"
+        description="Read how Gantabya protects traveller information, manages booking data, and handles privacy preferences for holiday enquiries and reservations."
+        path="/privacy-policy"
+        robots="index,follow"
+      />
       {/* Header */}
       <section className="border-b border-navy-light bg-navy px-4 pb-10 pt-16 text-white sm:px-6 lg:px-12">
         <div className="mx-auto max-w-5xl">

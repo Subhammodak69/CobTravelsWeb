@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, FileText } from "lucide-react";
+import Seo from "../components/Seo";
 
 const LAST_UPDATED = "September 1, 2026";
 
@@ -38,6 +39,12 @@ export default function TermsOfService() {
 
   return (
     <div className="bg-slate-50">
+      <Seo
+        title="Terms of Service | Gantabya"
+        description="Review the booking, payment, cancellation and service terms that govern travel packages and holiday arrangements with Gantabya."
+        path="/terms-of-service"
+        robots="index,follow"
+      />
       {/* Header */}
       <section className="border-b border-navy-light bg-navy px-4 pb-10 pt-16 text-white sm:px-6 lg:px-12">
         <div className="mx-auto max-w-5xl">
