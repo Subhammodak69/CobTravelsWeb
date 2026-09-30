@@ -85,8 +85,8 @@ export default function ContactUsPage() {
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       <Seo
-        title="Contact Gantabya | Travel Enquiries & Support"
-        description="Contact Gantabya for holiday enquiries, custom itineraries, destination planning and expert travel support."
+        title="Contact Gantabyaa | Travel Enquiries & Support"
+        description="Contact Gantabyaa for holiday enquiries, custom itineraries, destination planning and expert travel support."
         path="/contact"
         robots="index,follow"
       />
@@ -98,7 +98,7 @@ export default function ContactUsPage() {
               We're Here for You
             </p>
             <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl text-white">
-              Contact <span className="text-primary-300">Gantabya</span>
+              Contact <span className="text-primary-300">Gantabyaa</span>
             </h1>
             <p className="mt-3 text-xs sm:text-sm text-white/80 leading-relaxed max-w-2xl">
               Have questions about an upcoming holiday or need a tailored itinerary? Our expert holiday planners are ready to guide you every step of the way.
@@ -321,7 +321,7 @@ export default function ContactUsPage() {
                     <MapPin size={18} />
                   </div>
                   <div>
-                    <strong className="block text-navy font-bold">Gantabya Main Office</strong>
+                    <strong className="block text-navy font-bold">Gantabyaa Main Office</strong>
                     <span>Opposite Cooch Behar Palace, N.N. Road, Cooch Behar, West Bengal 736101, India</span>
                   </div>
                 </div>

@@ -101,7 +101,7 @@ export default function InviteLandingPage() {
               <LoaderCircle className="animate-spin" size={36} />
             </div>
             <p className="mt-6 text-xs font-bold uppercase tracking-[0.2em] text-primary">
-              Gantabya
+              Gantabyaa
             </p>
             <h1 className="mt-2 font-display text-2xl font-bold tracking-tight text-navy sm:text-3xl">
               Verifying Your Invitation…
@@ -143,7 +143,7 @@ export default function InviteLandingPage() {
                 You're invited to travel <span className="text-primary">with us.</span>
               </h1>
               <p className="mt-2.5 text-xs sm:text-sm leading-relaxed text-slate-600">
-                Welcome to Gantabya. Your exclusive referral invite has been verified and will be automatically applied to your account for upcoming trip perks.
+                Welcome to Gantabyaa. Your exclusive referral invite has been verified and will be automatically applied to your account for upcoming trip perks.
               </p>
             </div>
 

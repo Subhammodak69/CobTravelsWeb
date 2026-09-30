@@ -151,8 +151,8 @@ export default function AuthPage() {
   return (
     <main className="relative grid min-h-screen min-w-0 max-w-full overflow-x-hidden overflow-y-auto bg-navy px-4 py-12 text-white sm:px-8 sm:py-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,480px)] lg:items-center lg:gap-16 lg:px-20 lg:py-20">
       <Seo
-        title={isSignup ? "Create Account | Gantabya" : "Member Login | Gantabya"}
-        description={isSignup ? "Create a Gantabya account to save tours, manage enquiries and access your booking dashboard." : "Sign in to your Gantabya account to manage trips, documents and travel plans."}
+        title={isSignup ? "Create Account | Gantabyaa" : "Member Login | Gantabyaa"}
+        description={isSignup ? "Create a Gantabyaa account to save tours, manage enquiries and access your booking dashboard." : "Sign in to your Gantabyaa account to manage trips, documents and travel plans."}
         path={isSignup ? "/signup" : "/login"}
         robots="noindex,nofollow"
       />
@@ -162,8 +162,8 @@ export default function AuthPage() {
       {/* Left Brand Content */}
       <section className="relative z-10 hidden min-w-0 max-w-xl animate-fade-up lg:block">
         <Link to="/" className="inline-flex items-center gap-2.5 mb-8">
-          <img src="/gantabya-transparent.png" alt="Gantabya" className="h-10 w-10 object-contain" />
-          <span className="text-base font-bold text-white">Gantabya</span>
+          <img src="/gantabyaa-transparent.png" alt="Gantabyaa" className="h-10 w-10 object-contain" />
+          <span className="text-base font-bold text-white">Gantabyaa</span>
         </Link>
         <p className="mb-3 text-xs font-bold uppercase tracking-[0.25em] text-accent-300">Member Portal</p>
         <h1 className="font-display text-5xl font-extrabold leading-tight tracking-tight text-white">

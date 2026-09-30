@@ -89,7 +89,7 @@ function ProtectedRoute({ children }) {
   if (!authReady) {
     return (
       <>
-        <Seo title="Account Portal | Gantabya" description="Member account area for Gantabya travellers." path={location.pathname} robots="noindex,nofollow" />
+        <Seo title="Account Portal | Gantabyaa" description="Member account area for Gantabyaa travellers." path={location.pathname} robots="noindex,nofollow" />
         <div className="grid min-h-[60vh] place-items-center bg-slate-50 text-slate-500">
           <p>Loading your profile…</p>
         </div>
@@ -103,7 +103,7 @@ function ProtectedRoute({ children }) {
 
   return (
     <>
-      <Seo title="Your Account | Gantabya" description="Manage your Gantabya bookings, documents, wishlist and enquiry history." path={location.pathname} robots="noindex,nofollow" />
+      <Seo title="Your Account | Gantabyaa" description="Manage your Gantabyaa bookings, documents, wishlist and enquiry history." path={location.pathname} robots="noindex,nofollow" />
       {children}
     </>
   );
@@ -116,7 +116,7 @@ function PublicOnlyRoute({ children }) {
   if (!authReady) {
     return (
       <>
-        <Seo title="Member Access | Gantabya" description="Secure account access for Gantabya travellers." path={location.pathname} robots="noindex,nofollow" />
+        <Seo title="Member Access | Gantabyaa" description="Secure account access for Gantabyaa travellers." path={location.pathname} robots="noindex,nofollow" />
         <div className="grid min-h-[60vh] place-items-center bg-slate-50 text-slate-500">
           <p>Checking authorization…</p>
         </div>
@@ -130,7 +130,7 @@ function PublicOnlyRoute({ children }) {
 
   return (
     <>
-      <Seo title="Member Access | Gantabya" description="Secure account access for Gantabya travellers." path={location.pathname} robots="noindex,nofollow" />
+      <Seo title="Member Access | Gantabyaa" description="Secure account access for Gantabyaa travellers." path={location.pathname} robots="noindex,nofollow" />
       {children}
     </>
   );

@@ -111,8 +111,8 @@ export default function CustomTourEnquiryPage() {
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       <Seo
-        title="Custom Tour Enquiry | Gantabya"
-        description="Plan a tailor-made holiday with Gantabya. Share your preferred destinations, dates, and travel preferences for a custom itinerary."
+        title="Custom Tour Enquiry | Gantabyaa"
+        description="Plan a tailor-made holiday with Gantabyaa. Share your preferred destinations, dates, and travel preferences for a custom itinerary."
         path="/custom-tour-enquiry"
         robots="index,follow"
       />

@@ -30,11 +30,11 @@ export default function ReferralsPage() {
 
   const copyLink = async () => {
     if (!link) return;
-    const message = `Join me on Gantabya and plan your next journey: ${link}`;
+    const message = `Join me on Gantabyaa and plan your next journey: ${link}`;
     try {
       if (navigator.share && /mobile|android|iphone|ipad/i.test(navigator.userAgent)) {
         await navigator.share({
-          title: "Join Gantabya",
+          title: "Join Gantabyaa",
           text: message,
           url: link,
         });

@@ -112,8 +112,8 @@ export default function ToursExplorePage() {
   return (
     <div ref={revealRef} className="min-h-screen bg-slate-50">
       <Seo
-        title={headingInfo.title ? `${headingInfo.title} | Gantabya` : "Holiday Packages | Gantabya"}
-        description="Browse curated domestic and international tour packages from Gantabya, including featured holidays, special offers, and custom travel itineraries."
+        title={headingInfo.title ? `${headingInfo.title} | Gantabyaa` : "Holiday Packages | Gantabyaa"}
+        description="Browse curated domestic and international tour packages from Gantabyaa, including featured holidays, special offers, and custom travel itineraries."
         path="/tours"
         robots="index,follow"
       />

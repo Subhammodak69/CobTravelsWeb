@@ -45,7 +45,7 @@ const TESTIMONIALS = [
     location: "Cooch Behar",
     trip: "Thailand Family Holiday",
     rating: 5,
-    quote: "One of our best family vacations. Gantabya took care of every detail from delicious Indian meals to 4-star hotel stays throughout.",
+    quote: "One of our best family vacations. Gantabyaa took care of every detail from delicious Indian meals to 4-star hotel stays throughout.",
     avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
   },
 ];
@@ -104,10 +104,10 @@ const ALL_PACKAGES_FILTERS = { page_size: 100 };
 const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  name: "Gantabya",
+  name: "Gantabyaa",
   url: "https://gantabyaa.com/",
-  logo: "https://gantabyaa.com/gantabya-transparent.png",
-  description: "Gantabya plans customized India and international holiday tours, getaway packages, and guided travel experiences.",
+  logo: "https://gantabyaa.com/gantabyaa-transparent.png",
+  description: "Gantabyaa plans customized India and international holiday tours, getaway packages, and guided travel experiences.",
   email: "info@coochbehartravel.com",
   telephone: "+91 99322 04885",
   address: {
@@ -122,9 +122,9 @@ const organizationSchema = {
 const websiteSchema = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  name: "Gantabya",
+  name: "Gantabyaa",
   url: "https://gantabyaa.com/",
-  description: "Gantabya offers curated holiday packages, domestic tours, international trips, and personalized travel itineraries.",
+  description: "Gantabyaa offers curated holiday packages, domestic tours, international trips, and personalized travel itineraries.",
   potentialAction: {
     "@type": "SearchAction",
     target: "https://gantabyaa.com/tours?search={search_term_string}",
@@ -188,8 +188,8 @@ export default function HomePage() {
   return (
     <div ref={revealRef} className="bg-slate-50">
       <Seo
-        title="Gantabya | India Tour Packages & Travel Experiences"
-        description="Explore curated domestic and international tours from Gantabya, including Kashmir, Kerala, Bhutan, Thailand, and personalized holiday packages."
+        title="Gantabyaa | India Tour Packages & Travel Experiences"
+        description="Explore curated domestic and international tours from Gantabyaa, including Kashmir, Kerala, Bhutan, Thailand, and personalized holiday packages."
         path="/"
         robots="index,follow"
         schema={organizationSchema}
@@ -427,7 +427,7 @@ export default function HomePage() {
             <p className="eyebrow">Real Experiences</p>
             <h2 className="section-title">Loved by 5,000+ Travellers</h2>
             <p className="mt-2 text-sm text-slate-500">
-              Read authentic feedback from guests who explored the world with Gantabya.
+              Read authentic feedback from guests who explored the world with Gantabyaa.
             </p>
           </div>
 
@@ -468,7 +468,7 @@ export default function HomePage() {
       <section className="bg-slate-50 py-12" data-reveal>
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="text-center max-w-2xl mx-auto mb-10">
-            <p className="eyebrow">Why Gantabya</p>
+            <p className="eyebrow">Why Gantabyaa</p>
             <h2 className="section-title">Travel With Complete Confidence</h2>
           </div>
 
@@ -494,7 +494,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Story / About Gantabya */}
+      {/* Story / About Gantabyaa */}
       <section className="border-t border-slate-200 bg-white" data-reveal>
         <div className="mx-auto grid max-w-7xl lg:grid-cols-2">
           <div
@@ -529,7 +529,7 @@ export default function HomePage() {
               Travel should change the way you <span className="text-primary">feel.</span>
             </h2>
             <p className="mt-3 text-sm text-slate-600 leading-relaxed">
-              For over three decades, Gantabya has crafted personalized travel experiences across India and international destinations. Our team plans seamless routes while leaving room for the authentic, spontaneous moments that make every journey unforgettable.
+              For over three decades, Gantabyaa has crafted personalized travel experiences across India and international destinations. Our team plans seamless routes while leaving room for the authentic, spontaneous moments that make every journey unforgettable.
             </p>
             <div className="mt-6 flex flex-wrap gap-2">
               <span className="rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary">✓ 30+ Years Experience</span>

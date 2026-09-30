@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 const SITE_URL = "https://gantabyaa.com";
-const DEFAULT_IMAGE = "https://gantabyaa.com/gantabya-transparent.png";
+const DEFAULT_IMAGE = "https://gantabyaa.com/gantabyaa-transparent.png";
 
 function ensureMetaTag(selector, attributes) {
   let tag = document.head.querySelector(selector);
@@ -28,8 +28,8 @@ function ensureLinkTag(relValue, attributes) {
 }
 
 export default function Seo({
-  title = "Gantabya | India Tour Packages & Travel Experiences",
-  description = "Gantabya designs personalized holiday packages, domestic and international tours, and travel experiences across India and beyond.",
+  title = "Gantabyaa | India Tour Packages & Travel Experiences",
+  description = "Gantabyaa designs personalized holiday packages, domestic and international tours, and travel experiences across India and beyond.",
   path = "/",
   image = DEFAULT_IMAGE,
   type = "website",
@@ -57,7 +57,7 @@ export default function Seo({
     });
     ensureMetaTag('meta[property="og:site_name"]', {
       property: "og:site_name",
-      content: "Gantabya",
+      content: "Gantabyaa",
     });
     ensureMetaTag('meta[property="og:title"]', {
       property: "og:title",

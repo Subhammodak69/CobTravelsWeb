@@ -121,9 +121,9 @@ export default function Header() {
               {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
             <button className="group flex items-center gap-2.5 text-left" onClick={goHome} id="nav-brand">
-              <img src="/gantabya-transparent.png" alt="Gantabya" className="h-9 w-9 object-contain transition group-hover:scale-105" />
+              <img src="/gantabyaa-transparent.png" alt="Gantabyaa" className="h-9 w-9 object-contain transition group-hover:scale-105" />
               <span className="hidden text-sm font-bold leading-none tracking-tight text-navy sm:inline">
-                Gantabya<br />
+                Gantabyaa<br />
                 <b className="text-[9px] font-semibold uppercase tracking-[0.2em] text-primary">Travel</b>
               </span>
             </button>
@@ -225,8 +225,8 @@ export default function Header() {
             <div className="fixed inset-y-0 left-0 z-50 w-72 animate-slide-in-left overflow-y-auto bg-white shadow-2xl">
               <div className="flex items-center justify-between border-b border-slate-100 p-4">
                 <div className="flex items-center gap-2">
-                  <img src="/gantabya-transparent.png" alt="Gantabya" className="h-8 w-8 object-contain" />
-                  <span className="text-sm font-bold text-navy">Gantabya</span>
+                  <img src="/gantabyaa-transparent.png" alt="Gantabyaa" className="h-8 w-8 object-contain" />
+                  <span className="text-sm font-bold text-navy">Gantabyaa</span>
                 </div>
                 <button
                   className="grid h-8 w-8 place-items-center rounded-lg text-slate-500 transition hover:bg-slate-100"

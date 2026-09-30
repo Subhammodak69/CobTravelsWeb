@@ -69,7 +69,7 @@ export default function PackageDetailsPage() {
     const shareUrl = `${window.location.origin}/journey/${encodeURIComponent(pack.slug || id)}`;
     const shareData = {
       title: pack.title,
-      text: `Check out ${pack.title} with Gantabya!`,
+      text: `Check out ${pack.title} with Gantabyaa!`,
       url: shareUrl,
     };
 
@@ -209,10 +209,10 @@ export default function PackageDetailsPage() {
   return (
     <div className="bg-slate-50 pb-28">
       <Seo
-        title={`${pack.title} | Gantabya`}
-        description={`${pack.title} is a curated ${pack.type === "DOMESTIC" ? "domestic" : "international"} holiday package from Gantabya, featuring ${pack.destination || "incredible destinations"} and custom travel experiences.`}
+        title={`${pack.title} | Gantabyaa`}
+        description={`${pack.title} is a curated ${pack.type === "DOMESTIC" ? "domestic" : "international"} holiday package from Gantabyaa, featuring ${pack.destination || "incredible destinations"} and custom travel experiences.`}
         path={`/journey/${encodeURIComponent(pack.slug || id)}`}
-        image={pack.image || pack.cover_image || "https://gantabyaa.com/gantabya-transparent.png"}
+        image={pack.image || pack.cover_image || "https://gantabyaa.com/gantabyaa-transparent.png"}
         robots="index,follow"
       />
       {/* Breadcrumbs */}

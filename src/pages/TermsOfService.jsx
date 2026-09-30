@@ -40,8 +40,8 @@ export default function TermsOfService() {
   return (
     <div className="bg-slate-50">
       <Seo
-        title="Terms of Service | Gantabya"
-        description="Review the booking, payment, cancellation and service terms that govern travel packages and holiday arrangements with Gantabya."
+        title="Terms of Service | Gantabyaa"
+        description="Review the booking, payment, cancellation and service terms that govern travel packages and holiday arrangements with Gantabyaa."
         path="/terms-of-service"
         robots="index,follow"
       />

@@ -37,8 +37,8 @@ export default function PrivacyPolicy() {
   return (
     <div className="bg-slate-50">
       <Seo
-        title="Privacy Policy | Gantabya"
-        description="Read how Gantabya protects traveller information, manages booking data, and handles privacy preferences for holiday enquiries and reservations."
+        title="Privacy Policy | Gantabyaa"
+        description="Read how Gantabyaa protects traveller information, manages booking data, and handles privacy preferences for holiday enquiries and reservations."
         path="/privacy-policy"
         robots="index,follow"
       />
