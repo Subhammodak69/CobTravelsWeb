@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
   Search, MapPin, Globe, Tag, Sparkles, ArrowRight, ShieldCheck,
@@ -11,15 +11,6 @@ import usePackages from "../hooks/usePackages";
 import useScrollReveal from "../hooks/useScrollReveal";
 
 const HERO_IMG = "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=2000&q=90";
-
-const QUICK_DESTINATIONS = [
-  { name: "Kashmir", image: "https://images.unsplash.com/photo-1715457573748-8e8a70b2c1be?auto=format&fit=crop&w=400&q=80", link: "/tours?search=Kashmir", tag: "Popular" },
-  { name: "Bhutan", image: "https://images.unsplash.com/photo-1608377229419-3b5168b6c3da?auto=format&fit=crop&w=400&q=80", link: "/tours?search=Bhutan", tag: "Trending" },
-  { name: "Goa", image: "https://images.unsplash.com/photo-1695453463057-aa5d48d9e3d4?auto=format&fit=crop&w=400&q=80", link: "/tours?search=Goa", tag: "Beach" },
-  { name: "Thailand", image: "https://images.unsplash.com/photo-1762950297550-1d8d7cce12ae?auto=format&fit=crop&w=400&q=80", link: "/tours?search=Thailand", tag: "International" },
-  { name: "Kerala", image: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=400&q=80", link: "/tours?search=Kerala", tag: "Backwaters" },
-  { name: "Dubai", image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=400&q=80", link: "/tours?search=Dubai", tag: "Luxury" },
-];
 
 const CATEGORY_TABS = [
   { id: "all", title: "All Holidays", desc: "100+ Handcrafted Tours", icon: Compass, link: "/tours" },
@@ -106,6 +97,7 @@ function PackageSection({ title, eyebrow, viewAllLink, packages, loading, emptyM
 const FEATURED_FILTERS = { is_featured: "true", page_size: 4 };
 const DOMESTIC_FILTERS = { type: "DOMESTIC", page_size: 4 };
 const INTERNATIONAL_FILTERS = { type: "INTERNATIONAL", page_size: 4 };
+const ALL_PACKAGES_FILTERS = { page_size: 100 };
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -117,6 +109,38 @@ export default function HomePage() {
   const { packages: featuredPackages, loading: loadingFeatured } = usePackages(undefined, FEATURED_FILTERS);
   const { packages: domesticPackages, loading: loadingDomestic } = usePackages(undefined, DOMESTIC_FILTERS);
   const { packages: internationalPackages, loading: loadingInternational } = usePackages(undefined, INTERNATIONAL_FILTERS);
+  const { packages: allPackages, loading: loadingDestinations } = usePackages(undefined, ALL_PACKAGES_FILTERS);
+
+  const destinations = useMemo(() => {
+    const grouped = new Map();
+
+    allPackages.forEach((pack) => {
+      const name = String(pack.destination || "").trim();
+      if (!name) return;
+
+      const key = name.toLowerCase();
+      const current = grouped.get(key);
+      const image = pack.image || pack.cover_image || pack.banner?.image || "";
+      const candidate = current || {
+        name,
+        image: "",
+        count: 0,
+        tag: pack.badge || (pack.is_featured ? "Featured" : pack.type === "INTERNATIONAL" ? "International" : "India"),
+      };
+
+      candidate.count += 1;
+      if (!candidate.image && image) candidate.image = image;
+      if (pack.is_featured) candidate.tag = pack.badge || "Featured";
+      grouped.set(key, candidate);
+    });
+
+    return Array.from(grouped.values())
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
+      .map((destination) => ({
+        ...destination,
+        link: `/tours?destination=${encodeURIComponent(destination.name)}`,
+      }));
+  }, [allPackages]);
 
   const heroImage = featuredPackages[0]?.image || HERO_IMG;
 
@@ -198,7 +222,7 @@ export default function HomePage() {
             {/* Quick Destination Chips */}
             <div className="mt-3 flex flex-wrap items-center gap-1.5 pt-2.5 border-t border-slate-100 text-xs">
               <span className="text-[11px] font-semibold text-slate-500 mr-1">Popular:</span>
-              {QUICK_DESTINATIONS.slice(0, 5).map((dest) => (
+              {destinations.slice(0, 5).map((dest) => (
                 <Link
                   key={dest.name}
                   to={dest.link}
@@ -263,18 +287,33 @@ export default function HomePage() {
           </Link>
         </div>
 
+        {loadingDestinations ? (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            {[1, 2, 3, 4, 5, 6].map((item) => (
+              <div key={item} className="aspect-[3/4] animate-pulse rounded-2xl bg-slate-200" />
+            ))}
+          </div>
+        ) : destinations.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center text-sm text-slate-500">
+            Destinations will appear here as tour packages are published.
+          </div>
+        ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          {QUICK_DESTINATIONS.map((dest) => (
+          {destinations.slice(0, 6).map((dest) => (
             <Link
               key={dest.name}
               to={dest.link}
               className="group relative aspect-[3/4] overflow-hidden rounded-2xl shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover"
             >
-              <img
-                src={dest.image}
-                alt={dest.name}
-                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-              />
+              {dest.image ? (
+                <img
+                  src={dest.image}
+                  alt={dest.name}
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+              ) : (
+                <div className="h-full w-full bg-gradient-to-br from-primary-500 via-primary-800 to-navy" aria-hidden="true" />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-navy/90 via-navy/20 to-transparent" />
               <div className="absolute bottom-3 left-3 right-3">
                 <span className="rounded bg-accent px-1.5 py-0.5 text-[9px] font-bold text-white uppercase tracking-wider">
@@ -286,6 +325,7 @@ export default function HomePage() {
             </Link>
           ))}
         </div>
+        )}
       </section>
 
       {/* Custom Tour CTA Banner (Mobile Feature Parity) */}
