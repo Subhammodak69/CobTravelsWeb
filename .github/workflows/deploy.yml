@@ -47,5 +47,11 @@ jobs:
             echo "==> Building application"
             npm run build
 
+            echo "==> Verifying SEO files"
+            test -s build/sitemap.xml
+            grep -q 'https://gantabyaa.com/' build/sitemap.xml
+            test -s build/robots.txt
+            grep -q 'Sitemap: https://gantabyaa.com/sitemap.xml' build/robots.txt
+
             echo "==> Deployment completed"
             echo "==> Commit: $(git rev-parse --short HEAD)"

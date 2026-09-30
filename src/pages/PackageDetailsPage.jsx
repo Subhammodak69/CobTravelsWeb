@@ -5,7 +5,7 @@ import usePackages from "../hooks/usePackages";
 import { addToWishlist, checkReviewEligibility, fetchReviews, fetchVariant, removeFromWishlist, submitReview } from "../api";
 import {
   Heart, LoaderCircle, MapPin, Clock, Check, X as CloseIcon,
-  Video, Image as ImageIcon, MessageCircle, ChevronDown, ChevronUp
+  Video, Image as ImageIcon, MessageCircle, Share2, ChevronDown, ChevronUp
 } from "lucide-react";
 import PackageGallery from "../components/PackageGallery";
 import Reviews from "../components/Reviews";
@@ -30,6 +30,7 @@ export default function PackageDetailsPage() {
   const [openItineraryDays, setOpenItineraryDays] = useState({ 0: true, 1: true });
   const [selectedDepartureDate, setSelectedDepartureDate] = useState(null);
   const [dateModalOpen, setDateModalOpen] = useState(false);
+  const [shareNotice, setShareNotice] = useState("");
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -59,6 +60,42 @@ export default function PackageDetailsPage() {
       }
     } catch {
       setWishlistState(pack.is_wishlist ? "added" : "idle");
+    }
+  };
+
+  const handleShare = async () => {
+    if (!pack) return;
+    const shareUrl = `${window.location.origin}/journey/${encodeURIComponent(pack.slug || id)}`;
+    const shareData = {
+      title: pack.title,
+      text: `Check out ${pack.title} with Gantabya!`,
+      url: shareUrl,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        return;
+      }
+
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+      } else {
+        const input = document.createElement("textarea");
+        input.value = shareUrl;
+        input.setAttribute("readonly", "");
+        input.style.position = "fixed";
+        input.style.opacity = "0";
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        document.body.removeChild(input);
+      }
+      setShareNotice("Link copied");
+      window.setTimeout(() => setShareNotice(""), 2200);
+    } catch (error) {
+      if (error?.name !== "AbortError") setShareNotice("Could not share");
+      window.setTimeout(() => setShareNotice(""), 2200);
     }
   };
 
@@ -258,6 +295,14 @@ export default function PackageDetailsPage() {
               <Heart size={16} fill={wishlistState === "added" ? "currentColor" : "none"} />
               <span>{wishlistState === "added" ? "Saved to Wishlist" : "Save Journey"}</span>
             </button>
+            <button
+              onClick={handleShare}
+              className="inline-flex items-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm font-bold text-white backdrop-blur transition hover:bg-white/25"
+            >
+              <Share2 size={16} />
+              <span>Share</span>
+            </button>
+            {shareNotice && <span className="rounded-lg bg-white/15 px-3 py-2 text-xs font-semibold text-white backdrop-blur">{shareNotice}</span>}
             {active.banner?.video && (
               <button
                 className="inline-flex items-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm font-bold text-white backdrop-blur transition hover:bg-white/25"
