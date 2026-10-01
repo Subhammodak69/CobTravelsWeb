@@ -185,6 +185,7 @@ export default function HomePage() {
         title="Gantabyaa | India Tour Packages & Travel Experiences"
         description="Explore curated domestic and international tours from Gantabyaa, including Kashmir, Kerala, Bhutan, Thailand, and personalized holiday packages."
         path="/"
+        image="https://gantabyaa.com/gantabyaa-og.png"
         robots="index,follow"
         schema={organizationSchema}
       />
@@ -194,7 +195,9 @@ export default function HomePage() {
         <img
           className="absolute inset-0 h-full w-full object-cover object-center opacity-40 brightness-75 transition-all duration-1000"
           src={heroImage}
-          alt="Scenic travel destination"
+          alt={featuredPackages[0]?.title || "Himalayan mountain landscape"}
+          loading="eager"
+          fetchPriority="high"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-navy-dark/95 via-navy/80 to-primary-950/70" />
 
