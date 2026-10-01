@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useTravel } from "../contexts/TravelContext";
 import usePackages from "../hooks/usePackages";
+import Seo from "../components/Seo";
 import { addToWishlist, checkReviewEligibility, fetchReviews, fetchVariant, removeFromWishlist, submitReview } from "../api";
 import {
   Heart, LoaderCircle, MapPin, Clock, Check, X as CloseIcon,
@@ -68,7 +69,7 @@ export default function PackageDetailsPage() {
     const shareUrl = `${window.location.origin}/journey/${encodeURIComponent(pack.slug || id)}`;
     const shareData = {
       title: pack.title,
-      text: `Check out ${pack.title} with Gantabya!`,
+      text: `Check out ${pack.title} with Gantabyaa!`,
       url: shareUrl,
     };
 
@@ -207,6 +208,13 @@ export default function PackageDetailsPage() {
 
   return (
     <div className="bg-slate-50 pb-28">
+      <Seo
+        title={`${pack.title} | Gantabyaa`}
+        description={`${pack.title} is a curated ${pack.type === "DOMESTIC" ? "domestic" : "international"} holiday package from Gantabyaa, featuring ${pack.destination || "incredible destinations"} and custom travel experiences.`}
+        path={`/journey/${encodeURIComponent(pack.slug || id)}`}
+        image={pack.image || pack.cover_image || "https://gantabyaa.com/gantabyaa-transparent.png"}
+        robots="index,follow"
+      />
       {/* Breadcrumbs */}
       <div className="bg-white border-b border-slate-200">
         <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 py-2.5 text-xs text-slate-500 sm:px-6">

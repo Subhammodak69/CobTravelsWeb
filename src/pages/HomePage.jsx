@@ -5,6 +5,8 @@ import {
   HeartHandshake, Headphones, Award, Compass, MessageCircle, Star,
   Sparkle
 } from "lucide-react";
+import Seo from "../components/Seo";
+import StructuredData from "../components/StructuredData";
 import PackageCard from "../components/PackageCard";
 import CustomSelect from "../components/CustomSelect";
 import usePackages from "../hooks/usePackages";
@@ -43,7 +45,7 @@ const TESTIMONIALS = [
     location: "Cooch Behar",
     trip: "Thailand Family Holiday",
     rating: 5,
-    quote: "One of our best family vacations. Gantabya took care of every detail from delicious Indian meals to 4-star hotel stays throughout.",
+    quote: "One of our best family vacations. Gantabyaa took care of every detail from delicious Indian meals to 4-star hotel stays throughout.",
     avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
   },
 ];
@@ -98,6 +100,37 @@ const FEATURED_FILTERS = { is_featured: "true", page_size: 4 };
 const DOMESTIC_FILTERS = { type: "DOMESTIC", page_size: 4 };
 const INTERNATIONAL_FILTERS = { type: "INTERNATIONAL", page_size: 4 };
 const ALL_PACKAGES_FILTERS = { page_size: 100 };
+
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Gantabyaa",
+  url: "https://gantabyaa.com/",
+  logo: "https://gantabyaa.com/gantabyaa-transparent.png",
+  description: "Gantabyaa plans customized India and international holiday tours, getaway packages, and guided travel experiences.",
+  email: "info@coochbehartravel.com",
+  telephone: "+91 99322 04885",
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Cooch Behar",
+    addressRegion: "West Bengal",
+    addressCountry: "IN",
+  },
+  foundingDate: "1994",
+};
+
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Gantabyaa",
+  url: "https://gantabyaa.com/",
+  description: "Gantabyaa offers curated holiday packages, domestic tours, international trips, and personalized travel itineraries.",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: "https://gantabyaa.com/tours?search={search_term_string}",
+    "query-input": "required name=search_term_string",
+  },
+};
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -154,6 +187,14 @@ export default function HomePage() {
 
   return (
     <div ref={revealRef} className="bg-slate-50">
+      <Seo
+        title="Gantabyaa | India Tour Packages & Travel Experiences"
+        description="Explore curated domestic and international tours from Gantabyaa, including Kashmir, Kerala, Bhutan, Thailand, and personalized holiday packages."
+        path="/"
+        robots="index,follow"
+        schema={organizationSchema}
+      />
+      <StructuredData data={websiteSchema} />
       {/* Hero Section with Thomas Cook Style Search Widget */}
       <section className="relative flex min-h-[560px] items-center justify-center overflow-hidden bg-navy-dark px-4 pb-14 pt-12 text-white sm:px-6 lg:min-h-[620px] lg:px-12">
         <img
@@ -386,7 +427,7 @@ export default function HomePage() {
             <p className="eyebrow">Real Experiences</p>
             <h2 className="section-title">Loved by 5,000+ Travellers</h2>
             <p className="mt-2 text-sm text-slate-500">
-              Read authentic feedback from guests who explored the world with Gantabya.
+              Read authentic feedback from guests who explored the world with Gantabyaa.
             </p>
           </div>
 
@@ -427,7 +468,7 @@ export default function HomePage() {
       <section className="bg-slate-50 py-12" data-reveal>
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="text-center max-w-2xl mx-auto mb-10">
-            <p className="eyebrow">Why Gantabya</p>
+            <p className="eyebrow">Why Gantabyaa</p>
             <h2 className="section-title">Travel With Complete Confidence</h2>
           </div>
 
@@ -453,7 +494,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Story / About Gantabya */}
+      {/* Story / About Gantabyaa */}
       <section className="border-t border-slate-200 bg-white" data-reveal>
         <div className="mx-auto grid max-w-7xl lg:grid-cols-2">
           <div
@@ -488,7 +529,7 @@ export default function HomePage() {
               Travel should change the way you <span className="text-primary">feel.</span>
             </h2>
             <p className="mt-3 text-sm text-slate-600 leading-relaxed">
-              For over three decades, Gantabya has crafted personalized travel experiences across India and international destinations. Our team plans seamless routes while leaving room for the authentic, spontaneous moments that make every journey unforgettable.
+              For over three decades, Gantabyaa has crafted personalized travel experiences across India and international destinations. Our team plans seamless routes while leaving room for the authentic, spontaneous moments that make every journey unforgettable.
             </p>
             <div className="mt-6 flex flex-wrap gap-2">
               <span className="rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary">✓ 30+ Years Experience</span>

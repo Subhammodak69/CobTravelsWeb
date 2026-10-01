@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchHotels, fetchPackages, fetchVehicles, submitCustomEnquiry } from "../api";
 import { useTravel } from "../contexts/TravelContext";
+import Seo from "../components/Seo";
 import CustomSelect from "../components/CustomSelect";
 import enums from "../utils/enums.json";
 import { Sparkle } from "lucide-react";
@@ -109,6 +110,12 @@ export default function CustomTourEnquiryPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
+      <Seo
+        title="Custom Tour Enquiry | Gantabyaa"
+        description="Plan a tailor-made holiday with Gantabyaa. Share your preferred destinations, dates, and travel preferences for a custom itinerary."
+        path="/custom-tour-enquiry"
+        robots="index,follow"
+      />
       {/* Hero Banner */}
       <section className="relative flex min-h-[260px] items-center overflow-hidden bg-navy px-4 pb-8 pt-10 text-white sm:px-6 lg:px-12">
         <img
