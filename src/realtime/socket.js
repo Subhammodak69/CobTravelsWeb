@@ -1,7 +1,7 @@
 import { io } from "socket.io-client";
 import { BASE_API, getAccessToken, visitorId, visitorSessionId } from "../api";
 
-const REALTIME_BASE = BASE_API || "https://coochbehar-travels.onrender.com";
+const REALTIME_BASE = BASE_API || "https://api.gantabyaa.in";
 
 export function createVisitorSocket({ customerId = "", page = "" } = {}) {
   const socket = io(REALTIME_BASE, {
