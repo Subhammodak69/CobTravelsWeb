@@ -12,6 +12,15 @@ function ensureMetaTag(selector, attributes) {
   Object.entries(attributes).forEach(([key, value]) => {
     tag.setAttribute(key, value);
   });
+
+  if (attributes.property === "og:image") {
+    tag.setAttribute("data-testid", "og-image");
+  }
+
+  if (attributes.name === "twitter:image") {
+    tag.setAttribute("data-testid", "twitter-image");
+  }
+
   return tag;
 }
 
