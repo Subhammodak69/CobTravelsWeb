@@ -149,7 +149,7 @@
   .fixed.inset-0 > section,
   .fixed.inset-0 > div:not(.absolute) {
     min-width: 0;
-    max-width: calc(100vw - 1.5rem);
+    /* max-width: calc(100vw - 1.5rem); */
     overflow-x: hidden;
   }
 }
