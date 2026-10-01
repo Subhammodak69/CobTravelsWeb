@@ -19,6 +19,7 @@ export default function DestinationDetailsPage() {
     const [activeTab, setActiveTab] = useState("packages");
   const [loadingRelated, setLoadingRelated] = useState(false);
   const [relatedError, setRelatedError] = useState("");
+  const destinationUrl = `/destinations/${encodeURIComponent(destination?.slug || destination?.id || slug)}`;
 
   useEffect(() => {
     let active = true;
@@ -127,7 +128,7 @@ export default function DestinationDetailsPage() {
           {loadingRelated ? <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{[1, 2, 3].map((item) => <div key={item} className="h-36 animate-pulse rounded-xl bg-slate-100" />)}</div> : hotels.length ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {hotels.map((hotel) => (
-                <article key={hotel.id} className="flex min-h-36 overflow-hidden rounded-xl border border-slate-200 bg-white">
+                <Link key={hotel.id} to={`${destinationUrl}/hotels/${encodeURIComponent(hotel.id)}`} state={{ hotel, destination }} className="flex min-h-36 overflow-hidden rounded-xl border border-slate-200 bg-white transition hover:border-primary-300 hover:shadow-card">
                   {hotelImage(hotel) ? <img src={hotelImage(hotel)} alt={hotel.name} loading="lazy" className="w-28 shrink-0 object-cover sm:w-36" /> : <div className="grid w-28 shrink-0 place-items-center bg-primary-50 text-primary sm:w-36"><BedDouble size={25} /></div>}
                   <div className="min-w-0 p-4">
                     <p className="text-[10px] font-bold uppercase text-primary">{hotel.category || "Hotel"}</p>
@@ -135,7 +136,7 @@ export default function DestinationDetailsPage() {
                     {hotel.address && <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">{hotel.address}</p>}
                     {hotel.description && <p className="mt-2 line-clamp-2 text-xs leading-5 text-slate-600">{hotel.description}</p>}
                   </div>
-                </article>
+                </Link>
               ))}
             </div>
           ) : <p className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-500">No hotels are listed for this destination yet.</p>}

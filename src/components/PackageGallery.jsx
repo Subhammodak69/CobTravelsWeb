@@ -7,7 +7,7 @@ const isVideo = (item) => {
   return item.type === "video" || /\.(mp4|webm|ogg)(\?|$)/i.test(item.url);
 };
 
-export default function PackageGallery({ pack }) {
+export default function PackageGallery({ pack, openThumbnailsInModal = false }) {
   const [active, setActive] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalIndex, setModalIndex] = useState(0);
@@ -105,7 +105,10 @@ export default function PackageGallery({ pack }) {
                   className={`h-14 overflow-hidden rounded-xl border-2 transition hover:scale-105 lg:h-[105px] ${
                     index === active ? "border-primary opacity-100 shadow-md shadow-primary/20" : "border-transparent opacity-60 hover:opacity-80"
                   }`}
-                  onClick={() => setActive(index)}
+                  onClick={() => {
+                    setActive(index);
+                    if (openThumbnailsInModal) openModal(index);
+                  }}
                   aria-label={`View ${item.alt || "gallery item"}`}
                 >
                   {isVideo(item) ? (
