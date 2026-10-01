@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 const SITE_URL = "https://gantabyaa.com";
-const DEFAULT_IMAGE = "https://gantabyaa.com/gantabyaa-transparent.png";
+const DEFAULT_IMAGE = "https://gantabyaa.com/gantabyaa_og.png";
 
 function ensureMetaTag(selector, attributes) {
   let tag = document.head.querySelector(selector);

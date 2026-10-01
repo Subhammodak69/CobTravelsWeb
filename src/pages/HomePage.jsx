@@ -106,7 +106,7 @@ const organizationSchema = {
   "@type": "Organization",
   name: "Gantabyaa",
   url: "https://gantabyaa.com/",
-  logo: "https://gantabyaa.com/gantabyaa-transparent.png",
+  logo: "https://gantabyaa.com/gantabyaa_og.png",
   description: "Gantabyaa plans customized India and international holiday tours, getaway packages, and guided travel experiences.",
   email: "info@coochbehartravel.com",
   telephone: "+91 99322 04885",
@@ -185,7 +185,7 @@ export default function HomePage() {
         title="Gantabyaa | India Tour Packages & Travel Experiences"
         description="Explore curated domestic and international tours from Gantabyaa, including Kashmir, Kerala, Bhutan, Thailand, and personalized holiday packages."
         path="/"
-        image="https://gantabyaa.com/gantabyaa-og.png"
+        image="https://gantabyaa.com/gantabyaa_og.png"
         robots="index,follow"
         schema={organizationSchema}
       />

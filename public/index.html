@@ -33,10 +33,10 @@
   <meta property="og:description"
     content="Explore curated India and international holiday packages with Gantabyaa, including customised itineraries, fixed departures and complete travel experiences." />
   <meta property="og:url" content="https://gantabyaa.com/" />
-  <meta property="og:image" content="https://gantabyaa.com/gantabyaa-og.png" />
+  <meta property="og:image" content="https://gantabyaa.com/gantabyaa_og.png" />
   <meta property="og:image:alt" content="Gantabyaa - India Tour Packages & Travel Experiences" />
-  <meta property="og:image:width" content="1254" />
-  <meta property="og:image:height" content="1254" />
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <meta property="og:image:type" content="image/png" />
 
   <!-- Twitter -->
@@ -44,31 +44,37 @@
   <meta name="twitter:title" content="Gantabyaa | India Tour Packages & Travel Experiences" />
   <meta name="twitter:description"
     content="Explore curated India and international holiday packages with Gantabyaa, including customised itineraries, fixed departures and complete travel experiences." />
-  <meta name="twitter:image" content="https://gantabyaa.com/gantabyaa-og.png" />
+  <meta name="twitter:image" content="https://gantabyaa.com/gantabyaa_og.png" />
   <meta name="twitter:image:alt" content="Gantabyaa - India Tour Packages & Travel Experiences" />
 
-  <!-- Organization structured data -->
   <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "Organization",
-        "name": "Gantabyaa",
-        "url": "https://gantabyaa.com/",
-        "logo": "https://gantabyaa.com/gantabyaa-og.png"
+            {
+              "@context": "https://schema.org",
+            "@graph": [
+            {
+              "@type": "Organization",
+            "@id": "https://gantabyaa.com/#organization",
+            "name": "Gantabyaa",
+            "url": "https://gantabyaa.com/",
+            "logo": {
+              "@type": "ImageObject",
+            "url": "https://gantabyaa.com/gantabyaa_og.png",
+            "width": 1254,
+            "height": 1254
+            }
+          },
+            {
+              "@type": "WebSite",
+            "@id": "https://gantabyaa.com/#website",
+            "url": "https://gantabyaa.com/",
+            "name": "Gantabyaa",
+            "publisher": {
+              "@id": "https://gantabyaa.com/#organization"
+            }
+          }
+            ]
       }
-    </script>
-
-  <!-- Website structured data -->
-  <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "@id": "https://gantabyaa.com/#website",
-        "url": "https://gantabyaa.com/",
-        "name": "Gantabyaa",
-        "alternateName": "Gantabyaa"
-      }
-  </script>
+          </script>
 
   <!-- Google Identity Services -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
