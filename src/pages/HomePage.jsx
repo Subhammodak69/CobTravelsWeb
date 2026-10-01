@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
   Search, MapPin, Globe, Tag, Sparkles, ArrowRight, ShieldCheck,
@@ -9,6 +9,7 @@ import Seo from "../components/Seo";
 import StructuredData from "../components/StructuredData";
 import PackageCard from "../components/PackageCard";
 import CustomSelect from "../components/CustomSelect";
+import { fetchDestinations } from "../api";
 import usePackages from "../hooks/usePackages";
 import useScrollReveal from "../hooks/useScrollReveal";
 
@@ -99,7 +100,6 @@ function PackageSection({ title, eyebrow, viewAllLink, packages, loading, emptyM
 const FEATURED_FILTERS = { is_featured: "true", page_size: 4 };
 const DOMESTIC_FILTERS = { type: "DOMESTIC", page_size: 4 };
 const INTERNATIONAL_FILTERS = { type: "INTERNATIONAL", page_size: 4 };
-const ALL_PACKAGES_FILTERS = { page_size: 100 };
 
 const organizationSchema = {
   "@context": "https://schema.org",
@@ -138,42 +138,36 @@ export default function HomePage() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [tourTypeFilter, setTourTypeFilter] = useState("ALL");
+  const [destinations, setDestinations] = useState([]);
+  const [loadingDestinations, setLoadingDestinations] = useState(true);
 
   const { packages: featuredPackages, loading: loadingFeatured } = usePackages(undefined, FEATURED_FILTERS);
   const { packages: domesticPackages, loading: loadingDomestic } = usePackages(undefined, DOMESTIC_FILTERS);
   const { packages: internationalPackages, loading: loadingInternational } = usePackages(undefined, INTERNATIONAL_FILTERS);
-  const { packages: allPackages, loading: loadingDestinations } = usePackages(undefined, ALL_PACKAGES_FILTERS);
 
-  const destinations = useMemo(() => {
-    const grouped = new Map();
+  useEffect(() => {
+    let isCurrent = true;
+    fetchDestinations(1, 20)
+      .then(({ items }) => {
+        if (!isCurrent) return;
+        setDestinations(items.map((destination) => ({
+          ...destination,
+          image: destination.image_url || "",
+          tag: destination.is_featured ? "Featured" : destination.is_domestic ? "India" : destination.country || "International",
+          link: `/tours?destination=${encodeURIComponent(destination.name || destination.slug || "")}`,
+        })));
+      })
+      .catch(() => {
+        if (isCurrent) setDestinations([]);
+      })
+      .finally(() => {
+        if (isCurrent) setLoadingDestinations(false);
+      });
 
-    allPackages.forEach((pack) => {
-      const name = String(pack.destination || "").trim();
-      if (!name) return;
-
-      const key = name.toLowerCase();
-      const current = grouped.get(key);
-      const image = pack.image || pack.cover_image || pack.banner?.image || "";
-      const candidate = current || {
-        name,
-        image: "",
-        count: 0,
-        tag: pack.badge || (pack.is_featured ? "Featured" : pack.type === "INTERNATIONAL" ? "International" : "India"),
-      };
-
-      candidate.count += 1;
-      if (!candidate.image && image) candidate.image = image;
-      if (pack.is_featured) candidate.tag = pack.badge || "Featured";
-      grouped.set(key, candidate);
-    });
-
-    return Array.from(grouped.values())
-      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
-      .map((destination) => ({
-        ...destination,
-        link: `/tours?destination=${encodeURIComponent(destination.name)}`,
-      }));
-  }, [allPackages]);
+    return () => {
+      isCurrent = false;
+    };
+  }, []);
 
   const heroImage = featuredPackages[0]?.image || HERO_IMG;
 
@@ -336,13 +330,13 @@ export default function HomePage() {
           </div>
         ) : destinations.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center text-sm text-slate-500">
-            Destinations will appear here as tour packages are published.
+            Destinations will appear here when they are available.
           </div>
         ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {destinations.slice(0, 6).map((dest) => (
             <Link
-              key={dest.name}
+              key={dest.id || dest.slug || dest.name}
               to={dest.link}
               className="group relative aspect-[3/4] overflow-hidden rounded-2xl shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover"
             >

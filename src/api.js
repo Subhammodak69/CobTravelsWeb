@@ -454,6 +454,15 @@ export async function fetchPackages(filters = {}) {
   };
 }
 
+export async function fetchDestinations(page = 1, pageSize = 20) {
+  const query = new URLSearchParams({ page: String(page), page_size: String(pageSize) });
+  const response = await request(`/api/v1/destinations?${query.toString()}`);
+  return {
+    items: Array.isArray(response.data) ? response.data : [],
+    pagination: response.pagination || {},
+  };
+}
+
 export async function fetchPackageVariants(packageIdOrSlug, page = 1, pageSize = 10) {
   const r = await request(`/api/v1/tour-packages/${encodeURIComponent(packageIdOrSlug)}/variants?page=${page}&page_size=${pageSize}`);
   return {
