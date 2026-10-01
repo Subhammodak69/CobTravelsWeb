@@ -504,12 +504,12 @@ export default function HomePage() {
           >
             <img
               className="absolute inset-0 h-full w-full object-cover transition-opacity duration-700 group-hover:opacity-0"
-              src="https://3.bp.blogspot.com/-q3o7UKTtYhc/WIZNM4cuIWI/AAAAAAAABws/wgi7XtaJZ0AM2rAzKY_a9aNIEYu-0lAugCPcB/s1600/Cooch_behar_palace_original_photos.jpg"
+              src="https://cdn.gantabyaa.com/public/9b1deb4d3b7d411293d3.jpeg"
               alt="Cooch Behar Rajbari Palace"
             />
             <video
               className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-700 group-hover:opacity-100"
-              src="https://www.shutterstock.com/shutterstock/videos/3730953955/preview/stock-footage-historical-monument-cooch-behar-royal-palace-surrounded-by-beautiful-parks-on-the-bank-of-river.webm"
+              src="https://cdn.gantabyaa.com/public/f81d4fae7dec11d0a765.mp4"
               muted
               loop
               playsInline
