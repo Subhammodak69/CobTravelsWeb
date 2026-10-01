@@ -9,6 +9,22 @@ const formatDate = (value) => {
     : "Not available";
 };
 
+const formatReward = (amount, currency = "INR") => {
+  const value = Number(amount);
+  return Number.isFinite(value)
+    ? new Intl.NumberFormat("en-IN", { style: "currency", currency }).format(value)
+    : "Not available";
+};
+
+function ReferralField({ label, value }) {
+  return (
+    <div className="min-w-0">
+      <dt className="text-[10px] font-bold uppercase text-slate-400">{label}</dt>
+      <dd className="mt-1 break-words text-xs font-medium text-slate-700">{value || "Not available"}</dd>
+    </div>
+  );
+}
+
 export default function ReferralsPage() {
   const [link, setLink] = useState("");
   const [referrals, setReferrals] = useState([]);
@@ -95,33 +111,40 @@ export default function ReferralsPage() {
             </div>
           ) : referrals.length ? (
             <div className="card divide-y divide-slate-100">
-              {referrals.map((referral) => (
-                <article key={referral.id} className="flex flex-col justify-between gap-2 p-4 sm:flex-row sm:items-center hover:bg-slate-50 transition">
-                  <div>
-                    <h3 className="text-sm font-bold text-navy">
-                      {referral.referred_customer?.name || "Invited Traveller"}
-                    </h3>
-                    <div className="flex flex-wrap items-center gap-2 mt-0.5">
-                      <p className="text-[11px] text-slate-400">
-                        Invited {formatDate(referral.created_at)}
-                      </p>
-                      <span className="w-1 h-1 rounded-full bg-slate-300 hidden sm:block"></span>
-                      <p className="text-[11px] text-slate-400">
-                        {referral.referred_customer?.email || referral.referred_customer?.mobile || "Contact hidden"}
-                      </p>
+              {referrals.map((referral) => {
+                const customer = referral.referred_customer || {};
+                return (
+                <article key={referral.id} className="p-4 transition hover:bg-slate-50 sm:p-5">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h3 className="text-sm font-bold text-navy">{customer.name || "Invited Traveller"}</h3>
+                      <p className="mt-1 text-[11px] text-slate-400">Referred {formatDate(referral.created_at)}</p>
                     </div>
+                    <span className={`w-fit rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${
+                      referral.status === "COMPLETED" || referral.status === "SIGNED_UP" || referral.status === "CONVERTED"
+                        ? "bg-green-100 text-success"
+                        : referral.status === "PENDING" || referral.status === "REGISTERED"
+                        ? "bg-amber-100 text-amber-800"
+                        : "bg-slate-100 text-slate-600"
+                    }`}>
+                      {referral.status || "Pending"}
+                    </span>
                   </div>
-                  <span className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full w-fit ${
-                    referral.status === "COMPLETED" || referral.status === "SIGNED_UP"
-                      ? "bg-green-100 text-success"
-                      : referral.status === "PENDING"
-                      ? "bg-amber-100 text-amber-800"
-                      : "bg-slate-100 text-slate-600"
-                  }`}>
-                    {referral.status || "Pending"}
-                  </span>
+                  <dl className="mt-4 grid grid-cols-2 gap-x-5 gap-y-3 border-t border-slate-100 pt-3 sm:grid-cols-3 lg:grid-cols-4">
+                    <ReferralField label="Referral code" value={referral.referral_code} />
+                    <ReferralField label="Customer code" value={customer.customer_code} />
+                    <ReferralField label="Email" value={customer.email} />
+                    <ReferralField label="Mobile" value={customer.mobile} />
+                    <ReferralField label="Reward" value={formatReward(referral.reward_amount, referral.currency)} />
+                    <ReferralField label="Payment method" value={referral.payment_method} />
+                    <ReferralField label="Booking" value={customer.booking_code || customer.booking_id} />
+                    <ReferralField label="Booking date" value={formatDate(customer.booking_date)} />
+                    <ReferralField label="Transaction date" value={formatDate(referral.transaction_date)} />
+                    <ReferralField label="Converted at" value={formatDate(referral.converted_at)} />
+                  </dl>
                 </article>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="card p-12 text-center">

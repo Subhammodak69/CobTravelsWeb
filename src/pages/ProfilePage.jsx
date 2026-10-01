@@ -6,7 +6,7 @@ import useScrollReveal from "../hooks/useScrollReveal";
 import ImageCropModal from "../components/ImageCropModal";
 import {
   Edit3, Camera, LogOut, Heart, Files, MessageSquareText, MapPinned,
-  X, ChevronRight, Laptop, Smartphone, Eye, Award, Calendar, Gift, ReceiptText
+  X, ChevronRight, Laptop, Smartphone, Eye, Award, Calendar, Gift, ReceiptText, WalletCards
 } from "lucide-react";
 
 let profilePackagesPromise;
@@ -399,6 +399,22 @@ export default function ProfilePage() {
             <div className="mt-4">
               <h3 className="font-display text-sm font-bold text-navy">Bills & invoices</h3>
               <p className="text-[11px] text-slate-400">Payments and receipts</p>
+            </div>
+          </Link>
+
+          <Link
+            to="/wallet"
+            className="card p-4 hover:border-primary-300 transition-all group flex flex-col justify-between"
+          >
+            <div className="flex items-center justify-between">
+              <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary-50 text-primary group-hover:bg-primary group-hover:text-white transition">
+                <WalletCards size={20} />
+              </span>
+              <ChevronRight size={16} className="text-slate-400 group-hover:text-primary transition-transform group-hover:translate-x-0.5" />
+            </div>
+            <div className="mt-4">
+              <h3 className="font-display text-sm font-bold text-navy">Wallet &amp; transactions</h3>
+              <p className="text-[11px] text-slate-400">Balance and payment history</p>
             </div>
           </Link>
 
