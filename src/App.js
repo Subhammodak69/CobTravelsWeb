@@ -15,6 +15,7 @@ import DocumentsPage from "./pages/DocumentsPage";
 import WishlistPage from "./pages/WishlistPage";
 import ReferralsPage from "./pages/ReferralsPage";
 import InvoicesPage from "./pages/InvoicesPage";
+import WalletPage from "./pages/WalletPage";
 import ToursExplorePage from "./pages/ToursExplorePage";
 import DestinationsPage from "./pages/DestinationsPage";
 import DestinationDetailsPage from "./pages/DestinationDetailsPage";
@@ -169,6 +170,7 @@ function AppRoutes() {
         <Route path="/my-trips" element={<ProtectedRoute><Layout><TripsPage /></Layout></ProtectedRoute>} />
         <Route path="/documents" element={<ProtectedRoute><Layout><DocumentsPage /></Layout></ProtectedRoute>} />
         <Route path="/bills-invoices" element={<ProtectedRoute><Layout><InvoicesPage /></Layout></ProtectedRoute>} />
+        <Route path="/wallet" element={<ProtectedRoute><Layout><WalletPage /></Layout></ProtectedRoute>} />
         <Route path="/wishlist" element={<ProtectedRoute><Layout><WishlistPage /></Layout></ProtectedRoute>} />
         <Route path="/referrals" element={<ProtectedRoute><Layout><ReferralsPage /></Layout></ProtectedRoute>} />
         <Route
