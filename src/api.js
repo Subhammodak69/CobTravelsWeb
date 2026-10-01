@@ -463,6 +463,22 @@ export async function fetchDestinations(page = 1, pageSize = 20) {
   };
 }
 
+export async function fetchAllDestinations(pageSize = 100) {
+  const destinations = [];
+  let page = 1;
+  while (true) {
+    const response = await fetchDestinations(page, pageSize);
+    if (!response.items.length) break;
+    destinations.push(...response.items);
+
+    const pagination = response.pagination || {};
+    const totalPages = Number(pagination.total_pages || 0);
+    if (totalPages ? page >= totalPages : pagination.has_next === false || response.items.length < pageSize) break;
+    page += 1;
+  }
+  return destinations;
+}
+
 export async function fetchPackageVariants(packageIdOrSlug, page = 1, pageSize = 10) {
   const r = await request(`/api/v1/tour-packages/${encodeURIComponent(packageIdOrSlug)}/variants?page=${page}&page_size=${pageSize}`);
   return {

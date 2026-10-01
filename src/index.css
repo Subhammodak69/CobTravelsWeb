@@ -174,3 +174,9 @@
     background: linear-gradient(135deg, #F26522, #D9551A);
   }
 }
+
+@media (min-width: 640px) {
+    .sm\:min-h-\[380px\] {
+        min-height: 250px;
+    }
+}

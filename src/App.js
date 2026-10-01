@@ -16,6 +16,8 @@ import WishlistPage from "./pages/WishlistPage";
 import ReferralsPage from "./pages/ReferralsPage";
 import InvoicesPage from "./pages/InvoicesPage";
 import ToursExplorePage from "./pages/ToursExplorePage";
+import DestinationsPage from "./pages/DestinationsPage";
+import DestinationDetailsPage from "./pages/DestinationDetailsPage";
 import InviteLandingPage from "./pages/InviteLandingPage";
 import { captureReferralFromUrl } from "./api";
 import useVisitorTracking from "./hooks/useVisitorTracking";
@@ -144,6 +146,8 @@ function AppRoutes() {
       <Routes>
         <Route path="/" element={<Layout><HomePage /></Layout>} />
         <Route path="/tours" element={<Layout><ToursExplorePage /></Layout>} />
+        <Route path="/destinations" element={<Layout><DestinationsPage /></Layout>} />
+        <Route path="/destinations/:slug" element={<Layout><DestinationDetailsPage /></Layout>} />
         <Route path="/journey/:id" element={<Layout><PackageDetailsPage /></Layout>} />
         <Route path="/custom-tour-enquiry" element={<Layout><CustomTourEnquiryPage /></Layout>} />
         <Route path="/contact" element={<Layout><ContactUsPage /></Layout>} />

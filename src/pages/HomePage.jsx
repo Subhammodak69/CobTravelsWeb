@@ -154,7 +154,7 @@ export default function HomePage() {
           ...destination,
           image: destination.image_url || "",
           tag: destination.is_featured ? "Featured" : destination.is_domestic ? "India" : destination.country || "International",
-          link: `/tours?destination=${encodeURIComponent(destination.name || destination.slug || "")}`,
+          link: `/destinations/${encodeURIComponent(destination.slug || destination.id)}`,
         })));
       })
       .catch(() => {
@@ -316,7 +316,7 @@ export default function HomePage() {
             <p className="eyebrow">Top Places to Visit</p>
             <h2 className="section-title">Trending Destinations</h2>
           </div>
-          <Link to="/tours" className="inline-flex items-center gap-1 text-sm font-bold text-primary hover:text-primary-700">
+          <Link to="/destinations" className="inline-flex items-center gap-1 text-sm font-bold text-primary hover:text-primary-700">
             <span>Browse All Destinations</span>
             <ArrowRight size={15} />
           </Link>
