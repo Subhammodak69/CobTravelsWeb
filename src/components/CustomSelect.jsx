@@ -13,9 +13,11 @@ function normalizeOption(option) {
 }
 
 export default function CustomSelect({
+  id,
   value,
   options = [],
   onChange,
+  ariaLabel,
   placeholder = "Select an option",
   className = "",
   triggerClassName = "",
@@ -47,6 +49,8 @@ export default function CustomSelect({
     <div ref={ref} className={`relative ${className}`}>
       <button
         type="button"
+        id={id}
+        aria-label={ariaLabel}
         disabled={disabled}
         onClick={() => !disabled && setOpen((current) => !current)}
         className={`flex w-full items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-left text-xs sm:text-sm font-medium text-slate-800 transition hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-60 ${triggerClassName}`}

@@ -4,6 +4,7 @@ import { fetchHotels, fetchPackages, fetchVehicles, submitCustomEnquiry } from "
 import { useTravel } from "../contexts/TravelContext";
 import Seo from "../components/Seo";
 import CustomSelect from "../components/CustomSelect";
+import CustomDatePicker from "../components/CustomDatePicker";
 import enums from "../utils/enums.json";
 import { Sparkle } from "lucide-react";
 
@@ -229,7 +230,13 @@ export default function CustomTourEnquiryPage() {
                   </div>
                   <div>
                     <label className={labelCls} htmlFor="custom-page-date">Tentative Travel Date</label>
-                    <input id="custom-page-date" type="date" value={form.travel_date} onChange={set("travel_date")} className={inputCls} />
+                    <CustomDatePicker
+                      id="custom-page-date"
+                      value={form.travel_date}
+                      onChange={(value) => setForm((f) => ({ ...f, travel_date: value }))}
+                      placeholder="Choose travel date"
+                      triggerClassName="h-11"
+                    />
                   </div>
                   <div>
                     <label className={labelCls} htmlFor="custom-page-days">Duration (Days)</label>

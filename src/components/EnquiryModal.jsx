@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { submitEnquiry, fetchPackageVariants, fetchHotels, fetchVehicles, isValidUUID } from "../api";
 import { useTravel } from "../contexts/TravelContext";
 import CustomSelect from "./CustomSelect";
+import CustomDatePicker from "./CustomDatePicker";
 import enums from "../utils/enums.json";
 import { X } from "lucide-react";
 
@@ -258,7 +259,13 @@ export default function EnquiryModal({
                 </div>
                 <div>
                   <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-700" htmlFor="enq-date">Travel Date</label>
-                  <input id="enq-date" type="date" value={form.travel_date} onChange={set("travel_date")} className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20" />
+                  <CustomDatePicker
+                    id="enq-date"
+                    value={form.travel_date}
+                    onChange={(value) => setForm((f) => ({ ...f, travel_date: value }))}
+                    placeholder="Choose travel date"
+                    triggerClassName="h-10"
+                  />
                 </div>
               </div>
 

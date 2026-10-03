@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { fetchHotels, fetchPackages, fetchVehicles, submitCustomEnquiry } from "../api";
 import { useTravel } from "../contexts/TravelContext";
 import CustomSelect from "./CustomSelect";
+import CustomDatePicker from "./CustomDatePicker";
 import enums from "../utils/enums.json";
 import { X, Sparkle } from "lucide-react";
 
@@ -226,7 +227,13 @@ export default function CustomEnquiryModal({ open, onClose }) {
                   </div>
                   <div>
                     <label className={labelCls} htmlFor="cenq-travel-date">Tentative Date</label>
-                    <input id="cenq-travel-date" type="date" value={form.travel_date} onChange={set("travel_date")} className={inputCls} />
+                    <CustomDatePicker
+                      id="cenq-travel-date"
+                      value={form.travel_date}
+                      onChange={(value) => setForm((f) => ({ ...f, travel_date: value }))}
+                      placeholder="Choose tentative date"
+                      triggerClassName="h-10"
+                    />
                   </div>
                   <div>
                     <label className={labelCls} htmlFor="cenq-travel-days">Duration (Days)</label>

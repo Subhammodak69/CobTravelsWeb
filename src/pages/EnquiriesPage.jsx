@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { deleteEnquiry, fetchEnquiries, updateEnquiry } from "../api";
+import CustomSelect from "../components/CustomSelect";
+import CustomDatePicker from "../components/CustomDatePicker";
 import { LoaderCircle, MessageSquareText, X } from "lucide-react";
 
 function formatDate(value) {
@@ -259,7 +261,6 @@ export default function EnquiriesPage() {
                 ["name", "Full name", "text"],
                 ["phone", "Phone", "tel"],
                 ["email", "Email", "email"],
-                ["travel_date", "Travel date", "date"],
                 ["package_id", "Package ID", "text"],
                 ["variant_id", "Variant ID", "text"],
                 ["destination_id", "Destination ID", "text"],
@@ -288,14 +289,25 @@ export default function EnquiriesPage() {
                 </label>
               ))}
               <label className="text-xs font-bold text-slate-600">
+                Travel date
+                <CustomDatePicker
+                  id="edit-enquiry-travel-date"
+                  value={editForm.travel_date}
+                  onChange={(value) => setEditForm((current) => ({ ...current, travel_date: value }))}
+                  placeholder="Choose travel date"
+                  triggerClassName="mt-1 h-10"
+                />
+              </label>
+              <label className="text-xs font-bold text-slate-600">
                 Meal plan
-                <select
+                <CustomSelect
+                  id="edit-enquiry-meal-plan"
                   value={editForm.meal_plan}
-                  onChange={(event) => setEditForm((current) => ({ ...current, meal_plan: event.target.value }))}
-                  className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-normal text-slate-800 outline-none focus:border-primary"
-                >
-                  {["ANY", "NONE", "CP", "MAP", "AP"].map((meal) => <option key={meal} value={meal}>{meal}</option>)}
-                </select>
+                  options={["ANY", "NONE", "CP", "MAP", "AP"].map((meal) => ({ label: meal, value: meal }))}
+                  onChange={(value) => setEditForm((current) => ({ ...current, meal_plan: value }))}
+                  triggerClassName="mt-1 h-10"
+                  placeholder="Select meal plan"
+                />
               </label>
             </div>
             <label className="mt-3 block text-xs font-bold text-slate-600">
