@@ -212,7 +212,7 @@ export default function PackageDetailsPage() {
         title={`${pack.title} | Gantabyaa`}
         description={`${pack.title} is a curated ${pack.type === "DOMESTIC" ? "domestic" : "international"} holiday package from Gantabyaa, featuring ${pack.destination || "incredible destinations"} and custom travel experiences.`}
         path={`/journey/${encodeURIComponent(pack.slug || id)}`}
-        image={pack.image || pack.cover_image || "https://gantabyaa.com/gantabyaa-transparent.png"}
+        image={pack.image || pack.cover_image || "https://gantabyaa.com/gantabyaa_og.png"}
         robots="index,follow"
       />
       {/* Breadcrumbs */}

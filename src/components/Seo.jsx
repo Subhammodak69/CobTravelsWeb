@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 const SITE_URL = "https://gantabyaa.com";
-const DEFAULT_IMAGE = "https://gantabyaa.com/gantabyaa-transparent.png";
+const DEFAULT_IMAGE = "https://gantabyaa.com/gantabyaa_og.png";
 
 function ensureMetaTag(selector, attributes) {
   let tag = document.head.querySelector(selector);
@@ -12,6 +12,15 @@ function ensureMetaTag(selector, attributes) {
   Object.entries(attributes).forEach(([key, value]) => {
     tag.setAttribute(key, value);
   });
+
+  if (attributes.property === "og:image") {
+    tag.setAttribute("data-testid", "og-image");
+  }
+
+  if (attributes.name === "twitter:image") {
+    tag.setAttribute("data-testid", "twitter-image");
+  }
+
   return tag;
 }
 
