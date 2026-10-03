@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import { TravelProvider } from "./contexts/TravelContext";
 import Seo from "./components/Seo";
 import Header from "./components/layout/Header";
@@ -58,6 +58,16 @@ function Layout({ children }) {
       {!isAuthPage && <Footer />}
     </main>
   );
+}
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
 }
 
 function VisitorTracking() {
@@ -143,6 +153,7 @@ function PublicOnlyRoute({ children }) {
 function AppRoutes() {
   return (
     <>
+      <ScrollToTop />
       <VisitorTracking />
       <ReferralCapture />
       <Routes>
