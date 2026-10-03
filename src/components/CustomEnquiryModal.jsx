@@ -81,7 +81,11 @@ export default function CustomEnquiryModal({ open, onClose }) {
   }, [open, onClose]);
 
   const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
-  const setNum = (field) => (e) => setForm((f) => ({ ...f, [field]: Number(e.target.value) || 0 }));
+  const setNum = (field) => (e) => {
+    if (/^\d*$/.test(e.target.value)) {
+      setForm((f) => ({ ...f, [field]: e.target.value }));
+    }
+  };
   const destinationOptions = Array.from(new Map(
     packages
       .filter((item) => item.destination_id && item.destination)
@@ -237,11 +241,11 @@ export default function CustomEnquiryModal({ open, onClose }) {
                   </div>
                   <div>
                     <label className={labelCls} htmlFor="cenq-travel-days">Duration (Days)</label>
-                    <input id="cenq-travel-days" type="number" min="0" value={form.travel_duration_day} onChange={setNum("travel_duration_day")} className={inputCls} />
+                    <input id="cenq-travel-days" type="text" inputMode="numeric" pattern="[0-9]*" value={form.travel_duration_day} onChange={setNum("travel_duration_day")} className={inputCls} />
                   </div>
                   <div>
                     <label className={labelCls} htmlFor="cenq-travel-nights">Duration (Nights)</label>
-                    <input id="cenq-travel-nights" type="number" min="0" value={form.travel_duration_night} onChange={setNum("travel_duration_night")} className={inputCls} />
+                    <input id="cenq-travel-nights" type="text" inputMode="numeric" pattern="[0-9]*" value={form.travel_duration_night} onChange={setNum("travel_duration_night")} className={inputCls} />
                   </div>
                 </div>
               </div>
@@ -252,19 +256,19 @@ export default function CustomEnquiryModal({ open, onClose }) {
                 <div className="grid gap-3 sm:grid-cols-3">
                   <div>
                     <label className={labelCls} htmlFor="cenq-adults">Adults</label>
-                    <input id="cenq-adults" type="number" min="0" max="100" value={form.adult_count} onChange={setNum("adult_count")} className={inputCls} />
+                    <input id="cenq-adults" type="text" inputMode="numeric" pattern="[0-9]*" value={form.adult_count} onChange={setNum("adult_count")} className={inputCls} />
                   </div>
                   <div>
                     <label className={labelCls} htmlFor="cenq-children">Children</label>
-                    <input id="cenq-children" type="number" min="0" max="100" value={form.child_count} onChange={setNum("child_count")} className={inputCls} />
+                    <input id="cenq-children" type="text" inputMode="numeric" pattern="[0-9]*" value={form.child_count} onChange={setNum("child_count")} className={inputCls} />
                   </div>
                   <div>
                     <label className={labelCls} htmlFor="cenq-seniors">Seniors</label>
-                    <input id="cenq-seniors" type="number" min="0" max="100" value={form.senior_count} onChange={setNum("senior_count")} className={inputCls} />
+                    <input id="cenq-seniors" type="text" inputMode="numeric" pattern="[0-9]*" value={form.senior_count} onChange={setNum("senior_count")} className={inputCls} />
                   </div>
                   <div>
                     <label className={labelCls} htmlFor="cenq-rooms">Rooms</label>
-                    <input id="cenq-rooms" type="number" min="0" max="50" value={form.room_count} onChange={setNum("room_count")} className={inputCls} />
+                    <input id="cenq-rooms" type="text" inputMode="numeric" pattern="[0-9]*" value={form.room_count} onChange={setNum("room_count")} className={inputCls} />
                   </div>
                   <div>
                     <label className={labelCls} htmlFor="cenq-meal">Meal Plan</label>
@@ -278,15 +282,15 @@ export default function CustomEnquiryModal({ open, onClose }) {
                   </div>
                   <div>
                     <label className={labelCls} htmlFor="cenq-vehicle-count">Vehicles</label>
-                    <input id="cenq-vehicle-count" type="number" min="0" max="50" value={form.vehicle_count} onChange={setNum("vehicle_count")} className={inputCls} />
+                    <input id="cenq-vehicle-count" type="text" inputMode="numeric" pattern="[0-9]*" value={form.vehicle_count} onChange={setNum("vehicle_count")} className={inputCls} />
                   </div>
                   <div>
                     <label className={labelCls} htmlFor="cenq-budget-min">Minimum Budget</label>
-                    <input id="cenq-budget-min" type="number" min="0" value={form.budget_min} onChange={setNum("budget_min")} className={inputCls} />
+                    <input id="cenq-budget-min" type="text" inputMode="numeric" pattern="[0-9]*" value={form.budget_min} onChange={setNum("budget_min")} className={inputCls} />
                   </div>
                   <div>
                     <label className={labelCls} htmlFor="cenq-budget-max">Maximum Budget</label>
-                    <input id="cenq-budget-max" type="number" min="0" value={form.budget_max} onChange={setNum("budget_max")} className={inputCls} />
+                    <input id="cenq-budget-max" type="text" inputMode="numeric" pattern="[0-9]*" value={form.budget_max} onChange={setNum("budget_max")} className={inputCls} />
                   </div>
                 </div>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">

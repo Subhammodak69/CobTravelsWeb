@@ -279,11 +279,17 @@ export default function EnquiriesPage() {
                 <label key={key} className="text-xs font-bold text-slate-600">
                   {label}
                   <input
-                    type={type}
-                    min={type === "number" ? "0" : undefined}
+                    type="text"
+                    inputMode={type === "number" ? "numeric" : undefined}
+                    pattern={type === "number" ? "[0-9]*" : undefined}
                     required={key === "name" || key === "phone"}
                     value={editForm[key]}
-                    onChange={(event) => setEditForm((current) => ({ ...current, [key]: event.target.value }))}
+                    onChange={(event) => {
+                      const nextValue = event.target.value;
+                      if (type !== "number" || /^\d*$/.test(nextValue)) {
+                        setEditForm((current) => ({ ...current, [key]: nextValue }));
+                      }
+                    }}
                     className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-normal text-slate-800 outline-none focus:border-primary"
                   />
                 </label>

@@ -129,7 +129,11 @@ export default function EnquiryModal({
   }, [open, onClose]);
 
   const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
-  const setNumber = (field) => (e) => setForm((f) => ({ ...f, [field]: Number(e.target.value) || 0 }));
+  const setNumber = (field) => (e) => {
+    if (/^\d*$/.test(e.target.value)) {
+      setForm((f) => ({ ...f, [field]: e.target.value }));
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -272,11 +276,11 @@ export default function EnquiryModal({
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
                   <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-700" htmlFor="enq-days">Travel Duration (Days)</label>
-                  <input id="enq-days" type="number" min="0" value={form.travel_duration_day} onChange={setNumber("travel_duration_day")} className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20" />
+                  <input id="enq-days" type="text" inputMode="numeric" pattern="[0-9]*" value={form.travel_duration_day} onChange={setNumber("travel_duration_day")} className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20" />
                 </div>
                 <div>
                   <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-700" htmlFor="enq-nights">Travel Duration (Nights)</label>
-                  <input id="enq-nights" type="number" min="0" value={form.travel_duration_night} onChange={setNumber("travel_duration_night")} className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20" />
+                  <input id="enq-nights" type="text" inputMode="numeric" pattern="[0-9]*" value={form.travel_duration_night} onChange={setNumber("travel_duration_night")} className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20" />
                 </div>
               </div>
 
@@ -288,7 +292,7 @@ export default function EnquiryModal({
                 ].map(([field, label]) => (
                   <div key={field}>
                     <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-700" htmlFor={`enq-${field}`}>{label}</label>
-                    <input id={`enq-${field}`} type="number" min="0" value={form[field]} onChange={setNumber(field)} className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20" />
+                    <input id={`enq-${field}`} type="text" inputMode="numeric" pattern="[0-9]*" value={form[field]} onChange={setNumber(field)} className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20" />
                   </div>
                 ))}
               </div>
@@ -345,7 +349,7 @@ export default function EnquiryModal({
                 ].map(([field, label]) => (
                   <div key={field}>
                     <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-700" htmlFor={`enq-${field}`}>{label}</label>
-                    <input id={`enq-${field}`} type="number" min="0" value={form[field]} onChange={setNumber(field)} className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20" />
+                    <input id={`enq-${field}`} type="text" inputMode="numeric" pattern="[0-9]*" value={form[field]} onChange={setNumber(field)} className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20" />
                   </div>
                 ))}
               </div>
@@ -353,7 +357,7 @@ export default function EnquiryModal({
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
                   <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-700" htmlFor="enq-budget-max">Maximum Budget</label>
-                  <input id="enq-budget-max" type="number" min="0" value={form.budget_max} onChange={setNumber("budget_max")} className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20" />
+                  <input id="enq-budget-max" type="text" inputMode="numeric" pattern="[0-9]*" value={form.budget_max} onChange={setNumber("budget_max")} className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20" />
                 </div>
                 <div>
                   <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-700" htmlFor="enq-meal-plan">Meal Plan</label>
