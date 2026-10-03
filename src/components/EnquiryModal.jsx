@@ -1,10 +1,18 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { submitEnquiry, fetchPackageVariants, fetchHotels, fetchVehicles, isValidUUID } from "../api";
 import { useTravel } from "../contexts/TravelContext";
 import CustomSelect from "./CustomSelect";
+import enums from "../utils/enums.json";
 import { X } from "lucide-react";
 
-const INITIAL = { name: "", mobile: "", email: "", channel: "WEBSITE", subject: "", message: "", variant_id: "", travel_date: "", hotel_id: "", vehicle_id: "" };
+const MEAL_OPTIONS = ["ANY", ...Object.values(enums.MealPlan)];
+const INITIAL = {
+  name: "", mobile: "", email: "", channel: "WEBSITE", subject: "", message: "", variant_id: "", travel_date: "",
+  travel_duration_day: 0, travel_duration_night: 0, adult_count: 1, child_count: 0, senior_count: 0,
+  hotel_id: "", vehicle_id: "", room_count: 0, vehicle_count: 0, budget_min: 0, budget_max: 0,
+  special_requirements: "", meal_plan: "ANY",
+};
 
 export default function EnquiryModal({
   open,
@@ -87,8 +95,19 @@ export default function EnquiryModal({
         message: "",
         variant_id: variantId || "",
         travel_date: travelDate || "",
+        travel_duration_day: 0,
+        travel_duration_night: 0,
+        adult_count: 1,
+        child_count: 0,
+        senior_count: 0,
         hotel_id: "",
         vehicle_id: "",
+        room_count: 0,
+        vehicle_count: 0,
+        budget_min: 0,
+        budget_max: 0,
+        special_requirements: "",
+        meal_plan: "ANY",
       });
       setStatus("idle");
       setErrorMsg("");
@@ -109,6 +128,7 @@ export default function EnquiryModal({
   }, [open, onClose]);
 
   const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
+  const setNumber = (field) => (e) => setForm((f) => ({ ...f, [field]: Number(e.target.value) || 0 }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -133,13 +153,19 @@ export default function EnquiryModal({
         mobile: form.mobile,
         email: form.email,
         travel_date: form.travel_date,
-        adult_count: 1,
-        child_count: 0,
-        senior_count: 0,
+        travel_duration_day: form.travel_duration_day,
+        travel_duration_night: form.travel_duration_night,
+        adult_count: form.adult_count,
+        child_count: form.child_count,
+        senior_count: form.senior_count,
         hotel_id: form.hotel_id,
         vehicle_id: form.vehicle_id,
-        room_count: 0,
-        vehicle_count: form.vehicle_id ? 1 : 0,
+        room_count: form.room_count,
+        vehicle_count: form.vehicle_count,
+        budget_min: form.budget_min,
+        budget_max: form.budget_max,
+        special_requirements: form.special_requirements,
+        meal_plan: form.meal_plan,
         customer_id: user?.id || "",
       });
       setStatus("success");
@@ -151,7 +177,7 @@ export default function EnquiryModal({
 
   if (!open) return null;
 
-  return (
+  return createPortal(
     <div
       ref={overlayRef}
       className="modal-viewport fixed inset-0 z-[9999] flex items-end justify-center sm:items-center p-0 sm:p-4"
@@ -236,6 +262,30 @@ export default function EnquiryModal({
                 </div>
               </div>
 
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-700" htmlFor="enq-days">Travel Duration (Days)</label>
+                  <input id="enq-days" type="number" min="0" value={form.travel_duration_day} onChange={setNumber("travel_duration_day")} className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20" />
+                </div>
+                <div>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-700" htmlFor="enq-nights">Travel Duration (Nights)</label>
+                  <input id="enq-nights" type="number" min="0" value={form.travel_duration_night} onChange={setNumber("travel_duration_night")} className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20" />
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-3">
+                {[
+                  ["adult_count", "Adults"],
+                  ["child_count", "Children"],
+                  ["senior_count", "Seniors"],
+                ].map(([field, label]) => (
+                  <div key={field}>
+                    <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-700" htmlFor={`enq-${field}`}>{label}</label>
+                    <input id={`enq-${field}`} type="number" min="0" value={form[field]} onChange={setNumber(field)} className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20" />
+                  </div>
+                ))}
+              </div>
+
               {variants.length > 0 && (
                 <div>
                   <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-700" htmlFor="enq-variant">
@@ -272,8 +322,39 @@ export default function EnquiryModal({
                   <CustomSelect
                     value={form.vehicle_id}
                     options={[{ label: "Any / No preference", value: "" }, ...vehicles.map((vehicle) => ({ label: `${vehicle.name}${vehicle.capacity ? ` · ${vehicle.capacity} seats` : ""}`, value: vehicle.id }))]}
-                    onChange={(value) => setForm((f) => ({ ...f, vehicle_id: value }))}
+                    onChange={(value) => setForm((f) => ({ ...f, vehicle_id: value, vehicle_count: value ? (f.vehicle_count || 1) : 0 }))}
                     placeholder={facilitiesLoading ? "Loading vehicles…" : "Select vehicle"}
+                    triggerClassName="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs text-slate-800"
+                    className="w-full"
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-3">
+                {[
+                  ["room_count", "Rooms"],
+                  ["vehicle_count", "Vehicles"],
+                  ["budget_min", "Minimum Budget"],
+                ].map(([field, label]) => (
+                  <div key={field}>
+                    <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-700" htmlFor={`enq-${field}`}>{label}</label>
+                    <input id={`enq-${field}`} type="number" min="0" value={form[field]} onChange={setNumber(field)} className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20" />
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-700" htmlFor="enq-budget-max">Maximum Budget</label>
+                  <input id="enq-budget-max" type="number" min="0" value={form.budget_max} onChange={setNumber("budget_max")} className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20" />
+                </div>
+                <div>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-700" htmlFor="enq-meal-plan">Meal Plan</label>
+                  <CustomSelect
+                    value={form.meal_plan}
+                    options={MEAL_OPTIONS.map((meal) => ({ label: meal === "ANY" ? "Any / No preference" : meal, value: meal }))}
+                    onChange={(value) => setForm((f) => ({ ...f, meal_plan: value }))}
+                    placeholder="Select meal plan"
                     triggerClassName="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs text-slate-800"
                     className="w-full"
                   />
@@ -291,6 +372,20 @@ export default function EnquiryModal({
                   onChange={set("subject")}
                   placeholder="e.g. Group booking enquiry"
                   className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-700" htmlFor="enq-special-requirements">
+                  Special Requirements
+                </label>
+                <textarea
+                  id="enq-special-requirements"
+                  value={form.special_requirements}
+                  onChange={set("special_requirements")}
+                  placeholder="Dietary needs, accessibility, pickup requests, or other preferences…"
+                  rows={2}
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20 resize-none"
                 />
               </div>
 
@@ -352,6 +447,7 @@ export default function EnquiryModal({
         @keyframes fadeInBg { from { opacity: 0 } to { opacity: 1 } }
         @keyframes slideUpPanel { from { transform: translateY(40px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
       `}</style>
-    </div>
+    </div>,
+    document.body
   );
 }

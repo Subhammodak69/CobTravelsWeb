@@ -48,7 +48,13 @@ export default function EnquiriesPage() {
     setEditing(item);
     setEditForm({
       name: item.enquirer_name || "", phone: item.enquirer_phone || "", email: item.enquirer_email || "", travel_date: item.travel_date || "",
-      adult_count: item.adult_count ?? item.pax_no ?? 1, child_count: item.child_count ?? 0, senior_count: item.senior_count ?? 0, room_count: item.room_count ?? item.no_room ?? 0, message: item.message || "",
+      package_id: item.package_id || "", variant_id: item.variant_id || "", destination_id: item.destination_id || "",
+      travel_duration_day: item.travel_duration_day ?? 0, travel_duration_night: item.travel_duration_night ?? 0,
+      adult_count: item.adult_count ?? item.pax_no ?? 1, child_count: item.child_count ?? 0, senior_count: item.senior_count ?? 0,
+      hotel_id: item.hotel_id || "", vehicle_id: item.vehicle_id || "",
+      room_count: item.room_count ?? item.no_room ?? 0, vehicle_count: item.vehicle_count ?? 0,
+      budget_min: item.budget_min ?? 0, budget_max: item.budget_max ?? 0,
+      message: item.message || "", special_requirements: item.special_requirements || "", meal_plan: item.meal_plan || "ANY",
     });
   };
 
@@ -57,7 +63,21 @@ export default function EnquiriesPage() {
     if (!editing?.id || !editForm.name.trim() || !editForm.phone.trim()) return;
     setSaving(true);
     try {
-      await updateEnquiry(editing.id, { ...editForm, name: editForm.name.trim(), phone: editForm.phone.trim(), email: editForm.email.trim(), adult_count: Number(editForm.adult_count) || 0, child_count: Number(editForm.child_count) || 0, senior_count: Number(editForm.senior_count) || 0, room_count: Number(editForm.room_count) || 0 });
+      await updateEnquiry(editing.id, {
+        ...editForm,
+        name: editForm.name.trim(),
+        phone: editForm.phone.trim(),
+        email: editForm.email.trim(),
+        travel_duration_day: Number(editForm.travel_duration_day) || 0,
+        travel_duration_night: Number(editForm.travel_duration_night) || 0,
+        adult_count: Number(editForm.adult_count) || 0,
+        child_count: Number(editForm.child_count) || 0,
+        senior_count: Number(editForm.senior_count) || 0,
+        room_count: Number(editForm.room_count) || 0,
+        vehicle_count: Number(editForm.vehicle_count) || 0,
+        budget_min: Number(editForm.budget_min) || 0,
+        budget_max: Number(editForm.budget_max) || 0,
+      });
       const response = await fetchEnquiries();
       setItems(Array.isArray(response?.data) ? response.data : []);
       setEditing(null);
@@ -225,7 +245,82 @@ export default function EnquiriesPage() {
           </div>
         )}
       </main>
-      {editing && editForm && <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy-dark/70 p-4"><form onSubmit={saveEdit} className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl"><div className="flex items-center justify-between"><h2 className="font-display text-xl font-bold text-navy">Edit enquiry</h2><button type="button" onClick={() => setEditing(null)} className="rounded-lg bg-slate-100 p-2 text-slate-600"><X size={18} /></button></div><div className="mt-5 grid gap-3 sm:grid-cols-2">{[["name", "Full name"], ["phone", "Phone"], ["email", "Email"], ["travel_date", "Travel date"], ["adult_count", "Adults"], ["child_count", "Children"], ["senior_count", "Seniors"], ["room_count", "Rooms"]].map(([key, label]) => <label key={key} className="text-xs font-bold text-slate-600">{label}<input required={key === "name" || key === "phone"} value={editForm[key]} onChange={(event) => setEditForm((current) => ({ ...current, [key]: event.target.value }))} className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-normal text-slate-800 outline-none focus:border-primary" /></label>)}</div><label className="mt-3 block text-xs font-bold text-slate-600">Message<textarea value={editForm.message} onChange={(event) => setEditForm((current) => ({ ...current, message: event.target.value }))} className="mt-1 min-h-24 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-normal text-slate-800 outline-none focus:border-primary" /></label><button disabled={saving} className="btn-primary mt-5 flex w-full items-center justify-center gap-2">{saving && <LoaderCircle size={16} className="animate-spin" />}Save changes</button></form></div>}
+      {editing && editForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy-dark/70 p-4">
+          <form onSubmit={saveEdit} className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between">
+              <h2 className="font-display text-xl font-bold text-navy">Edit enquiry</h2>
+              <button type="button" onClick={() => setEditing(null)} className="rounded-lg bg-slate-100 p-2 text-slate-600" aria-label="Close edit form">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {[
+                ["name", "Full name", "text"],
+                ["phone", "Phone", "tel"],
+                ["email", "Email", "email"],
+                ["travel_date", "Travel date", "date"],
+                ["package_id", "Package ID", "text"],
+                ["variant_id", "Variant ID", "text"],
+                ["destination_id", "Destination ID", "text"],
+                ["travel_duration_day", "Duration (days)", "number"],
+                ["travel_duration_night", "Duration (nights)", "number"],
+                ["adult_count", "Adults", "number"],
+                ["child_count", "Children", "number"],
+                ["senior_count", "Seniors", "number"],
+                ["hotel_id", "Hotel ID", "text"],
+                ["vehicle_id", "Vehicle ID", "text"],
+                ["room_count", "Rooms", "number"],
+                ["vehicle_count", "Vehicles", "number"],
+                ["budget_min", "Minimum budget", "number"],
+                ["budget_max", "Maximum budget", "number"],
+              ].map(([key, label, type]) => (
+                <label key={key} className="text-xs font-bold text-slate-600">
+                  {label}
+                  <input
+                    type={type}
+                    min={type === "number" ? "0" : undefined}
+                    required={key === "name" || key === "phone"}
+                    value={editForm[key]}
+                    onChange={(event) => setEditForm((current) => ({ ...current, [key]: event.target.value }))}
+                    className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-normal text-slate-800 outline-none focus:border-primary"
+                  />
+                </label>
+              ))}
+              <label className="text-xs font-bold text-slate-600">
+                Meal plan
+                <select
+                  value={editForm.meal_plan}
+                  onChange={(event) => setEditForm((current) => ({ ...current, meal_plan: event.target.value }))}
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-normal text-slate-800 outline-none focus:border-primary"
+                >
+                  {["ANY", "NONE", "CP", "MAP", "AP"].map((meal) => <option key={meal} value={meal}>{meal}</option>)}
+                </select>
+              </label>
+            </div>
+            <label className="mt-3 block text-xs font-bold text-slate-600">
+              Message
+              <textarea
+                value={editForm.message}
+                onChange={(event) => setEditForm((current) => ({ ...current, message: event.target.value }))}
+                className="mt-1 min-h-24 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-normal text-slate-800 outline-none focus:border-primary"
+              />
+            </label>
+            <label className="mt-3 block text-xs font-bold text-slate-600">
+              Special requirements
+              <textarea
+                value={editForm.special_requirements}
+                onChange={(event) => setEditForm((current) => ({ ...current, special_requirements: event.target.value }))}
+                className="mt-1 min-h-24 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-normal text-slate-800 outline-none focus:border-primary"
+              />
+            </label>
+            <button disabled={saving} className="btn-primary mt-5 flex w-full items-center justify-center gap-2">
+              {saving && <LoaderCircle size={16} className="animate-spin" />}
+              Save changes
+            </button>
+          </form>
+        </div>
+      )}
     </div>
   );
 }

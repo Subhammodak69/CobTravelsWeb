@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { fetchHotels, fetchPackages, fetchVehicles, submitCustomEnquiry } from "../api";
 import { useTravel } from "../contexts/TravelContext";
 import CustomSelect from "./CustomSelect";
@@ -12,8 +13,10 @@ const ENQUIRY_TYPE_OPTIONS = Object.values(enums.EnquiryType).filter(
 );
 
 const INITIAL = {
-  name: "", mobile: "", destination: "", destination_id: "", package_id: "", travel_date: "", travel_duration: "",
-  pax_no: 2, no_room: 1, vehicle_type: "", hotel_id: "", vehicle_id: "", meal_plan: "", special_requirements: "", enquiry_type: "CUSTOM_TOUR",
+  name: "", mobile: "", email: "", destination: "", destination_id: "", package_id: "", travel_date: "",
+  travel_duration_day: 0, travel_duration_night: 0, adult_count: 2, child_count: 0, senior_count: 0,
+  room_count: 1, vehicle_count: 0, budget_min: 0, budget_max: 0,
+  vehicle_type: "", hotel_id: "", vehicle_id: "", meal_plan: "ANY", special_requirements: "", enquiry_type: "CUSTOM_TOUR",
 };
 
 export default function CustomEnquiryModal({ open, onClose }) {
@@ -77,7 +80,7 @@ export default function CustomEnquiryModal({ open, onClose }) {
   }, [open, onClose]);
 
   const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
-  const setNum = (field) => (e) => setForm((f) => ({ ...f, [field]: Number(e.target.value) || 1 }));
+  const setNum = (field) => (e) => setForm((f) => ({ ...f, [field]: Number(e.target.value) || 0 }));
   const destinationOptions = Array.from(new Map(
     packages
       .filter((item) => item.destination_id && item.destination)
@@ -114,7 +117,7 @@ export default function CustomEnquiryModal({ open, onClose }) {
   const inputCls = "h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20";
   const labelCls = "mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-700";
 
-  return (
+  return createPortal(
     <div
       ref={overlayRef}
       className="modal-viewport fixed inset-0 z-[9999] flex items-end justify-center sm:items-center p-0 sm:p-4"
@@ -178,6 +181,10 @@ export default function CustomEnquiryModal({ open, onClose }) {
                     <label className={labelCls} htmlFor="cenq-mobile">Mobile / WhatsApp <span className="text-rose-500">*</span></label>
                     <input id="cenq-mobile" type="tel" value={form.mobile} onChange={set("mobile")} placeholder="+91 98765 43210" className={inputCls} required />
                   </div>
+                  <div className="sm:col-span-2">
+                    <label className={labelCls} htmlFor="cenq-email">Email</label>
+                    <input id="cenq-email" type="email" value={form.email} onChange={set("email")} placeholder="you@example.com" className={inputCls} />
+                  </div>
                 </div>
               </div>
 
@@ -222,8 +229,12 @@ export default function CustomEnquiryModal({ open, onClose }) {
                     <input id="cenq-travel-date" type="date" value={form.travel_date} onChange={set("travel_date")} className={inputCls} />
                   </div>
                   <div>
-                    <label className={labelCls} htmlFor="cenq-travel-duration">Trip Duration</label>
-                    <input id="cenq-travel-duration" type="text" value={form.travel_duration} onChange={set("travel_duration")} placeholder="e.g. 5N / 6D" className={inputCls} />
+                    <label className={labelCls} htmlFor="cenq-travel-days">Duration (Days)</label>
+                    <input id="cenq-travel-days" type="number" min="0" value={form.travel_duration_day} onChange={setNum("travel_duration_day")} className={inputCls} />
+                  </div>
+                  <div>
+                    <label className={labelCls} htmlFor="cenq-travel-nights">Duration (Nights)</label>
+                    <input id="cenq-travel-nights" type="number" min="0" value={form.travel_duration_night} onChange={setNum("travel_duration_night")} className={inputCls} />
                   </div>
                 </div>
               </div>
@@ -233,12 +244,20 @@ export default function CustomEnquiryModal({ open, onClose }) {
                 <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-primary">3. Travellers & Stays</p>
                 <div className="grid gap-3 sm:grid-cols-3">
                   <div>
-                    <label className={labelCls} htmlFor="cenq-pax">Total Travellers</label>
-                    <input id="cenq-pax" type="number" min={1} max={100} value={form.pax_no} onChange={setNum("pax_no")} className={inputCls} />
+                    <label className={labelCls} htmlFor="cenq-adults">Adults</label>
+                    <input id="cenq-adults" type="number" min="0" max="100" value={form.adult_count} onChange={setNum("adult_count")} className={inputCls} />
+                  </div>
+                  <div>
+                    <label className={labelCls} htmlFor="cenq-children">Children</label>
+                    <input id="cenq-children" type="number" min="0" max="100" value={form.child_count} onChange={setNum("child_count")} className={inputCls} />
+                  </div>
+                  <div>
+                    <label className={labelCls} htmlFor="cenq-seniors">Seniors</label>
+                    <input id="cenq-seniors" type="number" min="0" max="100" value={form.senior_count} onChange={setNum("senior_count")} className={inputCls} />
                   </div>
                   <div>
                     <label className={labelCls} htmlFor="cenq-rooms">Rooms</label>
-                    <input id="cenq-rooms" type="number" min={1} max={50} value={form.no_room} onChange={setNum("no_room")} className={inputCls} />
+                    <input id="cenq-rooms" type="number" min="0" max="50" value={form.room_count} onChange={setNum("room_count")} className={inputCls} />
                   </div>
                   <div>
                     <label className={labelCls} htmlFor="cenq-meal">Meal Plan</label>
@@ -249,6 +268,18 @@ export default function CustomEnquiryModal({ open, onClose }) {
                       placeholder="Select meal"
                       triggerClassName="h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs text-slate-800"
                     />
+                  </div>
+                  <div>
+                    <label className={labelCls} htmlFor="cenq-vehicle-count">Vehicles</label>
+                    <input id="cenq-vehicle-count" type="number" min="0" max="50" value={form.vehicle_count} onChange={setNum("vehicle_count")} className={inputCls} />
+                  </div>
+                  <div>
+                    <label className={labelCls} htmlFor="cenq-budget-min">Minimum Budget</label>
+                    <input id="cenq-budget-min" type="number" min="0" value={form.budget_min} onChange={setNum("budget_min")} className={inputCls} />
+                  </div>
+                  <div>
+                    <label className={labelCls} htmlFor="cenq-budget-max">Maximum Budget</label>
+                    <input id="cenq-budget-max" type="number" min="0" value={form.budget_max} onChange={setNum("budget_max")} className={inputCls} />
                   </div>
                 </div>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -316,6 +347,7 @@ export default function CustomEnquiryModal({ open, onClose }) {
         @keyframes fadeInBg { from { opacity: 0 } to { opacity: 1 } }
         @keyframes slideUpPanel { from { transform: translateY(40px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
       `}</style>
-    </div>
+    </div>,
+    document.body
   );
 }

@@ -14,8 +14,10 @@ const ENQUIRY_TYPE_OPTIONS = Object.values(enums.EnquiryType).filter(
 );
 
 const INITIAL = {
-  name: "", mobile: "", destination: "", destination_id: "", package_id: "", travel_date: "", travel_duration: "",
-  pax_no: 2, no_room: 1, vehicle_type: "", hotel_id: "", vehicle_id: "", meal_plan: "", special_requirements: "", enquiry_type: "CUSTOM_TOUR",
+  name: "", mobile: "", email: "", destination: "", destination_id: "", package_id: "", travel_date: "",
+  travel_duration_day: 0, travel_duration_night: 0, adult_count: 2, child_count: 0, senior_count: 0,
+  room_count: 1, vehicle_count: 0, budget_min: 0, budget_max: 0,
+  vehicle_type: "", hotel_id: "", vehicle_id: "", meal_plan: "ANY", special_requirements: "", enquiry_type: "CUSTOM_TOUR",
 };
 
 export default function CustomTourEnquiryPage() {
@@ -72,7 +74,7 @@ export default function CustomTourEnquiryPage() {
   }, [form.destination_id]);
 
   const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
-  const setNum = (field) => (e) => setForm((f) => ({ ...f, [field]: Number(e.target.value) || 1 }));
+  const setNum = (field) => (e) => setForm((f) => ({ ...f, [field]: Number(e.target.value) || 0 }));
   const destinationOptions = Array.from(new Map(
     packages
       .filter((item) => item.destination_id && item.destination)
@@ -181,6 +183,10 @@ export default function CustomTourEnquiryPage() {
                     <label className={labelCls} htmlFor="custom-page-mobile">Mobile / WhatsApp Number <span className="text-rose-500">*</span></label>
                     <input id="custom-page-mobile" type="tel" value={form.mobile} onChange={set("mobile")} placeholder="+91 98765 43210" className={inputCls} required />
                   </div>
+                  <div>
+                    <label className={labelCls} htmlFor="custom-page-email">Email</label>
+                    <input id="custom-page-email" type="email" value={form.email} onChange={set("email")} placeholder="you@example.com" className={inputCls} />
+                  </div>
                 </div>
               </div>
 
@@ -226,8 +232,12 @@ export default function CustomTourEnquiryPage() {
                     <input id="custom-page-date" type="date" value={form.travel_date} onChange={set("travel_date")} className={inputCls} />
                   </div>
                   <div>
-                    <label className={labelCls} htmlFor="custom-page-duration">Trip Duration</label>
-                    <input id="custom-page-duration" type="text" value={form.travel_duration} onChange={set("travel_duration")} placeholder="e.g. 5 Nights / 6 Days" className={inputCls} />
+                    <label className={labelCls} htmlFor="custom-page-days">Duration (Days)</label>
+                    <input id="custom-page-days" type="number" min="0" value={form.travel_duration_day} onChange={setNum("travel_duration_day")} className={inputCls} />
+                  </div>
+                  <div>
+                    <label className={labelCls} htmlFor="custom-page-nights">Duration (Nights)</label>
+                    <input id="custom-page-nights" type="number" min="0" value={form.travel_duration_night} onChange={setNum("travel_duration_night")} className={inputCls} />
                   </div>
                 </div>
               </div>
@@ -240,12 +250,20 @@ export default function CustomTourEnquiryPage() {
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   <div>
-                    <label className={labelCls} htmlFor="custom-page-pax">Total Travellers</label>
-                    <input id="custom-page-pax" type="number" min={1} max={100} value={form.pax_no} onChange={setNum("pax_no")} className={inputCls} />
+                    <label className={labelCls} htmlFor="custom-page-adults">Adults</label>
+                    <input id="custom-page-adults" type="number" min="0" max="100" value={form.adult_count} onChange={setNum("adult_count")} className={inputCls} />
+                  </div>
+                  <div>
+                    <label className={labelCls} htmlFor="custom-page-children">Children</label>
+                    <input id="custom-page-children" type="number" min="0" max="100" value={form.child_count} onChange={setNum("child_count")} className={inputCls} />
+                  </div>
+                  <div>
+                    <label className={labelCls} htmlFor="custom-page-seniors">Seniors</label>
+                    <input id="custom-page-seniors" type="number" min="0" max="100" value={form.senior_count} onChange={setNum("senior_count")} className={inputCls} />
                   </div>
                   <div>
                     <label className={labelCls} htmlFor="custom-page-rooms">Rooms Required</label>
-                    <input id="custom-page-rooms" type="number" min={1} max={50} value={form.no_room} onChange={setNum("no_room")} className={inputCls} />
+                    <input id="custom-page-rooms" type="number" min="0" max="50" value={form.room_count} onChange={setNum("room_count")} className={inputCls} />
                   </div>
                   <div>
                     <label className={labelCls} htmlFor="custom-page-meal">Meal Plan</label>
@@ -266,6 +284,18 @@ export default function CustomTourEnquiryPage() {
                       placeholder="Select vehicle"
                       triggerClassName={selectTriggerCls}
                     />
+                  </div>
+                  <div>
+                    <label className={labelCls} htmlFor="custom-page-vehicle-count">Vehicles Required</label>
+                    <input id="custom-page-vehicle-count" type="number" min="0" max="50" value={form.vehicle_count} onChange={setNum("vehicle_count")} className={inputCls} />
+                  </div>
+                  <div>
+                    <label className={labelCls} htmlFor="custom-page-budget-min">Minimum Budget</label>
+                    <input id="custom-page-budget-min" type="number" min="0" value={form.budget_min} onChange={setNum("budget_min")} className={inputCls} />
+                  </div>
+                  <div>
+                    <label className={labelCls} htmlFor="custom-page-budget-max">Maximum Budget</label>
+                    <input id="custom-page-budget-max" type="number" min="0" value={form.budget_max} onChange={setNum("budget_max")} className={inputCls} />
                   </div>
                   <div>
                     <label className={labelCls}>Preferred Hotel</label>
